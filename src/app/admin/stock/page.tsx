@@ -2,7 +2,6 @@ export const dynamic = "force-dynamic";
 import { createAdminClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
 import {
-  Package,
   AlertTriangle,
   TrendingUp,
   Plus,

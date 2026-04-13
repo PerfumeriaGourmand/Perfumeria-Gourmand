@@ -34,7 +34,7 @@ export default async function EditProductPage({
   // ── Calcular métricas por lote ──────────────────────────────────────────
   // Necesitamos los order_items asociados a cada lote para calcular ventas y ganancias
   const lotIds = rawLots.map((l) => l.id);
-  let orderItemsByLot: Record<string, { quantity: number; total_price: number }[]> = {};
+  const orderItemsByLot: Record<string, { quantity: number; total_price: number }[]> = {};
 
   if (lotIds.length > 0) {
     const { data: orderItems } = await supabase

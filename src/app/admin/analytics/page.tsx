@@ -69,10 +69,10 @@ export default async function AnalyticsPage() {
         .select("path, product_id, created_at")
         .gte("created_at", thirtyDaysAgo.toISOString()),
 
-      // Order items con costo (para ganancia real) — solo de órdenes aprobadas
+      // Order items con costo (para ganancia real) — incluye payment_status para filtrar aprobadas
       supabase
         .from("order_items")
-        .select("product_name, quantity, unit_price, total_price, cost_price, lot_id")
+        .select("product_name, quantity, unit_price, total_price, cost_price, lot_id, order:orders!order_id(payment_status)")
         .not("cost_price", "is", null)
         .not("lot_id", "is", null),
 
@@ -86,7 +86,7 @@ export default async function AnalyticsPage() {
       // Items con costo + categoría del producto (para ganancia por categoría)
       supabase
         .from("order_items")
-        .select("quantity, total_price, cost_price, variant:product_variants(product:products(category))")
+        .select("quantity, total_price, cost_price, order:orders!order_id(payment_status), variant:product_variants(product:products(category))")
         .not("cost_price", "is", null)
         .not("variant_id", "is", null),
 
@@ -135,8 +135,12 @@ export default async function AnalyticsPage() {
 
   const pageViews = pageViewsRes.data?.length ?? 0;
 
-  // ── Ganancia real (FIFO) ──────────────────────────────────────────────────
-  const itemsWithCost = orderItemsWithCostRes.data ?? [];
+  // ── Ganancia real (FIFO) — solo órdenes aprobadas ────────────────────────
+  const itemsWithCost = (orderItemsWithCostRes.data ?? []).filter(
+    (item) =>
+      (item.order as unknown as { payment_status: string } | null)
+        ?.payment_status === "approved"
+  );
   const totalRealProfit = itemsWithCost.reduce(
     (sum, item) => sum + (item.total_price - (item.cost_price ?? 0) * item.quantity),
     0
@@ -258,7 +262,12 @@ export default async function AnalyticsPage() {
   };
   type CatStat = { revenue: number; cost: number; profit: number; qty: number };
   const categoryProfitMap: Record<string, CatStat> = {};
-  for (const item of categoryItemsRes.data ?? []) {
+  const approvedCategoryItems = (categoryItemsRes.data ?? []).filter(
+    (item) =>
+      (item.order as unknown as { payment_status: string } | null)
+        ?.payment_status === "approved"
+  );
+  for (const item of approvedCategoryItems) {
     const cat =
       (item.variant as unknown as { product: { category: string } } | null)
         ?.product?.category ?? "otros";
