@@ -1,0 +1,187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   GOURMAND — Global Styles
+   ============================================================ */
+
+:root {
+  --gold: #c9a96e;
+  --gold-light: #e2c98a;
+  --gold-dark: #a07840;
+  --obsidian: #0a0a0a;
+  --page-bg: #f8f7f4;
+  --card-bg: #ffffff;
+  --text-dark: #1c1917;
+  --text-mid: #57534e;
+  --text-light: #a8a29e;
+  --border-light: #e8e5e0;
+}
+
+/* ——————————————————————————————————————————
+   Base
+   —————————————————————————————————————————— */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--page-bg);
+  color: var(--text-dark);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ——————————————————————————————————————————
+   Scrollbar
+   —————————————————————————————————————————— */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--page-bg); }
+::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.4); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(201,169,110,0.7); }
+
+/* ——————————————————————————————————————————
+   Selection
+   —————————————————————————————————————————— */
+::selection {
+  background: rgba(201,169,110,0.2);
+  color: var(--text-dark);
+}
+
+/* ——————————————————————————————————————————
+   Focus
+   —————————————————————————————————————————— */
+*:focus-visible {
+  outline: 1.5px solid rgba(201,169,110,0.6);
+  outline-offset: 2px;
+}
+
+/* ——————————————————————————————————————————
+   Gold shimmer text
+   —————————————————————————————————————————— */
+.text-gold-shimmer {
+  background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold-light) 30%, var(--gold) 50%, var(--gold-light) 70%, var(--gold-dark) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+/* ——————————————————————————————————————————
+   Dividers
+   —————————————————————————————————————————— */
+.gold-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.35;
+}
+.divider-light {
+  height: 1px;
+  background: var(--border-light);
+}
+
+/* ——————————————————————————————————————————
+   Product card — LIGHT theme (public catalog)
+   —————————————————————————————————————————— */
+.product-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #ede9e3;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.product-card:hover {
+  box-shadow: 0 12px 40px rgba(0,0,0,0.10);
+  transform: translateY(-3px);
+}
+
+/* ——————————————————————————————————————————
+   Nicho section — stays DARK
+   —————————————————————————————————————————— */
+.nicho-section {
+  background: #000000;
+  color: #f5f0e8;
+}
+
+/* Dark card variant (used inside nicho/admin) */
+.product-card-dark {
+  background: #111111;
+  border: 1px solid rgba(201,169,110,0.08);
+  border-radius: 0;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
+}
+.product-card-dark:hover {
+  border-color: rgba(201,169,110,0.25);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+  transform: translateY(-4px);
+}
+
+/* ——————————————————————————————————————————
+   Embla carousel
+   —————————————————————————————————————————— */
+.embla { overflow: hidden; }
+.embla__container { display: flex; touch-action: pan-y pinch-zoom; }
+.embla__slide { flex: 0 0 auto; min-width: 0; }
+
+/* ——————————————————————————————————————————
+   Filter modal backdrop
+   —————————————————————————————————————————— */
+.filter-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(28,25,23,0.4);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+}
+
+/* ——————————————————————————————————————————
+   Marquee (brand carousel)
+   —————————————————————————————————————————— */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 35s linear infinite;
+}
+.marquee-track:hover { animation-play-state: paused; }
+
+/* ——————————————————————————————————————————
+   Animations
+   —————————————————————————————————————————— */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes revealText {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0% 0 0); }
+}
+@keyframes particleFloat {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.4; }
+  33% { transform: translateY(-24px) translateX(12px); opacity: 0.9; }
+  66% { transform: translateY(-12px) translateX(-10px); opacity: 0.6; }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-fade-up { animation: fadeUp 0.8s ease forwards; }
+.animate-fade-in { animation: fadeIn 0.6s ease forwards; }
+.animate-reveal-text { animation: revealText 1s ease forwards; }
+.animate-particle { animation: particleFloat var(--duration, 8s) ease-in-out var(--delay, 0s) infinite; }

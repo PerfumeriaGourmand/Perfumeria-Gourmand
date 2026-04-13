@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Read(//mnt/c/Users/Usuario/OneDrive/Desktop/Proyectos/**)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-turbopack)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-turbopack --yes)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-turbopack --yes --skip-install)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(curl -s http://localhost:3000/admin/login -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:3000/catalogo -o /dev/null -w \"%{http_code}\")",
+      "Bash(node supabase/seed.mjs)",
+      "Bash(curl -s \"http://localhost:3000/catalogo?category=nicho\" -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s \"http://localhost:3000/catalogo/nicho\" -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s \"http://localhost:3000/kits\" -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s \"https://qhlkxojumfrgymimvplo.supabase.co/rest/v1/products?select=name,category,is_featured&is_active=eq.true&order=sort_order\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFobGt4b2p1bWZyZ3ltaW12cGxvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MjY2ODYsImV4cCI6MjA5MDUwMjY4Nn0.qPPcS7xEXtm3P1MYGmAA_PL2PxqXDSH4rQzxbIcU8SY\")",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl:*)",
+      "Bash(cat:*)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}
