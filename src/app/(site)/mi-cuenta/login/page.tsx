@@ -67,8 +67,14 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <Link href="/" className="font-sans text-xs text-text-light hover:text-text-mid transition-colors">
+        <div className="mt-6 text-center space-y-3">
+          <p className="font-sans text-sm text-text-light">
+            ¿No tenés cuenta?{" "}
+            <Link href="/mi-cuenta/registro" className="text-text-dark font-medium hover:text-gold transition-colors">
+              Registrate
+            </Link>
+          </p>
+          <Link href="/" className="block font-sans text-xs text-text-light hover:text-text-mid transition-colors">
             ← Volver al inicio
           </Link>
         </div>

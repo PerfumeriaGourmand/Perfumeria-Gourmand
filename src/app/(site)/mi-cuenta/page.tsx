@@ -92,6 +92,12 @@ export default function MiCuentaPage() {
           <LogIn size={16} strokeWidth={2} />
           Iniciar sesión
         </Link>
+        <Link
+          href="/mi-cuenta/registro"
+          className="font-sans text-sm text-text-light hover:text-text-dark transition-colors"
+        >
+          ¿No tenés cuenta? Registrate
+        </Link>
       </div>
     );
   }
