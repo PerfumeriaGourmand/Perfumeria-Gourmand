@@ -47,10 +47,10 @@ export async function POST(req: NextRequest) {
 
     const admin = await createAdminClient();
 
-    // 1. Verificar stock disponible
+    // 1. Verificar stock disponible y leer CPP actual
     const { data: variant, error: variantError } = await admin
       .from("product_variants")
-      .select("stock")
+      .select("stock, average_cost_usd")
       .eq("id", variant_id)
       .single();
 
@@ -74,6 +74,24 @@ export async function POST(req: NextRequest) {
 
     const subtotal = Math.round(unit_price * quantity * 100) / 100;
 
+    // 1b. Obtener tipo de cambio del lote más reciente para convertir CPP a ARS
+    let costPriceArs: number | null = null;
+    if (variant.average_cost_usd !== null) {
+      const { data: latestLot } = await admin
+        .from("stock_lots")
+        .select("exchange_rate")
+        .eq("variant_id", variant_id)
+        .order("purchase_date", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (latestLot?.exchange_rate) {
+        costPriceArs =
+          Math.round(variant.average_cost_usd * latestLot.exchange_rate * 100) / 100;
+      }
+    }
+
     // 2. Crear orden
     const { data: order, error: orderError } = await admin
       .from("orders")
@@ -96,7 +114,7 @@ export async function POST(req: NextRequest) {
       throw orderError ?? new Error("No se pudo crear la orden");
     }
 
-    // 3. Crear order_item
+    // 3. Crear order_item con costo CPP en ARS
     const { error: itemError } = await admin.from("order_items").insert({
       order_id: order.id,
       variant_id,
@@ -106,6 +124,7 @@ export async function POST(req: NextRequest) {
       quantity,
       unit_price: Math.round(unit_price * 100) / 100,
       total_price: subtotal,
+      cost_price: costPriceArs, // CPP × TC del último lote (null si no hay lotes)
     });
 
     if (itemError) {
@@ -114,7 +133,7 @@ export async function POST(req: NextRequest) {
       throw itemError;
     }
 
-    // 4. Decrementar stock en product_variants (función SQL existente)
+    // 4. Decrementar stock en product_variants
     const { error: decrementError } = await admin.rpc(
       "decrement_stock_on_order",
       { p_order_id: order.id }
@@ -127,16 +146,6 @@ export async function POST(req: NextRequest) {
         .from("product_variants")
         .update({ stock: variant.stock - quantity, updated_at: new Date().toISOString() })
         .eq("id", variant_id);
-    }
-
-    // 5. Asignar lotes FIFO y registrar cost_price en el order_item
-    const { error: fifoError } = await admin.rpc("apply_fifo_lots_on_order", {
-      p_order_id: order.id,
-    });
-
-    if (fifoError) {
-      // No fatal: la venta queda registrada, solo sin costo FIFO asignado
-      console.error("[manual-sale] FIFO no aplicado:", fifoError);
     }
 
     return NextResponse.json({ ok: true, order_id: order.id });

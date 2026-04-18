@@ -63,6 +63,13 @@ export async function POST(req: NextRequest) {
 
     const admin = await createAdminClient();
 
+    // 0. Leer stock y CPP actual del variant ANTES de incrementar
+    const { data: currentVariant } = await admin
+      .from("product_variants")
+      .select("stock, average_cost_usd")
+      .eq("id", variant_id)
+      .single();
+
     // 1. Crear lote
     const { data: lot, error: lotError } = await admin
       .from("stock_lots")
@@ -104,6 +111,26 @@ export async function POST(req: NextRequest) {
           .update({ stock: variantData.stock + Number(quantity_purchased) })
           .eq("id", variant_id);
       }
+    }
+
+    // 3. Recalcular CPP del variant
+    //    Fórmula incremental: (avg_ant × stock_ant + costo_nuevo × qty_nueva)
+    //                        / (stock_ant + qty_nueva)
+    if (currentVariant) {
+      const oldStock = currentVariant.stock ?? 0;
+      const oldAvg = currentVariant.average_cost_usd ?? null;
+      const newQty = Number(quantity_purchased);
+      const newCostUsd = Number(cost_price_usd);
+
+      const newAvg =
+        oldStock > 0 && oldAvg !== null
+          ? (oldAvg * oldStock + newCostUsd * newQty) / (oldStock + newQty)
+          : newCostUsd;
+
+      await admin
+        .from("product_variants")
+        .update({ average_cost_usd: Math.round(newAvg * 10000) / 10000 })
+        .eq("id", variant_id);
     }
 
     return NextResponse.json({ id: lot.id, ok: true });

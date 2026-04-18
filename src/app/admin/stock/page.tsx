@@ -1,31 +1,10 @@
 export const dynamic = "force-dynamic";
 import { createAdminClient } from "@/lib/supabase/server";
-import { formatPrice } from "@/lib/utils";
-import {
-  AlertTriangle,
-  TrendingUp,
-  Plus,
-  CheckCircle,
-} from "lucide-react";
+import { AlertTriangle, TrendingUp, Plus } from "lucide-react";
 import Link from "next/link";
 import type { StockLotWithDetails } from "@/types";
+import StockLotsTable from "@/components/admin/StockLotsTable";
 
-function formatUSD(amount: number) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("es-AR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-}
 
 export default async function StockPage() {
   const supabase = await createAdminClient();
@@ -39,7 +18,7 @@ export default async function StockPage() {
 
   const { data: rawLots } = await supabase
     .from("stock_lots")
-    .select(`*, product:products(id, name, brand), variant:product_variants(id, size_ml)`)
+    .select(`*, product:products(id, name, brand), variant:product_variants(id, size_ml, stock, average_cost_usd)`)
     .order("purchase_date", { ascending: false })
     .order("created_at", { ascending: false });
 
@@ -135,142 +114,8 @@ export default async function StockPage() {
         </div>
       )}
 
-      {/* Tabla de lotes */}
-      <div className="border border-gold/10 bg-obsidian-surface overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px]">
-            <thead>
-              <tr className="border-b border-gold/10">
-                {[
-                  "Producto",
-                  "Tamaño",
-                  "Fecha compra",
-                  "Costo USD",
-                  "TC",
-                  "Costo ARS",
-                  "Compradas",
-                  "Vendidas",
-                  "Restantes",
-                  "Estado",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className="px-4 py-3 text-left font-sans text-[10px] tracking-widest uppercase text-cream-dim whitespace-nowrap"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {lots.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={10}
-                    className="px-6 py-16 text-center font-sans text-sm text-cream-dim italic"
-                  >
-                    No hay lotes registrados. Ingresá el primer lote para empezar.
-                  </td>
-                </tr>
-              )}
-              {lots.map((lot) => {
-                const sold = lot.quantity_purchased - lot.quantity_remaining;
-                const alerts = variantAlerts[lot.variant_id];
-                const isActive = lot.quantity_remaining > 0;
-                const hasCostAlert = alerts?.costIncreased;
-                const hasStockAlert = alerts?.isLastLot || alerts?.lowStock;
-
-                return (
-                  <tr
-                    key={lot.id}
-                    className={`border-b border-gold/5 transition-colors ${
-                      !isActive
-                        ? "opacity-40"
-                        : hasCostAlert
-                        ? "bg-orange-500/5 hover:bg-orange-500/10"
-                        : hasStockAlert
-                        ? "bg-yellow-500/5 hover:bg-yellow-500/10"
-                        : "hover:bg-obsidian/40"
-                    }`}
-                  >
-                    <td className="px-4 py-3">
-                      <div>
-                        <p className="font-sans text-xs text-cream truncate max-w-[200px]">
-                          {lot.product?.name ?? "—"}
-                        </p>
-                        <p className="font-sans text-[10px] text-cream-dim">
-                          {lot.product?.brand}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 font-sans text-xs text-cream-muted whitespace-nowrap">
-                      {lot.variant?.size_ml ?? "—"} ml
-                    </td>
-                    <td className="px-4 py-3 font-sans text-xs text-cream-dim whitespace-nowrap">
-                      {formatDate(lot.purchase_date)}
-                    </td>
-                    <td className="px-4 py-3 font-sans text-xs text-gold whitespace-nowrap">
-                      {formatUSD(lot.cost_price_usd)}
-                    </td>
-                    <td className="px-4 py-3 font-sans text-xs text-cream-dim whitespace-nowrap">
-                      {lot.exchange_rate?.toLocaleString("es-AR") ?? "—"}
-                    </td>
-                    <td className="px-4 py-3 font-sans text-xs text-cream-muted whitespace-nowrap">
-                      {formatPrice(lot.cost_price_ars)}
-                    </td>
-                    <td className="px-4 py-3 font-sans text-xs text-cream-dim text-center">
-                      {lot.quantity_purchased}
-                    </td>
-                    <td className="px-4 py-3 font-sans text-xs text-cream-dim text-center">
-                      {sold}
-                    </td>
-                    <td className="px-4 py-3 font-sans text-xs text-center">
-                      <span
-                        className={
-                          lot.quantity_remaining === 0
-                            ? "text-cream-dim"
-                            : lot.quantity_remaining < threshold
-                            ? "text-yellow-400 font-medium"
-                            : "text-green-400"
-                        }
-                      >
-                        {lot.quantity_remaining}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      {!isActive ? (
-                        <span className="flex items-center gap-1 font-sans text-[10px] text-cream-dim">
-                          <CheckCircle size={11} strokeWidth={1.5} />
-                          Agotado
-                        </span>
-                      ) : hasCostAlert ? (
-                        <span className="flex items-center gap-1 font-sans text-[10px] text-orange-400">
-                          <TrendingUp size={11} strokeWidth={2} />
-                          Costo ↑20%+
-                        </span>
-                      ) : alerts?.isLastLot ? (
-                        <span className="flex items-center gap-1 font-sans text-[10px] text-yellow-400">
-                          <AlertTriangle size={11} strokeWidth={2} />
-                          Último lote
-                        </span>
-                      ) : alerts?.lowStock ? (
-                        <span className="flex items-center gap-1 font-sans text-[10px] text-yellow-400">
-                          <AlertTriangle size={11} strokeWidth={2} />
-                          Poco stock
-                        </span>
-                      ) : (
-                        <span className="font-sans text-[10px] text-green-400/80">
-                          OK
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Tabla de lotes con búsqueda */}
+      <StockLotsTable lots={lots} variantAlerts={variantAlerts} threshold={threshold} />
 
       {/* Notas */}
       {lots.some((l) => l.notes) && (

@@ -30,6 +30,7 @@ export interface ProductVariant {
   stock: number;
   sku: string | null;
   is_active: boolean;
+  average_cost_usd: number | null;
 }
 
 export interface Product {
@@ -140,7 +141,7 @@ export interface StockLot {
 
 export interface StockLotWithDetails extends StockLot {
   product?: { id: string; name: string; brand: string };
-  variant?: { id: string; size_ml: number };
+  variant?: { id: string; size_ml: number; stock: number; average_cost_usd?: number | null };
 }
 
 export interface StockLotWithMetrics extends StockLotWithDetails {
