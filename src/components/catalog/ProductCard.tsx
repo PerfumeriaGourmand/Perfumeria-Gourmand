@@ -11,9 +11,10 @@ import toast from "react-hot-toast";
 
 interface ProductCardProps {
   product: Product;
+  dark?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, dark = false }: ProductCardProps) {
   const { addItem } = useCartStore();
 
   const primaryImage = product.images?.find((i) => i.is_primary) ?? product.images?.[0];
@@ -59,9 +60,18 @@ export default function ProductCard({ product }: ProductCardProps) {
   const hasStock = selectedVariant ? selectedVariant.stock > 0 : false;
 
   return (
-    <Link href={`/perfumes/${product.id}`} className="product-card block group" tabIndex={0}>
+    <Link
+      href={`/perfumes/${product.id}`}
+      className={cn("product-card block group", dark && "product-card-dark")}
+      tabIndex={0}
+    >
       {/* Image area */}
-      <div className="relative bg-[#f5f4f0] rounded-t-2xl overflow-hidden aspect-[3/4]">
+      <div
+        className={cn(
+          "relative rounded-t-2xl overflow-hidden aspect-[3/4]",
+          dark ? "bg-black/40 border border-gold/10" : "bg-[#f5f4f0]"
+        )}
+      >
         {primaryImage ? (
           <Image
             src={primaryImage.url}
@@ -72,10 +82,18 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="font-display text-6xl italic text-text-light/30">
+            <span className={cn("font-display text-6xl italic", dark ? "text-gold/20" : "text-text-light/30")}>
               {product.brand.charAt(0)}
             </span>
           </div>
+        )}
+
+        {/* Gold glow on hover (dark only) */}
+        {dark && (
+          <div
+            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+            style={{ background: "radial-gradient(ellipse at center, rgba(201,169,110,0.07) 0%, transparent 70%)" }}
+          />
         )}
 
         {/* Wishlist btn */}
@@ -89,7 +107,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             strokeWidth={1.5}
             className={cn(
               "transition-colors duration-200",
-              wishlisted ? "fill-gold stroke-gold" : "stroke-text-light"
+              wishlisted ? "fill-gold stroke-gold" : dark ? "stroke-gold/40" : "stroke-text-light"
             )}
           />
         </button>
@@ -101,7 +119,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               Nuevo
             </span>
           )}
-          {product.category === "nicho" && !product.is_new && (
+          {product.category === "nicho" && !product.is_new && !dark && (
             <span className="font-sans text-[9px] font-medium tracking-wider uppercase bg-white/90 text-gold border border-gold/30 px-2 py-0.5 rounded-full backdrop-blur-sm">
               Nicho
             </span>
@@ -110,14 +128,20 @@ export default function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* Info */}
-      <div className="p-4 pt-3">
+      <div className={cn("p-4 pt-3", dark && "border-x border-b border-gold/10 rounded-b-2xl")}>
         {/* Brand */}
-        <p className="font-sans text-xs font-semibold text-text-dark tracking-wide mb-0.5">
+        <p className={cn(
+          "font-sans text-xs tracking-wide mb-0.5",
+          dark ? "font-normal tracking-[0.3em] uppercase text-gold/50 text-[10px]" : "font-semibold text-text-dark"
+        )}>
           {product.brand}
         </p>
 
         {/* Name */}
-        <h3 className="font-body text-base text-text-mid leading-snug mb-3">
+        <h3 className={cn(
+          "font-body text-base leading-snug mb-3",
+          dark ? "text-cream font-light" : "text-text-mid"
+        )}>
           {product.name}
         </h3>
 
@@ -130,7 +154,13 @@ export default function ProductCard({ product }: ProductCardProps) {
                 onClick={(e) => handleVariantSelect(e, v)}
                 className={cn(
                   "font-sans text-xs px-2.5 py-1 rounded-full border transition-all duration-150",
-                  selectedVariant?.id === v.id
+                  dark
+                    ? selectedVariant?.id === v.id
+                      ? "border-gold bg-gold/10 text-gold"
+                      : v.stock === 0
+                      ? "border-gold/10 text-cream/20 line-through cursor-not-allowed"
+                      : "border-gold/20 text-cream/50 hover:border-gold/60 hover:text-gold"
+                    : selectedVariant?.id === v.id
                     ? "border-text-dark bg-text-dark text-white"
                     : v.stock === 0
                     ? "border-border-light text-text-light line-through cursor-not-allowed"
@@ -144,7 +174,10 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
 
         {/* Price */}
-        <p className="font-sans text-base font-semibold text-text-dark mb-3">
+        <p className={cn(
+          "text-base mb-3",
+          dark ? "font-display text-gold" : "font-sans font-semibold text-text-dark"
+        )}>
           {selectedVariant ? formatPrice(selectedVariant.price) : "—"}
         </p>
 
@@ -154,10 +187,15 @@ export default function ProductCard({ product }: ProductCardProps) {
           disabled={!hasStock || adding}
           className={cn(
             "w-full flex items-center justify-center gap-2 py-2.5 rounded-full border font-sans text-xs font-medium tracking-wide transition-all duration-200",
-            hasStock
+            dark
+              ? hasStock
+                ? "border-gold/40 text-gold hover:bg-gold/10 active:scale-[0.98]"
+                : "border-gold/10 text-cream/20 cursor-not-allowed"
+              : hasStock
               ? "border-text-dark text-text-dark hover:bg-text-dark hover:text-white active:scale-[0.98]"
               : "border-border-light text-text-light cursor-not-allowed",
-            adding && "bg-text-dark text-white"
+            dark && adding && "bg-gold/10",
+            !dark && adding && "bg-text-dark text-white"
           )}
         >
           <ShoppingBag size={13} strokeWidth={2} />

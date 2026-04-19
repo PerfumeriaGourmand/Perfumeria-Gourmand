@@ -74,23 +74,11 @@ export async function POST(req: NextRequest) {
 
     const subtotal = Math.round(unit_price * quantity * 100) / 100;
 
-    // 1b. Obtener tipo de cambio del lote más reciente para convertir CPP a ARS
-    let costPriceArs: number | null = null;
-    if (variant.average_cost_usd !== null) {
-      const { data: latestLot } = await admin
-        .from("stock_lots")
-        .select("exchange_rate")
-        .eq("variant_id", variant_id)
-        .order("purchase_date", { ascending: false })
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (latestLot?.exchange_rate) {
-        costPriceArs =
-          Math.round(variant.average_cost_usd * latestLot.exchange_rate * 100) / 100;
-      }
-    }
+    // 1b. Calcular costo ARS: average_cost_usd × 1460
+    const costPriceArs: number | null =
+      variant.average_cost_usd != null
+        ? Math.round(variant.average_cost_usd * 1460 * 100) / 100
+        : null;
 
     // 2. Crear orden
     const { data: order, error: orderError } = await admin
