@@ -1,19 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
-
-async function requireAuth() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
-  return user;
-}
+import { createAdminClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth";
 
 // GET /api/admin/stock-lots — lista todos los lotes con detalle de producto y variant
 export async function GET() {
   try {
-    await requireAuth();
+    await requireAdmin();
     const admin = await createAdminClient();
 
     const { data, error } = await admin
@@ -36,7 +28,7 @@ export async function GET() {
 // POST /api/admin/stock-lots — crea un nuevo lote e incrementa el stock del variant
 export async function POST(req: NextRequest) {
   try {
-    await requireAuth();
+    await requireAdmin();
     const body = await req.json();
     const {
       product_id,

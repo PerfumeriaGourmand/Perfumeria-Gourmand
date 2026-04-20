@@ -12,7 +12,6 @@ interface SiteSettings {
   announcement_text?: string;
   announcement_active?: boolean;
   mp_public_key?: string;
-  mp_access_token?: string;
   instagram_url?: string;
   facebook_url?: string;
   tiktok_url?: string;
@@ -20,6 +19,7 @@ interface SiteSettings {
   free_shipping_min?: number;
   shipping_zones?: string;
   low_stock_threshold?: number;
+  current_exchange_rate?: number | null;
 }
 
 const inputClass =
@@ -65,7 +65,7 @@ export default function SettingsClient({
 
   // MercadoPago
   const [mpPublicKey, setMpPublicKey] = useState(s.mp_public_key ?? "");
-  const [mpAccessToken, setMpAccessToken] = useState(s.mp_access_token ?? "");
+  const [mpAccessToken, setMpAccessToken] = useState("");
 
   // Social
   const [instagram, setInstagram] = useState(s.instagram_url ?? "");
@@ -82,6 +82,11 @@ export default function SettingsClient({
   // Stock
   const [lowStockThreshold, setLowStockThreshold] = useState(
     s.low_stock_threshold?.toString() ?? "5"
+  );
+
+  // Exchange rate
+  const [exchangeRate, setExchangeRate] = useState(
+    s.current_exchange_rate?.toString() ?? ""
   );
 
   const handleSave = async () => {
@@ -103,6 +108,7 @@ export default function SettingsClient({
         free_shipping_min: freeShippingMin ? parseFloat(freeShippingMin) : null,
         shipping_zones: shippingZones || null,
         low_stock_threshold: lowStockThreshold ? parseInt(lowStockThreshold) : 5,
+        current_exchange_rate: exchangeRate ? parseFloat(exchangeRate) : null,
       };
 
       const res = await fetch("/api/admin/settings", {
@@ -223,7 +229,7 @@ export default function SettingsClient({
               type="password"
               value={mpAccessToken}
               onChange={(e) => setMpAccessToken(e.target.value)}
-              placeholder="APP_USR-..."
+              placeholder="Dejar vacío para mantener el token actual"
               className={inputClass}
             />
           </div>
@@ -264,6 +270,21 @@ export default function SettingsClient({
             />
             <p className="font-sans text-[10px] text-cream-dim mt-1.5">
               Variantes con stock por debajo de este valor se marcan como alerta
+            </p>
+          </div>
+          <div>
+            <label className={labelClass}>Tipo de cambio actual (USD → ARS)</label>
+            <input
+              type="number"
+              step="0.01"
+              min={0}
+              value={exchangeRate}
+              onChange={(e) => setExchangeRate(e.target.value)}
+              placeholder="1460"
+              className={inputClass}
+            />
+            <p className="font-sans text-[10px] text-cream-dim mt-1.5">
+              Se usa para calcular el costo en ARS al registrar ventas manuales
             </p>
           </div>
         </SectionCard>

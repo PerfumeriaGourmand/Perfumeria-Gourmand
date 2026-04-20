@@ -12,15 +12,18 @@ interface ProductWithVariants extends Product {
 
 interface Props {
   products: ProductWithVariants[];
+  initialExchangeRate?: number | null;
 }
 
-export default function StockLotForm({ products }: Props) {
+export default function StockLotForm({ products, initialExchangeRate }: Props) {
   const router = useRouter();
   const [productId, setProductId] = useState("");
   const [variantId, setVariantId] = useState("");
   const [quantity, setQuantity] = useState("");
   const [costUsd, setCostUsd] = useState("");
-  const [exchangeRate, setExchangeRate] = useState("");
+  const [exchangeRate, setExchangeRate] = useState(
+    initialExchangeRate != null ? String(initialExchangeRate) : ""
+  );
   const [purchaseDate, setPurchaseDate] = useState(
     new Date().toISOString().split("T")[0]
   );
@@ -175,7 +178,7 @@ export default function StockLotForm({ products }: Props) {
             step="1"
             value={exchangeRate}
             onChange={(e) => setExchangeRate(e.target.value)}
-            placeholder="Ej: 1200"
+            placeholder={initialExchangeRate ? String(initialExchangeRate) : "Configurar en Settings"}
             className={inputClass}
             required
           />

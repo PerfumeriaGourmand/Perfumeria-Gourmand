@@ -36,7 +36,7 @@ const EXPLORE = [
   { href: "/catalogo?category=nicho", label: "Perfumes nicho" },
   { href: "/catalogo?category=arabe", label: "Perfumes árabes" },
   { href: "/catalogo?category=disenador", label: "Diseñador" },
-  { href: "/kits", label: "Kits y conjuntos" },
+  { href: "/catalogo?category=kit", label: "Kits y conjuntos" },
 ];
 
 const LEGAL = [

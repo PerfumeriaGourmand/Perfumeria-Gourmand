@@ -131,7 +131,7 @@ const NAV_ITEMS = [
   { label: "Árabe" as MegaMenuKey, href: "/catalogo?category=arabe", hasMega: true },
   { label: "Diseñador" as MegaMenuKey, href: "/catalogo?category=disenador", hasMega: true },
   { label: "Nicho" as MegaMenuKey, href: "/catalogo/nicho", hasMega: true },
-  { label: "Kits", href: "/kits", hasMega: false },
+  { label: "Kits", href: "/catalogo?category=kit", hasMega: false },
 ] as const;
 
 export default function Navbar() {

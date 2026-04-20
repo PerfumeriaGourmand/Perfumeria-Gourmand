@@ -27,6 +27,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   arabe: "Árabe",
   disenador: "Diseñador",
   nicho: "Nicho",
+  kit: "Kit",
 };
 
 export const GENDER_LABELS: Record<string, string> = {

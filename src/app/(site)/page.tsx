@@ -1,7 +1,6 @@
 import HeroSection from "@/components/home/HeroSection";
 import FeaturedCarousel from "@/components/home/FeaturedCarousel";
 import NewArrivalsCarousel from "@/components/home/NewArrivalsCarousel";
-import KitsCarousel from "@/components/home/KitsCarousel";
 import CategorySection from "@/components/home/CategorySection";
 import BrandCarousel from "@/components/home/BrandCarousel";
 import CategoryFeaturedSection from "@/components/home/CategoryFeaturedSection";
@@ -11,7 +10,7 @@ export const revalidate = 60;
 
 async function getHomeData() {
   const supabase = await createClient();
-  const [featuredRes, newRes, kitsRes, arabeRes, disenadorRes, nichoRes] = await Promise.all([
+  const [featuredRes, newRes, arabeRes, disenadorRes, nichoRes] = await Promise.all([
     supabase
       .from("products")
       .select("*, images:product_images(*), variants:product_variants(*)")
@@ -26,12 +25,6 @@ async function getHomeData() {
       .eq("is_active", true)
       .order("created_at", { ascending: false })
       .limit(10),
-    supabase
-      .from("kits")
-      .select("*, items:kit_items(*, variant:product_variants(*, product:products(*)))")
-      .eq("is_active", true)
-      .eq("is_featured", true)
-      .limit(6),
     supabase
       .from("products")
       .select("*, images:product_images(*), variants:product_variants(*)")
@@ -60,7 +53,6 @@ async function getHomeData() {
   return {
     featured: featuredRes.data ?? [],
     newArrivals: newRes.data ?? [],
-    kits: kitsRes.data ?? [],
     arabeProducts: arabeRes.data ?? [],
     disenadorProducts: disenadorRes.data ?? [],
     nichoProducts: nichoRes.data ?? [],
@@ -68,7 +60,7 @@ async function getHomeData() {
 }
 
 export default async function HomePage() {
-  const { featured, newArrivals, kits, arabeProducts, disenadorProducts, nichoProducts } =
+  const { featured, newArrivals, arabeProducts, disenadorProducts, nichoProducts } =
     await getHomeData();
   return (
     <>
@@ -96,7 +88,6 @@ export default async function HomePage() {
         dark
       />
       <NewArrivalsCarousel products={newArrivals} />
-      <KitsCarousel kits={kits} />
     </>
   );
 }

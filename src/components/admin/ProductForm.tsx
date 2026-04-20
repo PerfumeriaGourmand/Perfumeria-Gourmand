@@ -12,6 +12,7 @@ const CATEGORIES = [
   { value: "arabe", label: "Árabe" },
   { value: "disenador", label: "Diseñador" },
   { value: "nicho", label: "Nicho" },
+  { value: "kit", label: "Kit" },
 ];
 const GENDERS = [
   { value: "hombre", label: "Hombre" },

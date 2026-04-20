@@ -1,20 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
-
-async function requireAuth() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
-  return user;
-}
+import { createAdminClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth";
 
 // POST /api/admin/manual-sale
 // Body: { product_id, variant_id, product_name, size_ml, quantity, unit_price, customer_name?, notes? }
 export async function POST(req: NextRequest) {
   try {
-    await requireAuth();
+    await requireAdmin();
 
     const body = await req.json();
     const {
@@ -47,10 +39,10 @@ export async function POST(req: NextRequest) {
 
     const admin = await createAdminClient();
 
-    // 1. Verificar stock disponible y leer CPP actual
+    // 1. Verificar stock disponible
     const { data: variant, error: variantError } = await admin
       .from("product_variants")
-      .select("stock, average_cost_usd")
+      .select("stock")
       .eq("id", variant_id)
       .single();
 
@@ -74,12 +66,6 @@ export async function POST(req: NextRequest) {
 
     const subtotal = Math.round(unit_price * quantity * 100) / 100;
 
-    // 1b. Calcular costo ARS: average_cost_usd × 1460
-    const costPriceArs: number | null =
-      variant.average_cost_usd != null
-        ? Math.round(variant.average_cost_usd * 1460 * 100) / 100
-        : null;
-
     // 2. Crear orden
     const { data: order, error: orderError } = await admin
       .from("orders")
@@ -102,7 +88,7 @@ export async function POST(req: NextRequest) {
       throw orderError ?? new Error("No se pudo crear la orden");
     }
 
-    // 3. Crear order_item con costo CPP en ARS
+    // 3. Crear order_item (cost_price lo asigna FIFO en el paso 5)
     const { error: itemError } = await admin.from("order_items").insert({
       order_id: order.id,
       variant_id,
@@ -112,11 +98,10 @@ export async function POST(req: NextRequest) {
       quantity,
       unit_price: Math.round(unit_price * 100) / 100,
       total_price: subtotal,
-      cost_price: costPriceArs, // CPP × TC del último lote (null si no hay lotes)
+      cost_price: null,
     });
 
     if (itemError) {
-      // Si falla el item, eliminar la orden para no dejar basura
       await admin.from("orders").delete().eq("id", order.id);
       throw itemError;
     }
@@ -128,12 +113,17 @@ export async function POST(req: NextRequest) {
     );
 
     if (decrementError) {
-      // Fallback manual si la RPC falla
       console.error("[manual-sale] RPC decrement falló, fallback manual:", decrementError);
       await admin
         .from("product_variants")
         .update({ stock: variant.stock - quantity, updated_at: new Date().toISOString() })
         .eq("id", variant_id);
+    }
+
+    // 5. Asignar lotes FIFO y registrar cost_price real (ARS histórico del lote)
+    const { error: fifoError } = await admin.rpc("apply_fifo_lots_on_order", { p_order_id: order.id });
+    if (fifoError) {
+      console.error("[manual-sale] RPC apply_fifo_lots_on_order falló:", fifoError);
     }
 
     return NextResponse.json({ ok: true, order_id: order.id });

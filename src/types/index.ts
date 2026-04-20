@@ -2,7 +2,7 @@
 // GOURMAND — Core Types
 // ============================================================
 
-export type ProductCategory = "arabe" | "disenador" | "nicho";
+export type ProductCategory = "arabe" | "disenador" | "nicho" | "kit";
 export type ProductGender = "hombre" | "mujer" | "unisex";
 export type ProductSeason = "verano" | "invierno" | "primavera" | "otono" | "todo_clima";
 export type ConcentrationType = "parfum" | "edp" | "edt" | "edc" | "oil" | "otro";
@@ -55,36 +55,12 @@ export interface Product {
 }
 
 // ——————————————————————————————————————————
-// Kit
-// ——————————————————————————————————————————
-
-export interface KitItem {
-  id: string;
-  kit_id: string;
-  variant_id: string;
-  quantity: number;
-  variant?: ProductVariant & { product?: Product };
-}
-
-export interface Kit {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  stock: number;
-  image_url: string | null;
-  is_active: boolean;
-  is_featured: boolean;
-  items?: KitItem[];
-}
-
-// ——————————————————————————————————————————
 // Cart
 // ——————————————————————————————————————————
 
 export interface CartItem {
-  id: string; // variant_id or kit_id
-  type: "variant" | "kit";
+  id: string; // variant_id
+  type: "variant";
   name: string;
   brand?: string;
   size_ml?: number;
@@ -111,8 +87,8 @@ export interface OrderItem {
   id: string;
   order_id: string;
   variant_id: string | null;
-  kit_id: string | null;
-  lot_id: string | null;
+  kit_id: string | null; // histórico, sistema de kits anterior
+  lot_id: string | null; // histórico, sistema FIFO anterior
   product_name: string;
   size_ml: number | null;
   quantity: number;
@@ -167,6 +143,7 @@ export interface Order {
   shipping_cost: number;
   total: number;
   notes: string | null;
+  source: string | null;
   created_at: string;
   updated_at: string;
   items?: OrderItem[];
@@ -213,4 +190,6 @@ export interface SiteSettings {
   free_shipping_min: number;
   whatsapp_number: string | null;
   instagram_handle: string | null;
+  low_stock_threshold: number;
+  current_exchange_rate: number | null;
 }

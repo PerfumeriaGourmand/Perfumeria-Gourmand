@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
-
-async function requireAuth() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
-  return user;
-}
+import { createAdminClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
-    await requireAuth();
+    await requireAdmin();
     const body = await req.json();
     const admin = await createAdminClient();
 
@@ -83,7 +77,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    await requireAuth();
+    await requireAdmin();
     const { id } = await req.json();
     const admin = await createAdminClient();
     const { error } = await admin.from("products").delete().eq("id", id);

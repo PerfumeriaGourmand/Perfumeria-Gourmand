@@ -1,14 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import MercadoPagoConfig, { Payment } from "mercadopago";
+import { createHmac } from "crypto";
 
 const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
 });
 
+function verifyMpSignature(req: NextRequest, rawBody: string): boolean {
+  const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
+  if (!secret) return true; // Si no está configurado, se omite la validación
+
+  const xSignature = req.headers.get("x-signature");
+  const xRequestId = req.headers.get("x-request-id");
+  const dataId = new URL(req.url).searchParams.get("data.id");
+
+  if (!xSignature || !xRequestId) return false;
+
+  const parts = Object.fromEntries(xSignature.split(",").map((p) => p.split("=")));
+  const ts = parts["ts"];
+  const v1 = parts["v1"];
+  if (!ts || !v1) return false;
+
+  const manifest = `id:${dataId ?? ""};request-id:${xRequestId};ts:${ts};`;
+  const expected = createHmac("sha256", secret).update(manifest).digest("hex");
+  return expected === v1;
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const rawBody = await req.text();
+
+    if (!verifyMpSignature(req, rawBody)) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+    }
+
+    const body = JSON.parse(rawBody);
     const { type, data } = body;
 
     if (type !== "payment" || !data?.id) {
@@ -47,61 +74,12 @@ export async function POST(req: NextRequest) {
       })
       .eq("id", orderId);
 
-    // Decrement stock and record CPP cost on approval
     if (newStatus === "approved") {
       // 1. Descontar stock de product_variants
       await supabase.rpc("decrement_stock_on_order", { p_order_id: orderId });
 
-      // 2. Registrar cost_price (CPP × TC) en cada order_item aprobado
-      const { data: orderItems } = await supabase
-        .from("order_items")
-        .select("id, variant_id")
-        .eq("order_id", orderId)
-        .not("variant_id", "is", null);
-
-      if (orderItems && orderItems.length > 0) {
-        const variantIds = [...new Set(orderItems.map((i) => i.variant_id as string))];
-
-        const [variantsRes, lotsRes] = await Promise.all([
-          supabase
-            .from("product_variants")
-            .select("id, average_cost_usd")
-            .in("id", variantIds),
-          supabase
-            .from("stock_lots")
-            .select("variant_id, exchange_rate")
-            .in("variant_id", variantIds)
-            .order("purchase_date", { ascending: false })
-            .order("created_at", { ascending: false }),
-        ]);
-
-        // Mapa: variant_id → average_cost_usd
-        const avgCostMap = new Map(
-          (variantsRes.data ?? []).map((v) => [v.id, v.average_cost_usd])
-        );
-
-        // Mapa: variant_id → exchange_rate del lote más reciente
-        const exchangeRateMap = new Map<string, number>();
-        for (const lot of lotsRes.data ?? []) {
-          if (!exchangeRateMap.has(lot.variant_id)) {
-            exchangeRateMap.set(lot.variant_id, lot.exchange_rate);
-          }
-        }
-
-        for (const item of orderItems) {
-          const vid = item.variant_id as string;
-          const avgCostUsd = avgCostMap.get(vid);
-          const exchangeRate = exchangeRateMap.get(vid);
-          if (avgCostUsd && exchangeRate) {
-            const costPriceArs =
-              Math.round(avgCostUsd * exchangeRate * 100) / 100;
-            await supabase
-              .from("order_items")
-              .update({ cost_price: costPriceArs })
-              .eq("id", item.id);
-          }
-        }
-      }
+      // 2. Asignar lotes FIFO y registrar cost_price real (ARS histórico del lote)
+      await supabase.rpc("apply_fifo_lots_on_order", { p_order_id: orderId });
     }
 
     return NextResponse.json({ received: true });

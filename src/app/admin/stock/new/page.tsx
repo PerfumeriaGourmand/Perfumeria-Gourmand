@@ -7,18 +7,26 @@ import { ChevronLeft } from "lucide-react";
 export default async function NewStockLotPage() {
   const supabase = await createAdminClient();
 
-  // Cargar todos los productos activos con sus variantes
-  const { data: products } = await supabase
-    .from("products")
-    .select("*, variants:product_variants(*)")
-    .eq("is_active", true)
-    .order("brand", { ascending: true })
-    .order("name", { ascending: true });
+  // Cargar productos y TC en paralelo
+  const [productsRes, settingsRes] = await Promise.all([
+    supabase
+      .from("products")
+      .select("*, variants:product_variants(*)")
+      .eq("is_active", true)
+      .order("brand", { ascending: true })
+      .order("name", { ascending: true }),
+    supabase
+      .from("site_settings")
+      .select("current_exchange_rate")
+      .single(),
+  ]);
 
-  const activeProducts = (products ?? []).map((p) => ({
+  const activeProducts = (productsRes.data ?? []).map((p) => ({
     ...p,
     variants: (p.variants ?? []).filter((v: { is_active: boolean }) => v.is_active),
   }));
+
+  const initialExchangeRate = settingsRes.data?.current_exchange_rate ?? null;
 
   return (
     <div>
@@ -40,7 +48,7 @@ export default async function NewStockLotPage() {
         </p>
       </div>
 
-      <StockLotForm products={activeProducts} />
+      <StockLotForm products={activeProducts} initialExchangeRate={initialExchangeRate} />
     </div>
   );
 }

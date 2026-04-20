@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import type { OrderStatus } from "@/types";
@@ -28,25 +27,26 @@ export default function OrderStatusUpdater({
 
   const handleUpdate = async (newStatus: string) => {
     setLoading(true);
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("orders")
-      .update({ payment_status: newStatus })
-      .eq("id", orderId);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
 
-    if (error) {
-      toast.error("Error al actualizar");
-    } else {
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Error al actualizar");
+      }
+
       setStatus(newStatus);
       toast.success("Estado actualizado");
-      // Decrement stock and apply FIFO lots if approved
-      if (newStatus === "approved") {
-        await supabase.rpc("decrement_stock_on_order", { p_order_id: orderId });
-        await supabase.rpc("apply_fifo_lots_on_order", { p_order_id: orderId });
-      }
       router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error al actualizar");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
