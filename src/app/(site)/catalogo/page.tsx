@@ -21,6 +21,7 @@ async function getProducts(filters: ProductFilters) {
   if (filters.gender) query = query.eq("gender", filters.gender);
   if (filters.concentration) query = query.eq("concentration", filters.concentration);
   if (filters.season) query = query.contains("seasons", [filters.season]);
+  if (filters.brand) query = query.eq("brand", filters.brand);
 
   if (filters.search) {
     query = query.or(
@@ -60,11 +61,23 @@ export default async function CatalogPage({
     gender: params.gender as ProductFilters["gender"],
     season: params.season as ProductFilters["season"],
     concentration: params.concentration as ProductFilters["concentration"],
+    brand: params.brand,
     search: params.search,
     sort: (params.sort as ProductFilters["sort"]) ?? undefined,
   };
 
-  const products = await getProducts(filters);
+  const supabase = await createClient();
+  let brandsQuery = supabase.from("products").select("brand").eq("is_active", true);
+  if (filters.category) brandsQuery = brandsQuery.eq("category", filters.category);
 
-  return <CatalogClient initialProducts={products} initialFilters={filters} />;
+  const [products, brandRows] = await Promise.all([
+    getProducts(filters),
+    brandsQuery,
+  ]);
+
+  const brands = [...new Set((brandRows.data ?? []).map((r) => r.brand as string))]
+    .filter(Boolean)
+    .sort();
+
+  return <CatalogClient initialProducts={products} initialFilters={filters} brands={brands} />;
 }

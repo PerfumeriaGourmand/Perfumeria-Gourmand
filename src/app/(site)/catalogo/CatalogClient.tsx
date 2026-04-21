@@ -11,9 +11,10 @@ import { useThemeStore } from "@/store/theme";
 interface Props {
   initialProducts: Product[];
   initialFilters: ProductFilters;
+  brands: string[];
 }
 
-export default function CatalogClient({ initialProducts, initialFilters }: Props) {
+export default function CatalogClient({ initialProducts, initialFilters, brands }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -42,7 +43,7 @@ export default function CatalogClient({ initialProducts, initialFilters }: Props
 
   const clearFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
-    ["category", "gender", "season", "concentration", "search"].forEach((k) => params.delete(k));
+    ["category", "gender", "season", "concentration", "brand", "search"].forEach((k) => params.delete(k));
     router.push(`${pathname}?${params.toString()}`);
     setFiltersOpen(false);
   };
@@ -62,6 +63,7 @@ export default function CatalogClient({ initialProducts, initialFilters }: Props
     initialFilters.gender,
     initialFilters.season,
     initialFilters.concentration,
+    initialFilters.brand,
   ].filter(Boolean).length;
 
   const N = isNicho;
@@ -122,6 +124,9 @@ export default function CatalogClient({ initialProducts, initialFilters }: Props
           )}
           {initialFilters.concentration && (
             <FilterChip label={CONCENTRATION_LABELS[initialFilters.concentration]} onRemove={() => updateFilter("concentration", undefined)} dark={N} />
+          )}
+          {initialFilters.brand && (
+            <FilterChip label={initialFilters.brand} onRemove={() => updateFilter("brand", undefined)} dark={N} />
           )}
 
           {/* Sort */}
@@ -239,6 +244,17 @@ export default function CatalogClient({ initialProducts, initialFilters }: Props
                 value={initialFilters.concentration}
                 onChange={(v) => updateFilter("concentration", v)}
               />
+              {brands.length > 0 && (
+                <>
+                  <div className="divider-light" />
+                  <BrandFilterGroup
+                    brands={brands}
+                    value={initialFilters.brand}
+                    onChange={(v) => updateFilter("brand", v)}
+                    dark={N}
+                  />
+                </>
+              )}
             </div>
 
             {/* Footer */}
@@ -276,6 +292,44 @@ function FilterChip({ label, onRemove, dark }: { label: string; onRemove: () => 
         <X size={11} strokeWidth={2.5} />
       </button>
     </span>
+  );
+}
+
+function BrandFilterGroup({
+  brands,
+  value,
+  onChange,
+  dark,
+}: {
+  brands: string[];
+  value: string | undefined;
+  onChange: (v: string | undefined) => void;
+  dark?: boolean;
+}) {
+  return (
+    <div>
+      <p className="font-sans text-xs font-semibold text-text-dark tracking-widest uppercase mb-4">
+        Marca
+      </p>
+      <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto pr-1">
+        {brands.map((brand) => (
+          <button
+            key={brand}
+            onClick={() => onChange(value === brand ? undefined : brand)}
+            className={cn(
+              "px-4 py-2 rounded-full border font-sans text-sm transition-all duration-150",
+              value === brand
+                ? dark
+                  ? "border-gold bg-gold/10 text-gold"
+                  : "border-text-dark bg-text-dark text-white"
+                : "border-border-light text-text-mid hover:border-text-dark hover:text-text-dark"
+            )}
+          >
+            {brand}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 

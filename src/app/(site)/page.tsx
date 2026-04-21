@@ -15,8 +15,8 @@ async function getHomeData() {
     supabase
       .from("products")
       .select("*, images:product_images(*), variants:product_variants(*)")
-      .eq("is_featured", true)
       .eq("is_active", true)
+      .overlaps("seasons", ["otono", "invierno"])
       .order("sort_order")
       .limit(10),
     supabase

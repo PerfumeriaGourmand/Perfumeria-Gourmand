@@ -12,6 +12,7 @@ import {
   ExternalLink,
   Layers,
   PenLine,
+  Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -22,6 +23,7 @@ const LINKS = [
   { href: "/admin/orders", label: "Órdenes", icon: ShoppingBag },
   { href: "/admin/stock", label: "Stock", icon: Layers },
   { href: "/admin/ventas-manuales", label: "Venta Manual", icon: PenLine },
+  { href: "/admin/coupons", label: "Cupones", icon: Tag },
   { href: "/admin/analytics", label: "Analytics", icon: TrendingUp },
   { href: "/admin/settings", label: "Configuración", icon: Settings },
 ];

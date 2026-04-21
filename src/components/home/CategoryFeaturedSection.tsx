@@ -35,15 +35,10 @@ export default function CategoryFeaturedSection({ title, eyebrow, href, products
         </div>
         <Link
           href={href}
-          className="hidden md:inline font-sans transition-colors duration-200"
-          style={{
-            fontSize: 11,
-            letterSpacing: "0.25em",
-            textTransform: "uppercase",
-            color: dark ? "rgba(164,133,76,0.6)" : "#57534e",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#a4854c")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = dark ? "rgba(164,133,76,0.6)" : "#57534e")}
+          className={`hidden md:inline font-sans transition-colors duration-200 hover:text-gold ${
+            dark ? "text-gold/60" : "text-stone-600"
+          }`}
+          style={{ fontSize: 11, letterSpacing: "0.25em", textTransform: "uppercase" }}
         >
           Ver colección →
         </Link>

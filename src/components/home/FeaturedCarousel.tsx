@@ -8,18 +8,18 @@ export default function FeaturedCarousel({ products }: { products: Product[] }) 
       <div style={{ padding: "0 80px", marginBottom: 36, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
         <div>
           <p className="font-sans uppercase text-gold" style={{ fontSize: 9, letterSpacing: "0.5em", marginBottom: 10 }}>
-            Selección
+            Temporada
           </p>
           <h2 className="font-display text-text-dark" style={{ fontSize: 40, lineHeight: 1.05 }}>
-            Destacados
+            Destacados otoño-invierno
           </h2>
         </div>
         <Link
-          href="/catalogo"
+          href="/catalogo?season=invierno"
           className="hidden md:inline font-sans text-text-mid hover:text-gold transition-colors"
           style={{ fontSize: 11, letterSpacing: "0.25em", textTransform: "uppercase" }}
         >
-          Ver todos →
+          Ver colección →
         </Link>
       </div>
 
@@ -30,7 +30,7 @@ export default function FeaturedCarousel({ products }: { products: Product[] }) 
       ) : (
         <div className="flex items-center justify-center py-20 border border-border-light mx-20">
           <p className="font-sans text-sm text-text-light italic">
-            Los productos destacados aparecerán aquí
+            Los productos de temporada aparecerán aquí
           </p>
         </div>
       )}

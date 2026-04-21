@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { ShoppingBag, User, Menu, X, ChevronDown, LogIn, Settings, ArrowRight } from "lucide-react";
+import { ShoppingBag, User, Menu, X, ChevronDown, LogIn, Settings, ArrowRight, Heart } from "lucide-react";
 import SearchBar from "@/components/layout/SearchBar";
 import { useCartStore } from "@/store/cart";
+import { useWishlistStore } from "@/store/wishlist";
 import { useThemeStore } from "@/store/theme";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -149,10 +150,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { itemCount, openCart } = useCartStore();
+  const { count: wishlistCount } = useWishlistStore();
   const { isNichoProduct } = useThemeStore();
   const [cartMounted, setCartMounted] = useState(false);
   useEffect(() => setCartMounted(true), []);
   const count = cartMounted ? itemCount() : 0;
+  const wCount = cartMounted ? wishlistCount() : 0;
 
   // Detect if current page is nicho-themed
   const isNicho =
@@ -392,6 +395,20 @@ export default function Navbar() {
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Wishlist */}
+            <Link
+              href="/favoritos"
+              className={cn("relative w-9 h-9 flex items-center justify-center transition-colors rounded-full", T.iconBtn)}
+              aria-label="Favoritos"
+            >
+              <Heart size={18} strokeWidth={1.5} className={wCount > 0 ? "fill-gold stroke-gold" : ""} />
+              {wCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-gold text-white text-[9px] font-sans font-semibold rounded-full flex items-center justify-center">
+                  {wCount > 9 ? "9+" : wCount}
+                </span>
+              )}
+            </Link>
 
             {/* Cart */}
             <button

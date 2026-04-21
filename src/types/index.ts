@@ -150,6 +150,32 @@ export interface Order {
 }
 
 // ——————————————————————————————————————————
+// Coupons
+// ——————————————————————————————————————————
+
+export interface Coupon {
+  id: string;
+  code: string;
+  description: string | null;
+  discount_type: "percentage" | "fixed";
+  discount_value: number;
+  min_order_amount: number | null;
+  max_uses: number | null;
+  current_uses: number;
+  expires_at: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface AppliedCoupon {
+  code: string;
+  description: string | null;
+  discount_type: "percentage" | "fixed";
+  discount_value: number;
+  discount_amount: number;
+}
+
+// ——————————————————————————————————————————
 // Filters
 // ——————————————————————————————————————————
 
@@ -158,6 +184,7 @@ export interface ProductFilters {
   gender?: ProductGender;
   season?: ProductSeason;
   concentration?: ConcentrationType;
+  brand?: string;
   search?: string;
   sort?: "price_asc" | "price_desc" | "newest" | "name_asc";
   page?: number;

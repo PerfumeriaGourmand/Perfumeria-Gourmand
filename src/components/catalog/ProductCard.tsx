@@ -7,6 +7,7 @@ import { Heart, ShoppingBag } from "lucide-react";
 import type { Product, ProductVariant } from "@/types";
 import { cn, formatPrice } from "@/lib/utils";
 import { useCartStore } from "@/store/cart";
+import { useWishlistStore } from "@/store/wishlist";
 import toast from "react-hot-toast";
 
 interface ProductCardProps {
@@ -16,6 +17,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, dark = false }: ProductCardProps) {
   const { addItem } = useCartStore();
+  const { toggle: toggleWishlist, isWishlisted } = useWishlistStore();
 
   const primaryImage = product.images?.find((i) => i.is_primary) ?? product.images?.[0];
 
@@ -26,7 +28,7 @@ export default function ProductCard({ product, dark = false }: ProductCardProps)
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
     activeVariants.find((v) => v.stock > 0) ?? activeVariants[0] ?? null
   );
-  const [wishlisted, setWishlisted] = useState(false);
+  const wishlisted = isWishlisted(product.id);
   const [adding, setAdding] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -49,7 +51,8 @@ export default function ProductCard({ product, dark = false }: ProductCardProps)
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
-    setWishlisted((v) => !v);
+    toggleWishlist(product);
+    toast.success(wishlisted ? "Eliminado de favoritos" : "Agregado a favoritos");
   };
 
   const handleVariantSelect = (e: React.MouseEvent, variant: ProductVariant) => {

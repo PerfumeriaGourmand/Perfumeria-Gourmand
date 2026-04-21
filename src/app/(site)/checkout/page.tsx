@@ -7,7 +7,7 @@ import { formatPrice } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 import GoldDivider from "@/components/ui/GoldDivider";
 import toast from "react-hot-toast";
-import type { ShippingAddress, PaymentMethod } from "@/types";
+import type { ShippingAddress, PaymentMethod, AppliedCoupon } from "@/types";
 
 const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; desc: string }[] = [
   { id: "credit_card", label: "Tarjeta de crédito", desc: "Hasta 12 cuotas sin interés" },
@@ -22,6 +22,10 @@ export default function CheckoutPage() {
   const subtotal = total();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState<"info" | "payment">("info");
+  const [couponInput, setCouponInput] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
+  const orderTotal = subtotal - (appliedCoupon?.discount_amount ?? 0);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("credit_card");
   const [installments, setInstallments] = useState(1);
 
@@ -40,6 +44,34 @@ export default function CheckoutPage() {
 
   const updateForm = (key: string, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) return;
+    setCouponLoading(true);
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponInput.trim(), subtotal }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error ?? "Cupón inválido");
+        return;
+      }
+      setAppliedCoupon(data);
+      toast.success(`Cupón aplicado: ${data.description ?? data.code}`);
+    } catch {
+      toast.error("Error al aplicar el cupón");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput("");
+  };
 
   if (items.length === 0) {
     return (
@@ -91,6 +123,8 @@ export default function CheckoutPage() {
             unit_price: i.price,
           })),
           notes: form.notes,
+          coupon_code: appliedCoupon?.code ?? null,
+          discount_amount: appliedCoupon?.discount_amount ?? 0,
         }),
       });
 
@@ -98,7 +132,6 @@ export default function CheckoutPage() {
 
       if (!res.ok) throw new Error(data.error ?? "Error al crear la orden");
 
-      // Redirect to MercadoPago or success page
       if (data.init_point) {
         window.location.href = data.init_point;
       } else {
@@ -262,7 +295,7 @@ export default function CheckoutPage() {
                         {[1, 3, 6, 12].map((n) => (
                           <option key={n} value={n}>
                             {n} {n === 1 ? "pago" : "cuotas"} de{" "}
-                            {formatPrice(subtotal / n)}
+                            {formatPrice(orderTotal / n)}
                           </option>
                         ))}
                       </select>
@@ -320,18 +353,67 @@ export default function CheckoutPage() {
                 ))}
               </div>
               <GoldDivider className="mb-6" />
+
               <div className="flex justify-between items-center mb-2">
                 <span className="font-sans text-xs text-text-mid uppercase tracking-widest">Subtotal</span>
                 <span className="font-sans text-sm text-text-dark">{formatPrice(subtotal)}</span>
               </div>
+              {appliedCoupon && (
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-sans text-xs text-green-600 uppercase tracking-widest">
+                    Descuento {appliedCoupon.discount_type === "percentage" ? `(${appliedCoupon.discount_value}%)` : ""}
+                  </span>
+                  <span className="font-sans text-sm text-green-600">-{formatPrice(appliedCoupon.discount_amount)}</span>
+                </div>
+              )}
               <div className="flex justify-between items-center mb-6">
                 <span className="font-sans text-xs text-text-mid uppercase tracking-widest">Envío</span>
                 <span className="font-sans text-xs text-text-light italic">A calcular</span>
               </div>
+
+              {/* Cupón */}
+              {!appliedCoupon ? (
+                <div className="flex gap-2 mb-6">
+                  <input
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleApplyCoupon())}
+                    placeholder="Cupón de descuento"
+                    className="flex-1 min-w-0 bg-white border border-border-light text-text-dark text-xs font-sans px-3 py-2.5 rounded-xl focus:border-gold/50 focus:outline-none placeholder:text-text-light transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={couponLoading || !couponInput.trim()}
+                    className="px-3 py-2.5 bg-gold/10 border border-gold/30 text-gold font-sans text-[10px] tracking-widest uppercase rounded-xl hover:bg-gold/20 disabled:opacity-40 transition-colors whitespace-nowrap flex-shrink-0"
+                  >
+                    {couponLoading ? "..." : "Aplicar"}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between bg-gold/5 border border-gold/20 rounded-xl px-3 py-2.5 mb-6">
+                  <div>
+                    <p className="font-sans text-xs text-gold font-medium tracking-widest">{appliedCoupon.code}</p>
+                    <p className="font-sans text-[10px] text-green-600 mt-0.5">
+                      {appliedCoupon.discount_type === "percentage"
+                        ? `${appliedCoupon.discount_value}% aplicado`
+                        : `${formatPrice(appliedCoupon.discount_amount)} de descuento`}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveCoupon}
+                    className="font-sans text-[10px] text-text-light hover:text-red-400 transition-colors ml-3"
+                  >
+                    Quitar
+                  </button>
+                </div>
+              )}
+
               <GoldDivider className="mb-6" />
               <div className="flex justify-between items-center">
                 <span className="font-display text-lg text-text-dark">Total</span>
-                <span className="font-display text-2xl text-gold">{formatPrice(subtotal)}</span>
+                <span className="font-display text-2xl text-gold">{formatPrice(orderTotal)}</span>
               </div>
             </div>
           </div>
