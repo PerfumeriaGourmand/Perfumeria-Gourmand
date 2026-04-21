@@ -1,25 +1,8 @@
 export const dynamic = "force-dynamic";
 import { createAdminClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
+import { STATUS_LABELS, STATUS_STYLES } from "@/lib/order-utils";
 import Link from "next/link";
-
-const STATUS_STYLES: Record<string, string> = {
-  approved: "text-green-400 bg-green-400/10",
-  pending: "text-yellow-400 bg-yellow-400/10",
-  rejected: "text-red-400 bg-red-400/10",
-  in_process: "text-blue-400 bg-blue-400/10",
-  cancelled: "text-cream-dim bg-cream-dim/10",
-  refunded: "text-cream-dim bg-cream-dim/10",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  approved: "Aprobado",
-  pending: "Pendiente",
-  rejected: "Rechazado",
-  in_process: "En proceso",
-  cancelled: "Cancelado",
-  refunded: "Reembolsado",
-};
 
 const PAYMENT_LABELS: Record<string, string> = {
   credit_card: "Crédito",
@@ -38,7 +21,7 @@ export default async function AdminOrdersPage({
 
   let query = supabase
     .from("orders")
-    .select("*")
+    .select("id, customer_name, customer_email, payment_method, installments, total, payment_status, created_at")
     .order("created_at", { ascending: false });
 
   if (status) query = query.eq("payment_status", status);

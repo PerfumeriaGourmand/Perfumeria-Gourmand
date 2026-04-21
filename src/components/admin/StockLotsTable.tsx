@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { AlertTriangle, TrendingUp, CheckCircle, Search } from "lucide-react";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, formatUSD, formatDate } from "@/lib/utils";
 import type { StockLotWithDetails } from "@/types";
 
 interface VariantAlert {
@@ -17,22 +17,6 @@ interface Props {
   threshold: number;
 }
 
-function formatUSD(amount: number) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("es-AR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-}
 
 export default function StockLotsTable({ lots, variantAlerts, threshold }: Props) {
   const [search, setSearch] = useState("");

@@ -14,33 +14,42 @@ export default function CategoryFeaturedSection({ title, eyebrow, href, products
   if (products.length === 0) return null;
 
   return (
-    <section className={dark ? "py-20 bg-obsidian" : "py-20 bg-page-bg"}>
-      <div className="px-6 max-w-7xl mx-auto">
-        <div className="flex items-end justify-between mb-10">
-          <div>
-            <p className="font-sans text-xs tracking-[0.35em] uppercase text-gold mb-3">
-              {eyebrow}
-            </p>
-            <h2
-              className={`font-display text-[clamp(1.8rem,3.5vw,3rem)] font-bold leading-tight ${
-                dark ? "text-cream" : "text-text-dark"
-              }`}
-            >
-              {title}
-            </h2>
-          </div>
-          <Link
-            href={href}
-            className={`hidden md:inline font-sans text-sm transition-colors border-b pb-0.5 ${
-              dark
-                ? "text-gold/60 hover:text-gold border-gold/20 hover:border-gold/60"
-                : "text-text-mid hover:text-text-dark border-border-light hover:border-text-dark"
-            }`}
+    <section
+      style={{
+        background: dark ? "#0a0a0a" : "#f8f7f4",
+        padding: "68px 0 76px",
+        borderTop: dark ? "1px solid rgba(164,133,76,0.08)" : "none",
+      }}
+    >
+      <div style={{ padding: "0 80px", marginBottom: 36, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+        <div>
+          <p className="font-sans uppercase text-gold" style={{ fontSize: 9, letterSpacing: "0.5em", marginBottom: 10 }}>
+            {eyebrow}
+          </p>
+          <h2
+            className="font-display"
+            style={{ fontSize: 40, lineHeight: 1.05, color: dark ? "#f5f0e8" : "#1c1917" }}
           >
-            Ver colección →
-          </Link>
+            {title}
+          </h2>
         </div>
-        <ProductCarousel products={products} />
+        <Link
+          href={href}
+          className="hidden md:inline font-sans transition-colors duration-200"
+          style={{
+            fontSize: 11,
+            letterSpacing: "0.25em",
+            textTransform: "uppercase",
+            color: dark ? "rgba(164,133,76,0.6)" : "#57534e",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#a4854c")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = dark ? "rgba(164,133,76,0.6)" : "#57534e")}
+        >
+          Ver colección →
+        </Link>
+      </div>
+      <div style={{ padding: "4px 80px 8px", position: "relative" }}>
+        <ProductCarousel products={products} dark={dark} />
       </div>
     </section>
   );

@@ -131,7 +131,8 @@ const NAV_ITEMS = [
   { label: "Árabe" as MegaMenuKey, href: "/catalogo?category=arabe", hasMega: true },
   { label: "Diseñador" as MegaMenuKey, href: "/catalogo?category=disenador", hasMega: true },
   { label: "Nicho" as MegaMenuKey, href: "/catalogo/nicho", hasMega: true },
-  { label: "Kits", href: "/catalogo?category=kit", hasMega: false },
+  { label: "Novedades", href: "/catalogo?sort=newest", hasMega: false },
+  { label: "Marcas", href: "/catalogo", hasMega: false },
 ] as const;
 
 export default function Navbar() {
@@ -160,21 +161,28 @@ export default function Navbar() {
     searchParams.get("category") === "nicho" ||
     isNichoProduct;
 
+  // Non-nicho, non-scrolled → dark transparent (hero overlay)
+  const isDark = isNicho || !scrolled;
+
   // Theme tokens
   const T = {
     header: isNicho
-      ? "bg-[#0a0a0a] border-white/10 shadow-[0_1px_12px_rgba(0,0,0,0.4)]"
+      ? "bg-[#0a0a0a] border-gold/10"
       : scrolled
-      ? "bg-white shadow-[0_1px_12px_rgba(0,0,0,0.07)]"
-      : "bg-white border-b border-border-light",
-    logo: isNicho ? "text-cream hover:text-gold" : "text-text-dark hover:text-gold",
-    iconBtn: isNicho
+      ? "bg-white border-border-light shadow-[0_1px_12px_rgba(0,0,0,0.07)]"
+      : "bg-[rgba(10,10,10,0.82)] backdrop-blur-[18px] border-white/[0.08]",
+    logo: isNicho
+      ? "text-gold hover:text-gold-light"
+      : scrolled
+      ? "text-text-dark hover:text-gold"
+      : "text-cream hover:text-gold",
+    iconBtn: isDark
       ? "text-cream-dim hover:text-cream hover:bg-white/5"
       : "text-text-mid hover:text-text-dark hover:bg-surface-2",
-    navBorder: isNicho ? "border-white/10" : "border-border-light",
-    navLink: isNicho ? "text-cream-dim hover:text-cream" : "text-text-mid hover:text-text-dark",
-    navActive: isNicho ? "text-cream border-gold" : "text-text-dark border-gold",
-    navInactive: isNicho ? "border-transparent hover:border-gold/40" : "border-transparent hover:border-gold/40",
+    navBorder: isDark ? "border-gold/10" : "border-border-light",
+    navLink: isDark ? "text-cream-dim hover:text-cream" : "text-text-mid hover:text-text-dark",
+    navActive: isDark ? "text-cream border-gold" : "text-text-dark border-gold",
+    navInactive: "border-transparent hover:border-gold/40",
   };
 
   // Auth state
@@ -247,7 +255,7 @@ export default function Navbar() {
           </Link>
 
           {/* Search */}
-          <SearchBar dark={isNicho} className="flex-1" />
+          <SearchBar dark={isDark} className="flex-1" />
 
           {/* Icons */}
           <div className="flex items-center gap-3 shrink-0">
@@ -420,7 +428,7 @@ export default function Navbar() {
           className={cn("hidden lg:block border-t relative", T.navBorder)}
           onMouseLeave={closeDrop}
         >
-          <nav className="max-w-7xl mx-auto px-5">
+          <nav className="max-w-7xl mx-auto px-5 flex items-center justify-between">
             <ul className="flex items-center">
               {NAV_ITEMS.map((item) => (
                 <li
@@ -451,6 +459,13 @@ export default function Navbar() {
                 </li>
               ))}
             </ul>
+            <div className="hidden xl:flex items-center gap-5">
+              {["12 cuotas sin interés · Banco Nación", "Envío gratis desde $40.000"].map((t) => (
+                <span key={t} className="font-sans text-gold whitespace-nowrap" style={{ fontSize: 9, letterSpacing: "0.1em" }}>
+                  {t}
+                </span>
+              ))}
+            </div>
           </nav>
 
           {/* ——— Mega Menu Panels ——— */}

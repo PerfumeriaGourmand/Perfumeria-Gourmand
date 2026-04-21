@@ -7,9 +7,9 @@
    ============================================================ */
 
 :root {
-  --gold: #c9a96e;
-  --gold-light: #e2c98a;
-  --gold-dark: #a07840;
+  --gold: #a4854c;
+  --gold-light: #c8a96e;
+  --gold-dark: #7a6035;
   --obsidian: #0a0a0a;
   --page-bg: #f8f7f4;
   --card-bg: #ffffff;
@@ -41,10 +41,10 @@ body {
 /* ——————————————————————————————————————————
    Scrollbar
    —————————————————————————————————————————— */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--page-bg); }
-::-webkit-scrollbar-thumb { background: rgba(201,169,110,0.4); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(201,169,110,0.7); }
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: var(--obsidian); }
+::-webkit-scrollbar-thumb { background: var(--gold); }
+::-webkit-scrollbar-thumb:hover { background: var(--gold-light); }
 
 /* ——————————————————————————————————————————
    Selection
@@ -72,6 +72,40 @@ body {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmer 4s linear infinite;
+}
+
+/* ——————————————————————————————————————————
+   Elegant button underline (used by new design)
+   —————————————————————————————————————————— */
+.elegant-btn {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-outfit);
+  font-size: 11px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 13px 0;
+  transition: color 0.3s;
+  outline: none;
+}
+.elegant-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  height: 0.5px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.elegant-btn:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
 }
 
 /* ——————————————————————————————————————————
@@ -148,7 +182,7 @@ body {
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 35s linear infinite;
+  animation: marquee 32s linear infinite;
 }
 .marquee-track:hover { animation-play-state: paused; }
 
@@ -179,6 +213,18 @@ body {
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
+}
+@keyframes float {
+  from { transform: translateY(0) scale(1); opacity: 0.3; }
+  to   { transform: translateY(-14px) scale(1.5); opacity: 0.8; }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-32px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 .animate-fade-up { animation: fadeUp 0.8s ease forwards; }

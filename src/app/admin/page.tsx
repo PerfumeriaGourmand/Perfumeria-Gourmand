@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import { createAdminClient } from "@/lib/supabase/server";
 import { formatPrice } from "@/lib/utils";
+import { STATUS_LABELS, STATUS_STYLES } from "@/lib/order-utils";
 import { Package, ShoppingBag, TrendingUp, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 
@@ -32,14 +33,12 @@ async function getMetrics() {
         .eq("is_active", true),
       supabase
         .from("orders")
-        .select("total")
-        .eq("payment_status", "approved"),
+        .select("total.sum()")
+        .eq("payment_status", "approved")
+        .single(),
     ]);
 
-  const totalSales = (salesRes.data ?? []).reduce(
-    (sum, o) => sum + (o.total ?? 0),
-    0
-  );
+  const totalSales = (salesRes.data as { sum: number } | null)?.sum ?? 0;
 
   return {
     ordersToday: ordersRes.count ?? 0,
@@ -59,23 +58,6 @@ async function getRecentOrders() {
   return data ?? [];
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  approved: "text-green-400 bg-green-400/10",
-  pending: "text-yellow-400 bg-yellow-400/10",
-  rejected: "text-red-400 bg-red-400/10",
-  in_process: "text-blue-400 bg-blue-400/10",
-  cancelled: "text-cream-dim bg-cream-dim/10",
-  refunded: "text-cream-dim bg-cream-dim/10",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  approved: "Aprobado",
-  pending: "Pendiente",
-  rejected: "Rechazado",
-  in_process: "En proceso",
-  cancelled: "Cancelado",
-  refunded: "Reembolsado",
-};
 
 export default async function AdminDashboard() {
   const [metrics, recentOrders] = await Promise.all([getMetrics(), getRecentOrders()]);

@@ -78,7 +78,11 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    await supabase.from("order_items").insert(orderItems);
+    const { error: itemsError } = await supabase.from("order_items").insert(orderItems);
+    if (itemsError) {
+      await supabase.from("orders").delete().eq("id", order.id);
+      return NextResponse.json({ error: "Error al crear los items del pedido" }, { status: 500 });
+    }
 
     // Create MercadoPago preference (for card payments)
     if (payment_method !== "bank_transfer") {

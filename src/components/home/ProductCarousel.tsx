@@ -11,9 +11,10 @@ import ProductCard from "@/components/catalog/ProductCard";
 interface ProductCarouselProps {
   products: Product[];
   autoplay?: boolean;
+  dark?: boolean;
 }
 
-export default function ProductCarousel({ products, autoplay = false }: ProductCarouselProps) {
+export default function ProductCarousel({ products, autoplay = false, dark = false }: ProductCarouselProps) {
   const plugins = autoplay ? [Autoplay({ delay: 5000, stopOnInteraction: true })] : [];
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
@@ -64,23 +65,29 @@ export default function ProductCarousel({ products, autoplay = false }: ProductC
         onClick={onPrev}
         disabled={prevDisabled}
         className={cn(
-          "absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white border border-border-light rounded-full flex items-center justify-center text-text-mid shadow-card transition-all duration-200 hover:shadow-card-hover hover:border-text-dark hover:text-text-dark z-10",
+          "absolute -left-5 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center transition-all duration-200 z-10",
+          dark
+            ? "bg-transparent border border-gold/25 text-gold hover:border-gold"
+            : "bg-transparent border border-[#dedad4] text-text-dark hover:border-gold hover:text-gold",
           prevDisabled && "opacity-30 cursor-not-allowed"
         )}
         aria-label="Anterior"
       >
-        <ChevronLeft size={16} strokeWidth={2} />
+        <ChevronLeft size={14} strokeWidth={1.5} />
       </button>
       <button
         onClick={onNext}
         disabled={nextDisabled}
         className={cn(
-          "absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white border border-border-light rounded-full flex items-center justify-center text-text-mid shadow-card transition-all duration-200 hover:shadow-card-hover hover:border-text-dark hover:text-text-dark z-10",
+          "absolute -right-5 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center transition-all duration-200 z-10",
+          dark
+            ? "bg-transparent border border-gold/25 text-gold hover:border-gold"
+            : "bg-transparent border border-[#dedad4] text-text-dark hover:border-gold hover:text-gold",
           nextDisabled && "opacity-30 cursor-not-allowed"
         )}
         aria-label="Siguiente"
       >
-        <ChevronRight size={16} strokeWidth={2} />
+        <ChevronRight size={14} strokeWidth={1.5} />
       </button>
 
       {/* Dots */}

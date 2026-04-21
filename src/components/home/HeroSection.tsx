@@ -1,145 +1,218 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 
-export default function HeroSection() {
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
+const SLIDES = [
+  {
+    eyebrow: "Nueva temporada · Otoño 2026",
+    title: "El perfume\ncomo identidad",
+    sub: "Más de 500 fragancias curadas. Desde clásicos de diseñador hasta joyas del nicho más exclusivo.",
+    cta: { label: "Explorar colección", href: "/catalogo" },
+    accent: { label: "Línea Nicho", href: "/catalogo/nicho" },
+    tag: "Diseñador",
+  },
+  {
+    eyebrow: "Perfumería árabe · Selección premium",
+    title: "Intensidad\norientalque persiste",
+    sub: "Oud, ámbar y especias. La tradición árabe en frascos de alta concentración.",
+    cta: { label: "Ver colección árabe", href: "/catalogo?category=arabe" },
+    accent: null,
+    tag: "Árabe",
+  },
+  {
+    eyebrow: "Perfumería de autor · Línea Nicho",
+    title: "Para quienes\nvan más allá",
+    sub: "Byredo, Le Labo, Frederic Malle. Fórmulas artesanales para una identidad olfativa única.",
+    cta: { label: "Descubrir Nicho", href: "/catalogo/nicho" },
+    accent: null,
+    tag: "Nicho",
+  },
+];
 
+const GLOWS = [
+  "radial-gradient(ellipse at 60% 40%, rgba(164,133,76,0.06) 0%, transparent 60%)",
+  "radial-gradient(ellipse at 30% 60%, rgba(164,133,76,0.05) 0%, transparent 55%)",
+  "radial-gradient(ellipse at 70% 50%, rgba(164,133,76,0.08) 0%, transparent 60%)",
+];
+
+const PARTICLES = [
+  { size: 3, x: 12, y: 25, dur: 3.5, delay: 0 },
+  { size: 2, x: 23, y: 68, dur: 4.0, delay: 0.35 },
+  { size: 2, x: 35, y: 14, dur: 4.5, delay: 0.7 },
+  { size: 2, x: 48, y: 82, dur: 3.8, delay: 1.05 },
+  { size: 3, x: 62, y: 38, dur: 4.2, delay: 1.4 },
+  { size: 2, x: 74, y: 57, dur: 3.6, delay: 1.75 },
+  { size: 2, x: 86, y: 22, dur: 4.8, delay: 2.1 },
+  { size: 2, x: 5,  y: 74, dur: 4.0, delay: 2.45 },
+];
+
+export default function HeroSection() {
+  const [cur, setCur] = useState(0);
+  const [animating, setAnimating] = useState(false);
+  const [dir, setDir] = useState<1 | -1>(1);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => { setTimeout(() => setLoaded(true), 80); }, []);
+
+  const goTo = useCallback((idx: number, d: 1 | -1 = 1) => {
+    if (animating || idx === cur) return;
+    setDir(d);
+    setAnimating(true);
+    setCur(idx);
+    setTimeout(() => setAnimating(false), 700);
+  }, [animating, cur]);
+
+  // Auto-advance
   useEffect(() => {
-    const els = [titleRef.current, subtitleRef.current];
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    els.forEach((el, i) => {
-      if (!el) return;
-      el.style.opacity = "0";
-      el.style.transform = "translateY(20px)";
-      const t = setTimeout(() => {
-        if (!el) return;
-        el.style.transition = "opacity 1s ease, transform 1s ease";
-        el.style.opacity = "1";
-        el.style.transform = "translateY(0)";
-      }, 300 + i * 250);
-      timers.push(t);
-    });
-    return () => timers.forEach(clearTimeout);
-  }, []);
+    const t = setTimeout(() => goTo((cur + 1) % SLIDES.length, 1), 5500);
+    return () => clearTimeout(t);
+  }, [cur, goTo]);
+
+  const slide = SLIDES[cur];
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-[#0a0a0a] pt-[104px]">
-      {/* Atmospheric layers */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-radial from-[rgba(201,169,110,0.05)] via-transparent to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
-        <GoldParticles />
+    <section
+      className="relative overflow-hidden bg-[#0a0a0a]"
+      style={{ height: "68vh", minHeight: 520 }}
+    >
+      {/* Radial glow — shifts per slide */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-all duration-1000"
+        style={{ background: GLOWS[cur] }}
+      />
+
+      {/* Subtle grid */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(164,133,76,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(164,133,76,0.03) 1px, transparent 1px)",
+          backgroundSize: "80px 80px",
+        }}
+      />
+
+      {/* Particles */}
+      {PARTICLES.map((p, i) => (
         <div
-          className="absolute inset-0 opacity-[0.015]"
+          key={i}
+          className="absolute rounded-full pointer-events-none"
           style={{
-            backgroundImage:
-              "linear-gradient(rgba(201,169,110,1) 1px, transparent 1px), linear-gradient(90deg, rgba(201,169,110,1) 1px, transparent 1px)",
-            backgroundSize: "80px 80px",
+            width: p.size, height: p.size,
+            left: `${p.x}%`, top: `${p.y}%`,
+            background: `rgba(164,133,76,${0.2 + i * 0.04})`,
+            animation: `float ${p.dur}s ease-in-out infinite alternate`,
+            animationDelay: `${p.delay}s`,
           }}
         />
+      ))}
+
+      {/* Ghost text */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display whitespace-nowrap select-none pointer-events-none leading-none"
+        style={{ fontSize: "min(20vw, 240px)", color: "rgba(164,133,76,0.025)", letterSpacing: "-0.01em" }}
+      >
+        GOURMAND
       </div>
 
-      <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
+      {/* Slide content */}
+      <div
+        key={cur}
+        className="absolute inset-0 flex flex-col justify-end"
+        style={{
+          padding: "0 80px 56px",
+          animation: animating ? `${dir > 0 ? "slideInRight" : "slideInLeft"} 0.65s cubic-bezier(0.4,0,0.2,1) forwards` : "none",
+          opacity: loaded ? 1 : 0,
+          transition: "opacity 0.6s 0.1s",
+        }}
+      >
         <p
-          className="font-sans text-xs tracking-[0.5em] uppercase text-gold mb-10 opacity-0 animate-fade-in"
-          style={{ animationDelay: "100ms", animationFillMode: "forwards" }}
+          className="font-sans uppercase text-gold mb-4"
+          style={{ fontSize: 10, letterSpacing: "0.5em", animation: "fadeUp 0.5s 0.05s both" }}
         >
-          Buenos Aires · Perfumería de Lujo
+          {slide.eyebrow}
         </p>
 
         <h1
-          ref={titleRef}
-          className="font-display font-bold text-[clamp(3rem,10vw,8rem)] leading-[0.9] tracking-tight text-white mb-6"
+          className="font-display text-cream leading-[1.05] whitespace-pre-line"
+          style={{
+            fontSize: "clamp(44px, 6.5vw, 88px)",
+            letterSpacing: "0.01em",
+            maxWidth: 680,
+            animation: "fadeUp 0.6s 0.15s both",
+          }}
         >
-          El arte de oler
-          <br />
-          <em className="text-gold-shimmer not-italic">extraordinario</em>
+          {slide.title}
         </h1>
 
         <p
-          ref={subtitleRef}
-          className="font-sans text-sm md:text-base text-white/40 max-w-lg mx-auto leading-relaxed mb-14 tracking-wide"
+          className="font-body text-cream-dim"
+          style={{
+            fontSize: 17,
+            maxWidth: 420,
+            marginTop: 16,
+            lineHeight: 1.75,
+            fontStyle: "italic",
+            animation: "fadeUp 0.6s 0.25s both",
+          }}
         >
-          Nicho, árabe y diseñador. Seleccionados con precisión
-          <br className="hidden md:block" /> para quienes entienden el perfume como declaración.
+          {slide.sub}
         </p>
 
         <div
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0 animate-fade-up"
-          style={{ animationDelay: "900ms", animationFillMode: "forwards" }}
+          className="flex items-center gap-7 mt-8"
+          style={{ animation: "fadeUp 0.6s 0.35s both" }}
         >
-          <Link
-            href="/catalogo"
-            className="px-10 py-4 bg-white text-[#0a0a0a] font-sans text-sm font-semibold rounded-full hover:bg-cream transition-colors duration-300"
-          >
-            Explorar colección
+          <Link href={slide.cta.href} className="elegant-btn text-cream hover:text-gold">
+            {slide.cta.label}
           </Link>
-          <Link
-            href="/catalogo/nicho"
-            className="px-10 py-4 border border-gold/40 text-gold font-sans text-sm font-medium rounded-full hover:border-gold/80 hover:bg-gold/5 transition-all duration-300"
-          >
-            Descubrir nichos
-          </Link>
-        </div>
-
-        <div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 animate-fade-in"
-          style={{ animationDelay: "1400ms", animationFillMode: "forwards" }}
-        >
-          <div className="w-px h-10 bg-gradient-to-b from-transparent via-gold/40 to-transparent animate-pulse" />
-          <span className="font-sans text-[10px] tracking-[0.4em] uppercase text-white/20">Scroll</span>
+          {slide.accent && (
+            <Link href={slide.accent.href} className="elegant-btn text-gold">
+              {slide.accent.label}
+            </Link>
+          )}
         </div>
       </div>
+
+      {/* Tag top-right */}
+      <div
+        className="absolute top-8 font-sans uppercase flex items-center gap-2.5"
+        style={{ right: 80, fontSize: 9, letterSpacing: "0.5em", color: "rgba(164,133,76,0.4)" }}
+      >
+        <span className="inline-block h-px w-6 bg-gold/30" />
+        {slide.tag}
+      </div>
+
+      {/* Controls */}
+      <div className="absolute bottom-14 right-20 flex items-center gap-4">
+        {SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => goTo(i, i > cur ? 1 : -1)}
+            className="border-none cursor-pointer transition-all duration-400"
+            style={{
+              width: i === cur ? 28 : 6,
+              height: 2,
+              background: i === cur ? "var(--gold)" : "rgba(164,133,76,0.25)",
+            }}
+            aria-label={`Slide ${i + 1}`}
+          />
+        ))}
+        <button
+          onClick={() => goTo((cur - 1 + SLIDES.length) % SLIDES.length, -1)}
+          className="bg-transparent border-none cursor-pointer text-gold/50 hover:text-gold transition-colors ml-2 leading-none"
+          style={{ fontSize: 18 }}
+        >
+          ←
+        </button>
+        <button
+          onClick={() => goTo((cur + 1) % SLIDES.length, 1)}
+          className="bg-transparent border-none cursor-pointer text-gold/50 hover:text-gold transition-colors leading-none"
+          style={{ fontSize: 18 }}
+        >
+          →
+        </button>
+      </div>
     </section>
-  );
-}
-
-function GoldParticles() {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  // Fixed positions so SSR and client always match; animation randomised via CSS delay
-  const particles = [
-    { id: 0, size: 1.5, x: 12, y: 23, duration: 11, delay: 0 },
-    { id: 1, size: 2.0, x: 28, y: 67, duration: 9, delay: 1.2 },
-    { id: 2, size: 0.8, x: 45, y: 14, duration: 13, delay: 2.4 },
-    { id: 3, size: 1.2, x: 61, y: 81, duration: 8, delay: 0.6 },
-    { id: 4, size: 2.5, x: 74, y: 38, duration: 12, delay: 3.0 },
-    { id: 5, size: 1.0, x: 88, y: 55, duration: 10, delay: 1.8 },
-    { id: 6, size: 1.8, x: 5, y: 71, duration: 14, delay: 4.2 },
-    { id: 7, size: 0.6, x: 35, y: 90, duration: 7, delay: 2.0 },
-    { id: 8, size: 2.2, x: 52, y: 44, duration: 11, delay: 5.1 },
-    { id: 9, size: 1.4, x: 68, y: 19, duration: 9, delay: 0.3 },
-    { id: 10, size: 1.0, x: 82, y: 77, duration: 13, delay: 3.6 },
-    { id: 11, size: 2.8, x: 19, y: 48, duration: 8, delay: 1.5 },
-    { id: 12, size: 0.9, x: 40, y: 6, duration: 12, delay: 4.8 },
-    { id: 13, size: 1.6, x: 93, y: 32, duration: 10, delay: 2.7 },
-    { id: 14, size: 2.1, x: 56, y: 63, duration: 15, delay: 0.9 },
-    { id: 15, size: 1.3, x: 77, y: 87, duration: 9, delay: 3.3 },
-  ];
-
-  if (!mounted) return null;
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="absolute rounded-full bg-gold animate-particle"
-          style={{
-            width: p.size + "px",
-            height: p.size + "px",
-            left: p.x + "%",
-            top: p.y + "%",
-            opacity: 0,
-            "--duration": p.duration + "s",
-            "--delay": p.delay + "s",
-          } as React.CSSProperties}
-        />
-      ))}
-    </div>
   );
 }

@@ -26,18 +26,18 @@ const config: Config = {
         "border-light": "#e8e5e0",
         "surface-2": "#f1efe9",
         // ——— Gold (shared) ———
-        gold: "#c9a96e",
-        "gold-light": "#e2c98a",
-        "gold-dark": "#a07840",
-        "gold-muted": "#8a6840",
+        gold: "#a4854c",
+        "gold-light": "#c8a96e",
+        "gold-dark": "#7a6035",
+        "gold-muted": "#6a5030",
         // ——— Semantic ———
-        border: "rgba(201,169,110,0.15)",
-        "border-subtle": "rgba(201,169,110,0.07)",
+        border: "rgba(164,133,76,0.15)",
+        "border-subtle": "rgba(164,133,76,0.07)",
       },
       fontFamily: {
-        display: ["var(--font-philosopher)", "Georgia", "serif"],
-        body: ["var(--font-cormorant)", "Georgia", "serif"],
-        sans: ["var(--font-dm-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-italiana)", "Georgia", "serif"],
+        body: ["var(--font-spectral)", "Georgia", "serif"],
+        sans: ["var(--font-outfit)", "system-ui", "sans-serif"],
       },
       letterSpacing: {
         widest: "0.3em",

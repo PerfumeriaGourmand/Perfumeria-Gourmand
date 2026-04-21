@@ -1,22 +1,6 @@
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, formatUSD, formatDate } from "@/lib/utils";
 import { Package, TrendingUp, AlertTriangle } from "lucide-react";
 import type { StockLotWithDetails } from "@/types";
-
-function formatDate(dateStr: string) {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString("es-AR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-}
-
-function formatUSD(amount: number) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(amount);
-}
 
 interface LotWithMetrics extends StockLotWithDetails {
   units_sold: number;

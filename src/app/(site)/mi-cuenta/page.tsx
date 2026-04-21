@@ -8,34 +8,14 @@ import Image from "next/image";
 import { Settings, ShoppingBag, LogIn, User, Edit2, LogOut, Package } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import toast from "react-hot-toast";
+import { formatPrice } from "@/lib/utils";
+import { STATUS_LABELS, STATUS_COLORS } from "@/lib/order-utils";
 
 interface Order {
   id: string;
   total: number;
   payment_status: string;
   created_at: string;
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  approved: "Aprobado",
-  pending: "Pendiente",
-  rejected: "Rechazado",
-  in_process: "En proceso",
-  cancelled: "Cancelado",
-  refunded: "Reembolsado",
-};
-
-const STATUS_COLORS: Record<string, string> = {
-  approved: "text-green-600 bg-green-50 border-green-200",
-  pending: "text-yellow-600 bg-yellow-50 border-yellow-200",
-  rejected: "text-red-500 bg-red-50 border-red-200",
-  in_process: "text-blue-600 bg-blue-50 border-blue-200",
-  cancelled: "text-text-light bg-surface-2 border-border-light",
-  refunded: "text-text-light bg-surface-2 border-border-light",
-};
-
-function formatPrice(n: number) {
-  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n);
 }
 
 export default function MiCuentaPage() {

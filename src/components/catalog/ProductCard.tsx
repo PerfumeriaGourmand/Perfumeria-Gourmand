@@ -68,8 +68,8 @@ export default function ProductCard({ product, dark = false }: ProductCardProps)
       {/* Image area */}
       <div
         className={cn(
-          "relative rounded-t-2xl overflow-hidden aspect-[3/4]",
-          dark ? "bg-black/40 border border-gold/10" : "bg-[#f5f4f0]"
+          "relative overflow-hidden aspect-[3/4]",
+          dark ? "bg-black/40 border border-gold/10" : "bg-[#f5f4f0] rounded-t-2xl"
         )}
       >
         {primaryImage ? (
@@ -128,7 +128,7 @@ export default function ProductCard({ product, dark = false }: ProductCardProps)
       </div>
 
       {/* Info */}
-      <div className={cn("p-4 pt-3", dark && "border-x border-b border-gold/10 rounded-b-2xl")}>
+      <div className={cn("p-4 pt-3", dark && "border-x border-b border-gold/10")}>
         {/* Brand */}
         <p className={cn(
           "font-sans text-xs tracking-wide mb-0.5",

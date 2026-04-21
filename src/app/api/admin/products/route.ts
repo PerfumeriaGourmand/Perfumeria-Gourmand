@@ -29,17 +29,16 @@ export async function POST(req: NextRequest) {
 
     if (!id) throw new Error("No product ID returned");
 
-    // Upsert variants
-    for (const v of variants as Record<string, unknown>[]) {
-      if (v.id) {
-        const { error } = await admin.from("product_variants").update(v).eq("id", v.id);
-        if (error) console.error("[products API] variant update:", error);
-      } else {
-        const { error } = await admin
-          .from("product_variants")
-          .insert({ ...v, product_id: id });
-        if (error) console.error("[products API] variant insert:", error);
-      }
+    // Upsert variants — single query instead of N sequential updates
+    if ((variants as Record<string, unknown>[]).length > 0) {
+      const rows = (variants as Record<string, unknown>[]).map((v) => ({
+        ...v,
+        product_id: id,
+      }));
+      const { error } = await admin
+        .from("product_variants")
+        .upsert(rows, { onConflict: "id" });
+      if (error) console.error("[products API] variants upsert:", error);
     }
 
     // Upsert images — always upsert so new images (id = storage path) get

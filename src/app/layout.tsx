@@ -1,29 +1,28 @@
 import type { Metadata } from "next";
-import { Philosopher, Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { Italiana, Spectral, Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import CartDrawer from "@/components/cart/CartDrawer";
 
-const philosopher = Philosopher({
+const italiana = Italiana({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-philosopher",
+  weight: ["400"],
+  variable: "--font-italiana",
   display: "swap",
 });
 
-const cormorant = Cormorant_Garamond({
+const spectral = Spectral({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500"],
   style: ["normal", "italic"],
-  variable: "--font-cormorant",
+  variable: "--font-spectral",
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const outfit = Outfit({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
-  variable: "--font-dm-sans",
+  variable: "--font-outfit",
   display: "swap",
 });
 
@@ -48,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`${philosopher.variable} ${cormorant.variable} ${dmSans.variable}`}>
+    <html lang="es" className={`${italiana.variable} ${spectral.variable} ${outfit.variable}`}>
       <body className="font-sans bg-page-bg text-text-dark">
         {children}
         <CartDrawer />
@@ -59,7 +58,7 @@ export default function RootLayout({
               background: "#ffffff",
               color: "#1c1917",
               border: "1px solid #e8e5e0",
-              fontFamily: "var(--font-dm-sans)",
+              fontFamily: "var(--font-outfit)",
               fontSize: "0.875rem",
               boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
             },

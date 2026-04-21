@@ -1,69 +1,77 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 
 const CATEGORIES = [
-  {
-    id: "arabe",
-    label: "Árabe",
-    description: "Oud, rosa, ámbar. La opulencia del Oriente Medio destilada en cada frasco.",
-    bg: "bg-[#2a1500]",
-  },
-  {
-    id: "disenador",
-    label: "Diseñador",
-    description: "Las grandes maisons del perfume. Elegancia accesible con firma.",
-    bg: "bg-[#0d1b2e]",
-  },
-  {
-    id: "nicho",
-    label: "Nicho",
-    description: "Perfumería de autor. Pequeñas tiradas, materias primas extraordinarias.",
-    bg: "bg-[#150a28]",
-  },
+  { id: "arabe", label: "Árabe", sub: "Perfumería oriental", dark: false, href: "/catalogo?category=arabe" },
+  { id: "disenador", label: "Diseñador", sub: "Grandes firmas", dark: false, href: "/catalogo?category=disenador" },
+  { id: "nicho", label: "Nicho", sub: "Perfumería de autor", dark: true, href: "/catalogo/nicho" },
 ];
+
+function CategoryTile({ cat }: { cat: typeof CATEGORIES[0] }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <Link
+      href={cat.href}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: cat.dark ? "#0a0a0a" : hov ? "#f2f0eb" : "#f8f7f4",
+        aspectRatio: "3/4",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-end",
+        padding: "32px",
+        cursor: "pointer",
+        position: "relative",
+        overflow: "hidden",
+        transition: "background 0.3s",
+        textDecoration: "none",
+      }}
+    >
+      <div style={{
+        position: "absolute", inset: 0, pointerEvents: "none",
+        backgroundImage: "repeating-linear-gradient(45deg,transparent,transparent 24px,rgba(164,133,76,0.03) 24px,rgba(164,133,76,0.03) 25px)",
+      }} />
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0, height: 2,
+        background: "var(--gold)",
+        transform: `scaleX(${hov ? 1 : 0})`,
+        transformOrigin: "left",
+        transition: "transform 0.4s cubic-bezier(0.4,0,0.2,1)",
+      }} />
+      <p
+        className="font-sans uppercase"
+        style={{ fontSize: 9, letterSpacing: "0.4em", color: "var(--gold)", marginBottom: 8, position: "relative" }}
+      >
+        {cat.sub}
+      </p>
+      <p
+        className="font-display"
+        style={{ fontSize: 44, lineHeight: 1, color: cat.dark ? "#f5f0e8" : "#1c1917", position: "relative" }}
+      >
+        {cat.label}
+      </p>
+      <div style={{ marginTop: 16, position: "relative" }}>
+        <span className={`elegant-btn ${cat.dark ? "text-cream" : "text-text-dark"} hover:text-gold`}>Ver todo</span>
+      </div>
+    </Link>
+  );
+}
 
 export default function CategorySection() {
   return (
-    <section className="py-20 px-6 max-w-7xl mx-auto">
-      <div className="text-center mb-14">
-        <p className="font-sans text-xs tracking-[0.35em] uppercase text-gold mb-3">
-          Colecciones
-        </p>
-        <h2 className="font-display text-[clamp(1.8rem,3.5vw,3rem)] font-bold text-text-dark">
-          Tres mundos del perfume
-        </h2>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {CATEGORIES.map((cat, i) => (
-          <Link
-            key={cat.id}
-            href={`/catalogo?category=${cat.id}`}
-            className={`group relative overflow-hidden rounded-2xl ${cat.bg} p-10 flex flex-col justify-between min-h-[280px] transition-transform duration-300 hover:-translate-y-1 hover:shadow-card-hover`}
-          >
-            {/* Number */}
-            <span className="font-display text-[80px] font-bold leading-none text-white/5 absolute top-3 right-5 select-none">
-              0{i + 1}
-            </span>
-
-            <div>
-              <p className="font-sans text-[10px] tracking-[0.4em] uppercase text-gold/60 mb-4 group-hover:text-gold transition-colors duration-300">
-                Categoría
-              </p>
-              <h3 className="font-display text-4xl font-bold text-white leading-none">
-                {cat.label}
-              </h3>
-            </div>
-
-            <div>
-              <p className="font-sans text-sm text-white/40 leading-relaxed mb-6 max-w-xs">
-                {cat.description}
-              </p>
-              <span className="inline-flex items-center gap-3 font-sans text-xs tracking-widest uppercase text-gold/60 group-hover:text-gold transition-colors duration-300">
-                Ver destacados
-                <span className="w-6 h-px bg-current transition-all duration-300 group-hover:w-10" />
-              </span>
-            </div>
-          </Link>
+    <section style={{ background: "#fff", padding: "72px 80px" }}>
+      <p className="font-sans uppercase text-gold text-center" style={{ fontSize: 9, letterSpacing: "0.5em", marginBottom: 10 }}>
+        Explorar
+      </p>
+      <h2 className="font-display text-text-dark text-center" style={{ fontSize: 42, marginBottom: 52 }}>
+        Nuestra colección
+      </h2>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1, background: "#e8e5e0" }}>
+        {CATEGORIES.map((cat) => (
+          <CategoryTile key={cat.id} cat={cat} />
         ))}
       </div>
     </section>
