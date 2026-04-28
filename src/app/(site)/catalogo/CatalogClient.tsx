@@ -48,15 +48,27 @@ export default function CatalogClient({ initialProducts, initialFilters, brands 
     setFiltersOpen(false);
   };
 
-  // Client-side search
+  // Client-side search + sort
   const search = initialFilters.search ?? "";
   const products = useMemo(() => {
-    if (!search.trim()) return initialProducts;
-    const q = search.toLowerCase();
-    return initialProducts.filter(
-      (p) => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)
-    );
-  }, [initialProducts, search]);
+    let result = initialProducts;
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (p) => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)
+      );
+    }
+    // Default: en stock alfabético primero, sin stock alfabético después
+    if (!initialFilters.sort) {
+      result = [...result].sort((a, b) => {
+        const aHas = (a.variants ?? []).some((v) => v.is_active && v.stock > 0);
+        const bHas = (b.variants ?? []).some((v) => v.is_active && v.stock > 0);
+        if (aHas !== bHas) return aHas ? -1 : 1;
+        return a.name.localeCompare(b.name, "es");
+      });
+    }
+    return result;
+  }, [initialProducts, search, initialFilters.sort]);
 
   const activeFilterCount = [
     initialFilters.category,

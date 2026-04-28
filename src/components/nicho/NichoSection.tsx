@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/types";
@@ -17,9 +17,15 @@ export default function NichoSection({ products, brands }: NichoSectionProps) {
   const [activeBrand, setActiveBrand] = useState<string | null>(null);
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
 
-  const filteredProducts = activeBrand
-    ? products.filter((p) => p.brand === activeBrand)
-    : products;
+  const filteredProducts = useMemo(() => {
+    const base = activeBrand ? products.filter((p) => p.brand === activeBrand) : products;
+    return [...base].sort((a, b) => {
+      const aHas = (a.variants ?? []).some((v) => v.is_active && v.stock > 0);
+      const bHas = (b.variants ?? []).some((v) => v.is_active && v.stock > 0);
+      if (aHas !== bHas) return aHas ? -1 : 1;
+      return a.name.localeCompare(b.name, "es");
+    });
+  }, [products, activeBrand]);
 
   const scrollToBrand = (brand: string) => {
     setActiveBrand(brand);
