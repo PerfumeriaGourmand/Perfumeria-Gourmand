@@ -49,7 +49,7 @@ function CategoryTile({ cat }: { cat: typeof CATEGORIES[0] }) {
       </p>
       <p
         className="font-display"
-        style={{ fontSize: 44, lineHeight: 1, color: cat.dark ? "#f5f0e8" : "#1c1917", position: "relative" }}
+        style={{ fontSize: "clamp(32px, 3.5vw, 44px)", lineHeight: 1, color: cat.dark ? "#f5f0e8" : "#1c1917", position: "relative" }}
       >
         {cat.label}
       </p>
@@ -62,14 +62,14 @@ function CategoryTile({ cat }: { cat: typeof CATEGORIES[0] }) {
 
 export default function CategorySection() {
   return (
-    <section style={{ background: "#fff", padding: "72px 80px" }}>
+    <section className="px-5 sm:px-8 lg:px-20 py-16 lg:py-20" style={{ background: "#fff" }}>
       <p className="font-sans uppercase text-gold text-center" style={{ fontSize: 9, letterSpacing: "0.5em", marginBottom: 10 }}>
         Explorar
       </p>
-      <h2 className="font-display text-text-dark text-center" style={{ fontSize: 42, marginBottom: 52 }}>
+      <h2 className="font-display text-text-dark text-center" style={{ fontSize: "clamp(28px, 4vw, 42px)", marginBottom: 52 }}>
         Nuestra colección
       </h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 1, background: "#e8e5e0" }}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-px" style={{ background: "#e8e5e0" }}>
         {CATEGORIES.map((cat) => (
           <CategoryTile key={cat.id} cat={cat} />
         ))}

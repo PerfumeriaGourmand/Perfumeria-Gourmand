@@ -10,22 +10,18 @@ const STATS = [
 export default function EditorialBanner() {
   return (
     <div
+      className="px-5 sm:px-8 lg:px-20 py-16 lg:py-20 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center"
       style={{
         background: "#111",
         borderTop: "1px solid rgba(164,133,76,0.1)",
         borderBottom: "1px solid rgba(164,133,76,0.1)",
-        padding: "72px 80px",
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        gap: 64,
-        alignItems: "center",
       }}
     >
       <div>
         <p className="font-sans uppercase text-gold" style={{ fontSize: 9, letterSpacing: "0.5em", marginBottom: 14 }}>
           Por qué Gourmand
         </p>
-        <h2 className="font-display" style={{ fontSize: 46, color: "#f5f0e8", lineHeight: 1.1, marginBottom: 18 }}>
+        <h2 className="font-display" style={{ fontSize: "clamp(26px, 3.5vw, 46px)", color: "#f5f0e8", lineHeight: 1.1, marginBottom: 18 }}>
           La experiencia de una perfumería premium, en tu casa
         </h2>
         <p className="font-body" style={{ fontSize: 17, color: "#7a7268", lineHeight: 1.85, marginBottom: 28, fontStyle: "italic", maxWidth: 420 }}>

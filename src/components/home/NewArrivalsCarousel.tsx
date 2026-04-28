@@ -4,13 +4,13 @@ import Link from "next/link";
 
 export default function NewArrivalsCarousel({ products }: { products: Product[] }) {
   return (
-    <section style={{ background: "#f8f7f4", padding: "68px 0 76px" }}>
-      <div style={{ padding: "0 80px", marginBottom: 36, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+    <section className="py-16 lg:py-20" style={{ background: "#f8f7f4" }}>
+      <div className="px-5 sm:px-8 lg:px-20 mb-9 flex justify-between items-end">
         <div>
           <p className="font-sans uppercase text-gold" style={{ fontSize: 9, letterSpacing: "0.5em", marginBottom: 10 }}>
             Recién llegado
           </p>
-          <h2 className="font-display text-text-dark" style={{ fontSize: 40, lineHeight: 1.05 }}>
+          <h2 className="font-display text-text-dark" style={{ fontSize: "clamp(26px, 4vw, 40px)", lineHeight: 1.05 }}>
             Novedades
           </h2>
         </div>
@@ -24,11 +24,11 @@ export default function NewArrivalsCarousel({ products }: { products: Product[] 
       </div>
 
       {products.length > 0 ? (
-        <div style={{ padding: "4px 80px 8px", position: "relative" }}>
+        <div className="px-5 sm:px-8 lg:px-20 pt-1 pb-2 relative">
           <ProductCarousel products={products} />
         </div>
       ) : (
-        <div className="flex items-center justify-center py-20 border border-border-light mx-20">
+        <div className="flex items-center justify-center py-20 border border-border-light mx-5 sm:mx-20">
           <p className="font-sans text-sm text-text-light italic">Las novedades aparecerán aquí</p>
         </div>
       )}

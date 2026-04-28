@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { ShoppingBag, User, Menu, X, ChevronDown, LogIn, Settings, ArrowRight, Heart } from "lucide-react";
+import { ShoppingBag, User, Menu, X, ChevronDown, LogIn, Settings, ArrowRight, Heart, Search } from "lucide-react";
 import SearchBar from "@/components/layout/SearchBar";
 import { useCartStore } from "@/store/cart";
 import { useWishlistStore } from "@/store/wishlist";
@@ -252,16 +252,25 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            className={cn("font-display text-2xl font-bold tracking-[0.15em] transition-colors duration-300 shrink-0 mr-4", T.logo)}
+            className={cn("font-display text-2xl font-bold tracking-[0.15em] transition-colors duration-300 shrink-0 sm:mr-4", T.logo)}
           >
             GOURMAND
           </Link>
 
-          {/* Search */}
-          <SearchBar dark={isDark} className="flex-1" />
+          {/* Search — hidden on mobile */}
+          <SearchBar dark={isDark} className="hidden sm:block flex-1" />
 
           {/* Icons */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto sm:ml-0">
+            {/* Search icon — mobile only */}
+            <Link
+              href="/catalogo"
+              className={cn("sm:hidden w-9 h-9 flex items-center justify-center transition-colors rounded-full", T.iconBtn)}
+              aria-label="Buscar"
+            >
+              <Search size={18} strokeWidth={1.5} />
+            </Link>
+
             {/* Account */}
             <div className="relative" ref={accountRef}>
               <button
@@ -396,10 +405,10 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
 
-            {/* Wishlist */}
+            {/* Wishlist — hidden on mobile (accessible desde menú) */}
             <Link
               href="/favoritos"
-              className={cn("relative w-9 h-9 flex items-center justify-center transition-colors rounded-full", T.iconBtn)}
+              className={cn("hidden sm:flex relative w-9 h-9 items-center justify-center transition-colors rounded-full", T.iconBtn)}
               aria-label="Favoritos"
             >
               <Heart size={18} strokeWidth={1.5} className={wCount > 0 ? "fill-gold stroke-gold" : ""} />
@@ -733,6 +742,14 @@ export default function Navbar() {
                 className="block font-sans text-sm text-text-dark font-medium"
               >
                 Mi cuenta
+              </Link>
+              <Link
+                href="/favoritos"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-2 font-sans text-sm text-text-dark font-medium"
+              >
+                <Heart size={14} strokeWidth={1.5} className={wCount > 0 ? "fill-gold stroke-gold" : "text-text-light"} />
+                Favoritos{wCount > 0 && <span className="text-gold text-xs">({wCount})</span>}
               </Link>
               {isAdmin && (
                 <Link

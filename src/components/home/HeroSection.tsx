@@ -74,7 +74,7 @@ export default function HeroSection() {
   return (
     <section
       className="relative overflow-hidden bg-[#0a0a0a]"
-      style={{ height: "68vh", minHeight: 520 }}
+      style={{ height: "68vh", minHeight: 480 }}
     >
       {/* Radial glow — shifts per slide */}
       <div
@@ -118,9 +118,8 @@ export default function HeroSection() {
       {/* Slide content */}
       <div
         key={cur}
-        className="absolute inset-0 flex flex-col justify-end"
+        className="absolute inset-0 flex flex-col justify-end px-5 pb-12 sm:px-10 sm:pb-14 lg:px-20 lg:pb-14"
         style={{
-          padding: "0 80px 56px",
           animation: animating ? `${dir > 0 ? "slideInRight" : "slideInLeft"} 0.65s cubic-bezier(0.4,0,0.2,1) forwards` : "none",
           opacity: loaded ? 1 : 0,
           transition: "opacity 0.6s 0.1s",
@@ -136,7 +135,7 @@ export default function HeroSection() {
         <h1
           className="font-display text-cream leading-[1.05] whitespace-pre-line"
           style={{
-            fontSize: "clamp(44px, 6.5vw, 88px)",
+            fontSize: "clamp(36px, 6.5vw, 88px)",
             letterSpacing: "0.01em",
             maxWidth: 680,
             animation: "fadeUp 0.6s 0.15s both",
@@ -146,7 +145,7 @@ export default function HeroSection() {
         </h1>
 
         <p
-          className="font-body text-cream-dim"
+          className="font-body text-cream-dim hidden sm:block"
           style={{
             fontSize: 17,
             maxWidth: 420,
@@ -176,15 +175,15 @@ export default function HeroSection() {
 
       {/* Tag top-right */}
       <div
-        className="absolute top-8 font-sans uppercase flex items-center gap-2.5"
-        style={{ right: 80, fontSize: 9, letterSpacing: "0.5em", color: "rgba(164,133,76,0.4)" }}
+        className="absolute top-8 right-5 sm:right-20 font-sans uppercase flex items-center gap-2.5"
+        style={{ fontSize: 9, letterSpacing: "0.5em", color: "rgba(164,133,76,0.4)" }}
       >
         <span className="inline-block h-px w-6 bg-gold/30" />
         {slide.tag}
       </div>
 
       {/* Controls */}
-      <div className="absolute bottom-14 right-20 flex items-center gap-4">
+      <div className="absolute bottom-10 right-5 sm:bottom-14 sm:right-20 flex items-center gap-4">
         {SLIDES.map((_, i) => (
           <button
             key={i}
