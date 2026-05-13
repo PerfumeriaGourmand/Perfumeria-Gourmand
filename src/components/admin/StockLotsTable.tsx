@@ -126,7 +126,7 @@ export default function StockLotsTable({ lots, variantAlerts, threshold }: Props
                       {formatDate(lot.purchase_date)}
                     </td>
                     <td className="px-4 py-3 font-sans text-xs text-gold whitespace-nowrap">
-                      {lot.variant?.average_cost_usd != null ? formatUSD(lot.variant.average_cost_usd) : "—"}
+                      {lot.cost_price_usd != null ? formatUSD(lot.cost_price_usd) : "—"}
                     </td>
                     <td className="px-4 py-3 font-sans text-xs text-cream-dim whitespace-nowrap">
                       {lot.exchange_rate?.toLocaleString("es-AR") ?? "—"}
