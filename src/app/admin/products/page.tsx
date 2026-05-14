@@ -15,33 +15,40 @@ export default async function AdminProductsPage() {
       .order("created_at", { ascending: false }),
     supabase
       .from("stock_lots")
-      .select("variant_id, cost_price_ars, purchase_date, created_at, quantity_remaining")
-      .order("purchase_date", { ascending: true })
-      .order("created_at", { ascending: true }),
+      .select("variant_id, cost_price_ars, purchase_date, created_at, quantity_remaining"),
   ]);
 
-  // Per variant: collect active lots (FIFO) and exhausted lots separately
-  const activeLotByVariant: Record<string, number> = {};
-  const lastExhaustedByVariant: Record<string, number> = {};
+  type RawLot = { variant_id: string; cost_price_ars: number; purchase_date: string; created_at: string; quantity_remaining: number };
 
-  for (const lot of allLots ?? []) {
-    if (lot.quantity_remaining > 0) {
-      // Oldest active lot = next to sell (FIFO). Only store first seen (sorted asc).
-      if (!(lot.variant_id in activeLotByVariant)) {
-        activeLotByVariant[lot.variant_id] = lot.cost_price_ars;
-      }
+  // Group all lots by variant_id
+  const lotsByVariant: Record<string, RawLot[]> = {};
+  for (const lot of (allLots ?? []) as RawLot[]) {
+    if (!lotsByVariant[lot.variant_id]) lotsByVariant[lot.variant_id] = [];
+    lotsByVariant[lot.variant_id].push(lot);
+  }
+
+  const byDate = (a: RawLot, b: RawLot) =>
+    new Date(a.purchase_date).getTime() - new Date(b.purchase_date).getTime() ||
+    new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+
+  // Per variant: FIFO cost (oldest active) or latest exhausted cost as fallback
+  const costByVariant: Record<string, number> = {};
+  for (const [variantId, lots] of Object.entries(lotsByVariant)) {
+    const active = lots.filter((l) => l.quantity_remaining > 0).sort(byDate);
+    if (active.length > 0) {
+      costByVariant[variantId] = active[0].cost_price_ars;
     } else {
-      // Overwrite each time — last write wins the most recent exhausted lot (sorted asc = last = most recent)
-      lastExhaustedByVariant[lot.variant_id] = lot.cost_price_ars;
+      const exhausted = lots
+        .filter((l) => l.quantity_remaining <= 0 && l.cost_price_ars != null)
+        .sort((a, b) => byDate(b, a)); // DESC: most recent first
+      if (exhausted.length > 0) costByVariant[variantId] = exhausted[0].cost_price_ars;
     }
   }
 
-  // For each product: prefer active FIFO cost, fall back to last exhausted lot cost
   const list = (products ?? []).map((p) => {
-    const costs = (p.variants ?? []).map((v: { id: string }) => {
-      return activeLotByVariant[v.id] ?? lastExhaustedByVariant[v.id] ?? undefined;
-    }).filter((c: number | undefined): c is number => c !== undefined);
-
+    const costs = (p.variants ?? [])
+      .map((v: { id: string }) => costByVariant[v.id])
+      .filter((c: number | undefined): c is number => c != null);
     return {
       ...p,
       fifo_cost_ars: costs.length ? Math.min(...costs) : null,
