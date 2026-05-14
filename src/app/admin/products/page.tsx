@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { ProductsClient } from "./ProductsClient";
 
+const ars = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
+
 export default async function AdminProductsPage() {
   const supabase = await createAdminClient();
 
@@ -54,22 +56,39 @@ export default async function AdminProductsPage() {
     };
   });
 
+  // Valor total del inventario: precio × stock por cada variante con stock > 0
+  const totalInventoryValue = (products ?? []).reduce((total, p) => {
+    return total + (p.variants ?? []).reduce((sub: number, v: { stock: number; price: number }) => {
+      return sub + (v.stock > 0 ? v.price * v.stock : 0);
+    }, 0);
+  }, 0);
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="font-display text-3xl text-cream mb-1">Catálogo</h1>
           <p className="font-sans text-xs text-cream-dim">
             {list.length} perfumes en el catálogo
           </p>
         </div>
-        <Link
-          href="/admin/products/new"
-          className="flex items-center gap-2 bg-gold text-obsidian font-sans text-xs tracking-widest uppercase px-5 py-3 hover:bg-gold-light transition-colors"
-        >
-          <Plus size={14} strokeWidth={2} />
-          Nuevo producto
-        </Link>
+        <div className="flex items-start gap-8">
+          <div className="text-right">
+            <p className="font-sans text-[10px] tracking-widest uppercase text-cream-dim mb-1">
+              Valor del inventario
+            </p>
+            <p className="font-display text-2xl text-gold">
+              {ars.format(totalInventoryValue)}
+            </p>
+          </div>
+          <Link
+            href="/admin/products/new"
+            className="flex items-center gap-2 bg-gold text-obsidian font-sans text-xs tracking-widest uppercase px-5 py-3 hover:bg-gold-light transition-colors"
+          >
+            <Plus size={14} strokeWidth={2} />
+            Nuevo producto
+          </Link>
+        </div>
       </div>
 
       <ProductsClient products={list} />
