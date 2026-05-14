@@ -11,8 +11,7 @@ export default async function AdminProductsPage() {
     supabase
       .from("products")
       .select("*, variants:product_variants(*)")
-      .order("sort_order")
-      .order("created_at", { ascending: false }),
+      .order("name", { ascending: true }),
     supabase
       .from("stock_lots")
       .select("variant_id, cost_price_ars, purchase_date, created_at, quantity_remaining"),
