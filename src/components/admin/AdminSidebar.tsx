@@ -139,7 +139,7 @@ export default function AdminSidebar() {
       </aside>
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-56 flex-shrink-0 border-r border-gold/10 flex-col py-8">
+      <aside className="hidden md:flex w-56 flex-shrink-0 border-r border-gold/10 flex-col py-8 sticky top-0 h-screen overflow-y-auto">
         <SidebarContent
           pathname={pathname}
           onNavigate={() => {}}
