@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Edit, AlertCircle, Search } from "lucide-react";
 import { CATEGORY_LABELS, CONCENTRATION_LABELS } from "@/lib/utils";
 
-type Variant = { stock: number };
+type Variant = { stock: number; price: number; average_cost_usd: number | null };
 
 type Product = {
   id: string;
@@ -16,6 +16,24 @@ type Product = {
   is_active: boolean;
   variants: Variant[];
 };
+
+const ars = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
+const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
+
+function priceRange(variants: Variant[]): string {
+  if (!variants.length) return "—";
+  const prices = variants.map((v) => v.price);
+  const min = Math.min(...prices);
+  const max = Math.max(...prices);
+  return min === max ? ars.format(min) : `${ars.format(min)} – ${ars.format(max)}`;
+}
+
+function avgCostUsd(variants: Variant[]): string {
+  const costs = variants.map((v) => v.average_cost_usd).filter((c): c is number => c !== null);
+  if (!costs.length) return "—";
+  const avg = costs.reduce((a, b) => a + b, 0) / costs.length;
+  return usd.format(avg);
+}
 
 export function ProductsClient({ products }: { products: Product[] }) {
   const [query, setQuery] = useState("");
@@ -47,7 +65,7 @@ export function ProductsClient({ products }: { products: Product[] }) {
         <table className="w-full">
           <thead>
             <tr className="border-b border-gold/10">
-              {["Nombre / Marca", "Categoría", "Concentración", "Stock mín.", "Estado", ""].map(
+              {["Nombre / Marca", "Categoría", "Concentración", "Costo USD", "Precio ARS", "Stock mín.", "Estado", ""].map(
                 (h) => (
                   <th
                     key={h}
@@ -78,6 +96,12 @@ export function ProductsClient({ products }: { products: Product[] }) {
                   </td>
                   <td className="px-5 py-4 font-sans text-xs text-cream-muted">
                     {CONCENTRATION_LABELS[product.concentration]}
+                  </td>
+                  <td className="px-5 py-4 font-sans text-xs text-cream-muted">
+                    {avgCostUsd(product.variants ?? [])}
+                  </td>
+                  <td className="px-5 py-4 font-sans text-xs text-cream-muted">
+                    {priceRange(product.variants ?? [])}
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1.5">
@@ -115,7 +139,7 @@ export function ProductsClient({ products }: { products: Product[] }) {
             {filtered.length === 0 && (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={8}
                   className="px-5 py-10 text-center font-sans text-sm text-cream-dim italic"
                 >
                   {query.trim()
