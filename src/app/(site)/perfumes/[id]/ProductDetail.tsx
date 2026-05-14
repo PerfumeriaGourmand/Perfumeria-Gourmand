@@ -18,9 +18,16 @@ import { useCartStore } from "@/store/cart";
 import { useThemeStore } from "@/store/theme";
 import Button from "@/components/ui/Button";
 import GoldDivider from "@/components/ui/GoldDivider";
+import ProductCarousel from "@/components/home/ProductCarousel";
 import toast from "react-hot-toast";
 
-export default function ProductDetail({ product }: { product: Product }) {
+export default function ProductDetail({
+  product,
+  relatedBySeason = [],
+}: {
+  product: Product;
+  relatedBySeason?: Product[];
+}) {
   const images = product.images ?? [];
   const variants = (product.variants ?? []).filter((v) => v.is_active);
   const [selectedImage, setSelectedImage] = useState(
@@ -447,6 +454,30 @@ export default function ProductDetail({ product }: { product: Product }) {
           </div>
         </div>
       </div>
+
+      {/* ——— Misma estación ——— */}
+      {relatedBySeason.length > 0 && (
+        <div className="max-w-7xl mx-auto px-6 mt-24">
+          <GoldDivider className="mb-12" />
+          <div className="mb-8">
+            <p className={cn(
+              "font-sans text-[10px] tracking-[0.4em] uppercase mb-2",
+              isNicho ? "text-gold/60" : "text-text-light"
+            )}>
+              Colección
+            </p>
+            <h2 className={cn(
+              "font-display font-light text-3xl",
+              isNicho ? "text-cream" : "text-text-dark"
+            )}>
+              {product.seasons.length === 1
+                ? `Perfectos para ${SEASON_LABELS[product.seasons[0]].toLowerCase()}`
+                : "Para la misma estación"}
+            </h2>
+          </div>
+          <ProductCarousel products={relatedBySeason} dark={isNicho} />
+        </div>
+      )}
     </div>
   );
 }

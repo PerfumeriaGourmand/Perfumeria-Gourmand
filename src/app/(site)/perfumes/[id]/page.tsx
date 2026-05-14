@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import type { Product } from "@/types";
 import ProductDetail from "./ProductDetail";
 
 export const revalidate = 60;
@@ -41,9 +42,22 @@ export default async function ProductPage({
   const product = await getProduct(id);
   if (!product) notFound();
 
-  // Track page view (fire-and-forget)
   const supabase = await createClient();
+
+  // Track page view (fire-and-forget)
   supabase.from("page_views").insert({ path: `/perfumes/${id}`, product_id: id }).then(() => {});
 
-  return <ProductDetail product={product} />;
+  let relatedBySeason: Product[] = [];
+  if (product.seasons.length > 0) {
+    const { data } = await supabase
+      .from("products")
+      .select("*, images:product_images(*), variants:product_variants(*)")
+      .eq("is_active", true)
+      .overlaps("seasons", product.seasons)
+      .neq("id", id)
+      .limit(10);
+    relatedBySeason = (data ?? []) as Product[];
+  }
+
+  return <ProductDetail product={product} relatedBySeason={relatedBySeason} />;
 }
