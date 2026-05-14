@@ -7,13 +7,38 @@ import { ProductsClient } from "./ProductsClient";
 export default async function AdminProductsPage() {
   const supabase = await createAdminClient();
 
-  const { data: products } = await supabase
-    .from("products")
-    .select("*, variants:product_variants(*)")
-    .order("sort_order")
-    .order("created_at", { ascending: false });
+  const [{ data: products }, { data: activeLots }] = await Promise.all([
+    supabase
+      .from("products")
+      .select("*, variants:product_variants(*)")
+      .order("sort_order")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("stock_lots")
+      .select("variant_id, cost_price_ars, purchase_date, created_at")
+      .gt("quantity_remaining", 0)
+      .order("purchase_date", { ascending: true })
+      .order("created_at", { ascending: true }),
+  ]);
 
-  const list = products ?? [];
+  // FIFO: first active lot per variant_id (already sorted oldest-first)
+  const fifoCostByVariant: Record<string, number> = {};
+  for (const lot of activeLots ?? []) {
+    if (!(lot.variant_id in fifoCostByVariant)) {
+      fifoCostByVariant[lot.variant_id] = lot.cost_price_ars;
+    }
+  }
+
+  // For each product aggregate the FIFO costs of its variants (min)
+  const list = (products ?? []).map((p) => {
+    const costs = (p.variants ?? [])
+      .map((v: { id: string }) => fifoCostByVariant[v.id])
+      .filter((c: number | undefined): c is number => c !== undefined);
+    return {
+      ...p,
+      fifo_cost_ars: costs.length ? Math.min(...costs) : null,
+    };
+  });
 
   return (
     <div>
