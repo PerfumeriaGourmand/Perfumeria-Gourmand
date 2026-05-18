@@ -28,7 +28,7 @@ export async function generateMetadata({
   const product = await getProduct(id);
   if (!product) return { title: "Perfume no encontrado" };
   return {
-    title: `${product.name} — ${product.brand}`,
+    title: product.name,
     description: product.description ?? undefined,
   };
 }

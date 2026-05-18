@@ -28,8 +28,8 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: {
-    default: "Gourmand — Perfumería de Lujo",
-    template: "%s | Gourmand",
+    default: "Gourmand - Perfumería",
+    template: "Gourmand - %s",
   },
   description:
     "Perfumería de nicho, árabe y diseñador. Fragancias seleccionadas para quienes buscan lo extraordinario.",
