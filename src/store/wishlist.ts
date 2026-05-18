@@ -6,6 +6,7 @@ interface WishlistState {
   products: Product[];
   toggle: (product: Product) => void;
   remove: (id: string) => void;
+  clear: () => void;
   isWishlisted: (id: string) => boolean;
   count: () => number;
 }
@@ -27,6 +28,8 @@ export const useWishlistStore = create<WishlistState>()(
 
       remove: (id) =>
         set((state) => ({ products: state.products.filter((p) => p.id !== id) })),
+
+      clear: () => set({ products: [] }),
 
       isWishlisted: (id) => get().products.some((p) => p.id === id),
 

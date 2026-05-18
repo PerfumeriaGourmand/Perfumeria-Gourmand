@@ -6,7 +6,7 @@ import Link from "next/link";
 import type { Product } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { useCartStore } from "@/store/cart";
-import toast from "react-hot-toast";
+import { showCartToast } from "@/components/ui/CartToast";
 
 interface NichoSectionProps {
   products: Product[];
@@ -128,7 +128,7 @@ const NichoProductCard = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const { addItem } = useCartStore();
+  const { addItem, openCart } = useCartStore();
 
   const primaryImage =
     product.images?.find((i) => i.is_primary) ?? product.images?.[0];
@@ -159,7 +159,13 @@ const NichoProductCard = ({
       image_url: primaryImage?.url,
       stock: cheapestVariant.stock,
     });
-    toast.success(`${product.name} agregado`);
+    showCartToast({
+      name: product.name,
+      brand: product.brand,
+      imageUrl: primaryImage?.url,
+      price: cheapestVariant.price,
+      onViewCart: openCart,
+    });
   };
 
   return (

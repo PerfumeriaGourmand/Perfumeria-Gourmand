@@ -200,11 +200,31 @@ export default function SearchBar({ dark, className }: { dark?: boolean; classNa
               </div>
             </>
           ) : (
-            <div className="px-4 py-8 text-center">
-              <p className="font-sans text-sm text-text-mid font-medium mb-1">Sin resultados</p>
-              <p className="font-sans text-xs text-text-light">
+            <div className="px-4 py-6">
+              <p className="font-sans text-sm text-text-mid font-medium mb-1 text-center">Sin resultados</p>
+              <p className="font-sans text-xs text-text-light text-center mb-5">
                 No encontramos productos para &ldquo;{query.trim()}&rdquo;
               </p>
+              <p className="font-sans text-[10px] tracking-widest uppercase text-text-light mb-2">
+                Explorar por categoría
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { label: "Árabe", href: "/catalogo?category=arabe" },
+                  { label: "Diseñador", href: "/catalogo?category=disenador" },
+                  { label: "Nicho", href: "/catalogo/nicho" },
+                  { label: "Novedades", href: "/catalogo?sort=newest" },
+                ].map((cat) => (
+                  <Link
+                    key={cat.href}
+                    href={cat.href}
+                    onClick={handleResultClick}
+                    className="px-3 py-1.5 border border-border-light rounded-full font-sans text-xs text-text-mid hover:border-gold hover:text-gold transition-colors"
+                  >
+                    {cat.label}
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
         </div>

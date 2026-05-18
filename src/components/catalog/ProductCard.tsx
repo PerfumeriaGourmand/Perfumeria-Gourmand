@@ -9,6 +9,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import { useCartStore } from "@/store/cart";
 import { useWishlistStore } from "@/store/wishlist";
 import toast from "react-hot-toast";
+import { showCartToast } from "@/components/ui/CartToast";
 
 interface ProductCardProps {
   product: Product;
@@ -16,7 +17,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, dark = false }: ProductCardProps) {
-  const { addItem } = useCartStore();
+  const { addItem, openCart } = useCartStore();
   const { toggle: toggleWishlist, isWishlisted } = useWishlistStore();
 
   const primaryImage = product.images?.find((i) => i.is_primary) ?? product.images?.[0];
@@ -45,7 +46,13 @@ export default function ProductCard({ product, dark = false }: ProductCardProps)
       image_url: primaryImage?.url,
       stock: selectedVariant.stock,
     });
-    toast.success(`${product.name} agregado al carrito`);
+    showCartToast({
+      name: product.name,
+      brand: product.brand,
+      imageUrl: primaryImage?.url,
+      price: selectedVariant.price,
+      onViewCart: openCart,
+    });
     setTimeout(() => setAdding(false), 800);
   };
 

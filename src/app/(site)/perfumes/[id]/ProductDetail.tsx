@@ -19,7 +19,7 @@ import { useThemeStore } from "@/store/theme";
 import Button from "@/components/ui/Button";
 import GoldDivider from "@/components/ui/GoldDivider";
 import ProductCarousel from "@/components/home/ProductCarousel";
-import toast from "react-hot-toast";
+import { showCartToast } from "@/components/ui/CartToast";
 
 export default function ProductDetail({
   product,
@@ -40,7 +40,7 @@ export default function ProductDetail({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(true);
   const ctaRef = useRef<HTMLButtonElement>(null);
-  const { addItem } = useCartStore();
+  const { addItem, openCart } = useCartStore();
   const { setIsNichoProduct } = useThemeStore();
 
   const openLightbox = useCallback(() => {
@@ -92,7 +92,13 @@ export default function ProductDetail({
       stock: selectedVariant.stock,
       quantity: qty,
     });
-    toast.success(`${product.name} agregado al carrito`);
+    showCartToast({
+      name: product.name,
+      brand: product.brand,
+      imageUrl: selectedImage ?? undefined,
+      price: selectedVariant.price,
+      onViewCart: openCart,
+    });
   };
 
   const isNicho = product.category === "nicho";

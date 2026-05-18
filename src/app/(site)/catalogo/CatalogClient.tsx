@@ -4,9 +4,10 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import type { Product, ProductFilters } from "@/types";
 import ProductCard from "@/components/catalog/ProductCard";
-import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, X, ChevronDown, ChevronRight } from "lucide-react";
 import { cn, CATEGORY_LABELS, GENDER_LABELS, SEASON_LABELS, CONCENTRATION_LABELS } from "@/lib/utils";
 import { useThemeStore } from "@/store/theme";
+import Link from "next/link";
 
 interface Props {
   initialProducts: Product[];
@@ -83,7 +84,34 @@ export default function CatalogClient({ initialProducts, initialFilters, brands 
   return (
     <div className={cn("min-h-screen pt-[104px]", N ? "bg-obsidian text-cream" : "")}>
       {/* Page header */}
-      <div className="px-6 max-w-7xl mx-auto py-10">
+      <div className="px-6 max-w-7xl mx-auto pt-8 pb-10">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-1.5 mb-6">
+          <Link href="/" className={cn("font-sans text-xs transition-colors hover:text-gold", N ? "text-cream-dim/50" : "text-text-light")}>
+            Inicio
+          </Link>
+          <ChevronRight size={11} strokeWidth={2} className={N ? "text-cream-dim/30" : "text-text-light/40"} />
+          <Link href="/catalogo" className={cn("font-sans text-xs transition-colors hover:text-gold", N ? "text-cream-dim/50" : "text-text-light")}>
+            Catálogo
+          </Link>
+          {initialFilters.category && (
+            <>
+              <ChevronRight size={11} strokeWidth={2} className={N ? "text-cream-dim/30" : "text-text-light/40"} />
+              <span className={cn("font-sans text-xs font-medium", N ? "text-cream" : "text-text-dark")}>
+                {CATEGORY_LABELS[initialFilters.category]}
+              </span>
+            </>
+          )}
+          {initialFilters.search && (
+            <>
+              <ChevronRight size={11} strokeWidth={2} className={N ? "text-cream-dim/30" : "text-text-light/40"} />
+              <span className={cn("font-sans text-xs font-medium", N ? "text-cream" : "text-text-dark")}>
+                &ldquo;{initialFilters.search}&rdquo;
+              </span>
+            </>
+          )}
+        </nav>
+
         <p className="font-sans text-xs tracking-[0.3em] uppercase text-gold mb-2">
           {initialFilters.category ? CATEGORY_LABELS[initialFilters.category] : "Colección completa"}
         </p>
@@ -91,7 +119,9 @@ export default function CatalogClient({ initialProducts, initialFilters, brands 
           "font-display text-[clamp(2rem,4vw,3.5rem)] font-bold leading-none",
           N ? "text-cream" : "text-text-dark"
         )}>
-          {initialFilters.category
+          {initialFilters.search
+            ? `Resultados para "${initialFilters.search}"`
+            : initialFilters.category
             ? `Perfumes ${CATEGORY_LABELS[initialFilters.category]}s`
             : "Catálogo"}
         </h1>

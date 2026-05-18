@@ -4,21 +4,39 @@ import { useWishlistStore } from "@/store/wishlist";
 import ProductCard from "@/components/catalog/ProductCard";
 import GoldDivider from "@/components/ui/GoldDivider";
 import Link from "next/link";
-import { Heart } from "lucide-react";
+import { Heart, Trash2 } from "lucide-react";
 
 export default function FavoritosPage() {
-  const { products, count } = useWishlistStore();
+  const { products, count, clear } = useWishlistStore();
   const total = count();
 
   return (
     <div className="min-h-screen pt-24 pb-24 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
-        <div className="py-12">
-          <p className="font-sans text-xs tracking-[0.4em] uppercase text-gold mb-4">
-            Tu selección
-          </p>
-          <h1 className="font-display font-light text-5xl text-text-dark">Favoritos</h1>
+        <div className="py-12 flex items-end justify-between">
+          <div>
+            <p className="font-sans text-xs tracking-[0.4em] uppercase text-gold mb-4">
+              Tu selección
+            </p>
+            <h1 className="font-display font-light text-5xl text-text-dark flex items-baseline gap-4">
+              Favoritos
+              {total > 0 && (
+                <span className="font-sans text-lg font-normal text-text-light">
+                  {total} {total === 1 ? "perfume" : "perfumes"}
+                </span>
+              )}
+            </h1>
+          </div>
+          {total > 0 && (
+            <button
+              onClick={clear}
+              className="flex items-center gap-2 font-sans text-xs text-text-light hover:text-red-400 transition-colors"
+            >
+              <Trash2 size={13} strokeWidth={1.5} />
+              Limpiar todo
+            </button>
+          )}
         </div>
 
         <GoldDivider className="mb-10" />
@@ -30,28 +48,31 @@ export default function FavoritosPage() {
             </div>
             <div>
               <p className="font-display text-2xl text-text-dark mb-2">Sin favoritos todavía</p>
-              <p className="font-sans text-sm text-text-light">
+              <p className="font-sans text-sm text-text-light max-w-xs">
                 Guardá los perfumes que te gusten tocando el corazón en cada producto.
               </p>
             </div>
-            <Link
-              href="/catalogo"
-              className="px-8 py-3 border border-text-dark text-text-dark rounded-full font-sans text-sm hover:bg-text-dark hover:text-white transition-colors"
-            >
-              Explorar catálogo
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                href="/catalogo"
+                className="px-8 py-3 border border-text-dark text-text-dark rounded-full font-sans text-sm hover:bg-text-dark hover:text-white transition-colors"
+              >
+                Explorar catálogo
+              </Link>
+              <Link
+                href="/catalogo/nicho"
+                className="px-8 py-3 border border-gold/40 text-gold rounded-full font-sans text-sm hover:bg-gold/5 transition-colors"
+              >
+                Ver Nicho
+              </Link>
+            </div>
           </div>
         ) : (
-          <>
-            <p className="font-sans text-xs text-text-light mb-8">
-              {total} {total === 1 ? "perfume guardado" : "perfumes guardados"}
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
         )}
       </div>
     </div>
