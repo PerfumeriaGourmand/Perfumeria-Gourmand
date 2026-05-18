@@ -54,7 +54,7 @@ export default function ProductCarousel({ products, autoplay = false, dark = fal
         <div className="embla__container gap-4">
           {products.map((product) => (
             <div key={product.id} className="embla__slide w-[230px] md:w-[260px] lg:w-[280px]">
-              <ProductCard product={product} />
+              <ProductCard product={product} dark={dark} />
             </div>
           ))}
         </div>
