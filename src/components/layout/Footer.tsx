@@ -16,7 +16,9 @@ const COLUMNS = [
       { label: "Mi cuenta", href: "/mi-cuenta" },
       { label: "Mis pedidos", href: "/mis-pedidos" },
       { label: "Envíos", href: "/envios" },
-      { label: "Devoluciones", href: "/devoluciones" },
+      { label: "Devoluciones", href: "/cambios-y-devoluciones" },
+      { label: "Preguntas frecuentes", href: "/preguntas-frecuentes" },
+      { label: "Contacto", href: "/contacto" },
     ],
   },
 ];
