@@ -101,69 +101,94 @@ export default function CatalogClient({ initialProducts, initialFilters, brands 
 
       <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Toolbar */}
-        <div className="flex items-center gap-3 mb-6">
-          <button
-            onClick={() => setFiltersOpen(true)}
-            className={cn(
-              "flex items-center gap-2 px-4 py-2.5 rounded-full border font-sans text-sm font-medium transition-all duration-200",
-              activeFilterCount > 0
-                ? N
-                  ? "border-gold bg-gold/10 text-gold"
-                  : "border-text-dark bg-text-dark text-white"
-                : N
-                ? "border-white/20 text-cream-dim hover:border-gold/60 hover:text-gold"
-                : "border-border-light text-text-mid hover:border-text-dark hover:text-text-dark bg-white"
-            )}
-          >
-            <SlidersHorizontal size={14} strokeWidth={2} />
-            Filtrar
-            {activeFilterCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-white text-text-dark text-[10px] flex items-center justify-center font-semibold">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
+        <div className="mb-6 space-y-3">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setFiltersOpen(true)}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2.5 rounded-full border font-sans text-sm font-medium transition-all duration-200 shrink-0",
+                activeFilterCount > 0
+                  ? N
+                    ? "border-gold bg-gold/10 text-gold"
+                    : "border-text-dark bg-text-dark text-white"
+                  : N
+                  ? "border-white/20 text-cream-dim hover:border-gold/60 hover:text-gold"
+                  : "border-border-light text-text-mid hover:border-text-dark hover:text-text-dark bg-white"
+              )}
+            >
+              <SlidersHorizontal size={14} strokeWidth={2} />
+              Filtrar
+              {activeFilterCount > 0 && (
+                <span className="w-4 h-4 rounded-full bg-white text-text-dark text-[10px] flex items-center justify-center font-semibold">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
 
-          {/* Active filter chips */}
-          {initialFilters.category && (
-            <FilterChip label={CATEGORY_LABELS[initialFilters.category]} onRemove={() => updateFilter("category", undefined)} dark={N} />
-          )}
-          {initialFilters.gender && (
-            <FilterChip label={GENDER_LABELS[initialFilters.gender]} onRemove={() => updateFilter("gender", undefined)} dark={N} />
-          )}
-          {initialFilters.season && (
-            <FilterChip label={SEASON_LABELS[initialFilters.season]} onRemove={() => updateFilter("season", undefined)} dark={N} />
-          )}
-          {initialFilters.concentration && (
-            <FilterChip label={CONCENTRATION_LABELS[initialFilters.concentration]} onRemove={() => updateFilter("concentration", undefined)} dark={N} />
-          )}
-          {initialFilters.brand && (
-            <FilterChip label={initialFilters.brand} onRemove={() => updateFilter("brand", undefined)} dark={N} />
-          )}
+            {/* Active filter chips — hidden on mobile, shown inline on sm+ */}
+            <div className="hidden sm:flex items-center gap-2 flex-wrap">
+              {initialFilters.category && (
+                <FilterChip label={CATEGORY_LABELS[initialFilters.category]} onRemove={() => updateFilter("category", undefined)} dark={N} />
+              )}
+              {initialFilters.gender && (
+                <FilterChip label={GENDER_LABELS[initialFilters.gender]} onRemove={() => updateFilter("gender", undefined)} dark={N} />
+              )}
+              {initialFilters.season && (
+                <FilterChip label={SEASON_LABELS[initialFilters.season]} onRemove={() => updateFilter("season", undefined)} dark={N} />
+              )}
+              {initialFilters.concentration && (
+                <FilterChip label={CONCENTRATION_LABELS[initialFilters.concentration]} onRemove={() => updateFilter("concentration", undefined)} dark={N} />
+              )}
+              {initialFilters.brand && (
+                <FilterChip label={initialFilters.brand} onRemove={() => updateFilter("brand", undefined)} dark={N} />
+              )}
+            </div>
 
-          {/* Sort */}
-          <div className="ml-auto flex items-center gap-2">
-            <label className={cn("font-sans text-xs hidden sm:block", N ? "text-cream-dim" : "text-text-light")}>Ordenar:</label>
-            <div className="relative">
-              <select
-                value={initialFilters.sort ?? ""}
-                onChange={(e) => updateFilter("sort", e.target.value || undefined)}
-                className={cn(
-                  "appearance-none border font-sans text-sm pl-3 pr-8 py-2 rounded-full focus:outline-none transition-colors cursor-pointer",
-                  N
-                    ? "bg-obsidian border-white/10 text-cream-dim focus:border-gold/40"
-                    : "bg-white border-border-light text-text-mid focus:border-gold/50"
-                )}
-              >
-                <option value="">Relevancia</option>
-                <option value="newest">Más nuevos</option>
-                <option value="name_asc">Nombre A-Z</option>
-                <option value="price_asc">Menor precio</option>
-                <option value="price_desc">Mayor precio</option>
-              </select>
-              <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-light pointer-events-none" />
+            {/* Sort */}
+            <div className="ml-auto flex items-center gap-2">
+              <label className={cn("font-sans text-xs hidden sm:block", N ? "text-cream-dim" : "text-text-light")}>Ordenar:</label>
+              <div className="relative">
+                <select
+                  value={initialFilters.sort ?? ""}
+                  onChange={(e) => updateFilter("sort", e.target.value || undefined)}
+                  className={cn(
+                    "appearance-none border font-sans text-sm pl-3 pr-8 py-2 rounded-full focus:outline-none transition-colors cursor-pointer",
+                    N
+                      ? "bg-obsidian border-white/10 text-cream-dim focus:border-gold/40"
+                      : "bg-white border-border-light text-text-mid focus:border-gold/50"
+                  )}
+                >
+                  <option value="">Relevancia</option>
+                  <option value="newest">Más nuevos</option>
+                  <option value="name_asc">Nombre A-Z</option>
+                  <option value="price_asc">Menor precio</option>
+                  <option value="price_desc">Mayor precio</option>
+                </select>
+                <ChevronDown size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-light pointer-events-none" />
+              </div>
             </div>
           </div>
+
+          {/* Active filter chips — mobile only, scrollable row */}
+          {activeFilterCount > 0 && (
+            <div className="flex sm:hidden items-center gap-2 overflow-x-auto pb-1 -mx-6 px-6">
+              {initialFilters.category && (
+                <FilterChip label={CATEGORY_LABELS[initialFilters.category]} onRemove={() => updateFilter("category", undefined)} dark={N} />
+              )}
+              {initialFilters.gender && (
+                <FilterChip label={GENDER_LABELS[initialFilters.gender]} onRemove={() => updateFilter("gender", undefined)} dark={N} />
+              )}
+              {initialFilters.season && (
+                <FilterChip label={SEASON_LABELS[initialFilters.season]} onRemove={() => updateFilter("season", undefined)} dark={N} />
+              )}
+              {initialFilters.concentration && (
+                <FilterChip label={CONCENTRATION_LABELS[initialFilters.concentration]} onRemove={() => updateFilter("concentration", undefined)} dark={N} />
+              )}
+              {initialFilters.brand && (
+                <FilterChip label={initialFilters.brand} onRemove={() => updateFilter("brand", undefined)} dark={N} />
+              )}
+            </div>
+          )}
         </div>
 
         {/* Results count */}

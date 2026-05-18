@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, ChevronLeft, X, ZoomIn } from "lucide-react";
@@ -38,6 +38,8 @@ export default function ProductDetail({
   );
   const [qty, setQty] = useState(1);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [ctaVisible, setCtaVisible] = useState(true);
+  const ctaRef = useRef<HTMLButtonElement>(null);
   const { addItem } = useCartStore();
   const { setIsNichoProduct } = useThemeStore();
 
@@ -64,6 +66,18 @@ export default function ProductDetail({
     setIsNichoProduct(product.category === "nicho");
     return () => setIsNichoProduct(false);
   }, [product.category, setIsNichoProduct]);
+
+  // Sticky CTA: show when main button scrolls out of view
+  useEffect(() => {
+    const el = ctaRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setCtaVisible(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [selectedVariant]);
 
   const handleAddToCart = () => {
     if (!selectedVariant) return;
@@ -403,6 +417,7 @@ export default function ProductDetail({
 
                 {isNicho ? (
                   <Button
+                    ref={ctaRef}
                     variant="primary"
                     size="lg"
                     onClick={handleAddToCart}
@@ -413,6 +428,7 @@ export default function ProductDetail({
                   </Button>
                 ) : (
                   <button
+                    ref={ctaRef}
                     onClick={handleAddToCart}
                     className="w-full flex items-center justify-center gap-2.5 py-4 border border-text-dark text-text-dark rounded-full font-sans text-sm font-medium hover:bg-text-dark hover:text-white transition-colors duration-300 mb-4"
                   >
@@ -454,6 +470,47 @@ export default function ProductDetail({
           </div>
         </div>
       </div>
+
+      {/* ——— Sticky CTA mobile ——— */}
+      {selectedVariant && (
+        <AnimatePresence>
+          {!ctaVisible && (
+            <motion.div
+              initial={{ y: 100 }}
+              animate={{ y: 0 }}
+              exit={{ y: 100 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className={cn(
+                "fixed bottom-0 left-0 right-0 z-40 lg:hidden px-4 py-3 flex items-center gap-3 border-t",
+                isNicho
+                  ? "bg-obsidian border-gold/10"
+                  : "bg-white border-border-light shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
+              )}
+            >
+              <div className="flex-1 min-w-0">
+                <p className={cn("font-sans text-[10px] tracking-widest uppercase truncate", isNicho ? "text-gold/60" : "text-text-light")}>
+                  {product.brand}
+                </p>
+                <p className={cn("font-display text-lg leading-tight truncate", isNicho ? "text-gold" : "text-text-dark")}>
+                  {formatPrice(selectedVariant.price)}
+                </p>
+              </div>
+              <button
+                onClick={handleAddToCart}
+                className={cn(
+                  "flex items-center gap-2 px-6 py-3 rounded-full font-sans text-sm font-medium transition-colors shrink-0",
+                  isNicho
+                    ? "bg-gold text-obsidian hover:bg-gold-light"
+                    : "bg-text-dark text-white hover:bg-text-mid"
+                )}
+              >
+                <ShoppingBag size={15} strokeWidth={1.5} />
+                Agregar
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
 
       {/* ——— Misma estación ——— */}
       {relatedBySeason.length > 0 && (
