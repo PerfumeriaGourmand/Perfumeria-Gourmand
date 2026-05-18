@@ -72,7 +72,7 @@ export default function ProductCard({ product, dark = false }: ProductCardProps)
       <div
         className={cn(
           "relative overflow-hidden aspect-[3/4]",
-          dark ? "bg-black/40 border border-gold/10" : "bg-[#f5f4f0] rounded-t-2xl"
+          dark ? "bg-black/40 rounded-t-2xl" : "bg-[#f5f4f0] rounded-t-2xl"
         )}
       >
         {primaryImage ? (
@@ -131,7 +131,7 @@ export default function ProductCard({ product, dark = false }: ProductCardProps)
       </div>
 
       {/* Info */}
-      <div className={cn("p-4 pt-3", dark && "border-x border-b border-gold/10")}>
+      <div className="p-4 pt-3">
         {/* Brand */}
         <p className={cn(
           "font-sans text-xs tracking-wide mb-0.5",
