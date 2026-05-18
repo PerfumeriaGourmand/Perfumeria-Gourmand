@@ -512,6 +512,18 @@ export default function Navbar() {
               ))}
             </ul>
             <div className="hidden xl:flex items-center gap-5">
+              <Link
+                href="/encontrar-mi-perfume"
+                className={cn(
+                  "font-sans whitespace-nowrap border px-3 py-1.5 rounded-full transition-colors duration-200",
+                  isDark
+                    ? "border-gold/30 text-gold hover:bg-gold/10"
+                    : "border-gold/40 text-gold hover:bg-gold/5"
+                )}
+                style={{ fontSize: 9, letterSpacing: "0.1em" }}
+              >
+                ✦ ENCONTRÁ TU PERFUME
+              </Link>
               {["12 cuotas sin interés · Banco Nación", "Envío gratis desde $40.000"].map((t) => (
                 <span key={t} className="font-sans text-gold whitespace-nowrap" style={{ fontSize: 9, letterSpacing: "0.1em" }}>
                   {t}
@@ -744,6 +756,17 @@ export default function Navbar() {
             );
           })}
         </nav>
+
+        {/* Quiz CTA mobile */}
+        <div className="px-6 pb-2">
+          <Link
+            href="/encontrar-mi-perfume"
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center justify-center gap-2 w-full py-3 border border-gold/40 text-gold rounded-full font-sans text-sm font-medium hover:bg-gold/5 transition-colors"
+          >
+            ✦ Encontrá tu perfume
+          </Link>
+        </div>
 
         {/* Mobile account */}
         <div className="border-t border-border-light p-6 space-y-3">
