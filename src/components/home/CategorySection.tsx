@@ -2,11 +2,33 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const CATEGORIES = [
-  { id: "arabe", label: "Árabe", sub: "Perfumería oriental", dark: false, href: "/catalogo?category=arabe" },
-  { id: "disenador", label: "Diseñador", sub: "Grandes firmas", dark: false, href: "/catalogo?category=disenador" },
-  { id: "nicho", label: "Nicho", sub: "Perfumería de autor", dark: true, href: "/catalogo/nicho" },
+  {
+    id: "arabe",
+    label: "Árabe",
+    sub: "Perfumería oriental",
+    dark: false,
+    href: "/catalogo?category=arabe",
+    image: "/banners/arabes.png",
+  },
+  {
+    id: "disenador",
+    label: "Diseñador",
+    sub: "Grandes firmas",
+    dark: false,
+    href: "/catalogo?category=disenador",
+    image: null,
+  },
+  {
+    id: "nicho",
+    label: "Nicho",
+    sub: "Perfumería de autor",
+    dark: true,
+    href: "/catalogo/nicho",
+    image: null,
+  },
 ];
 
 function CategoryTile({ cat }: { cat: typeof CATEGORIES[0] }) {
@@ -30,10 +52,36 @@ function CategoryTile({ cat }: { cat: typeof CATEGORIES[0] }) {
         textDecoration: "none",
       }}
     >
-      <div style={{
-        position: "absolute", inset: 0, pointerEvents: "none",
-        backgroundImage: "repeating-linear-gradient(45deg,transparent,transparent 24px,rgba(164,133,76,0.03) 24px,rgba(164,133,76,0.03) 25px)",
-      }} />
+      {/* Background image */}
+      {cat.image && (
+        <>
+          <Image
+            src={cat.image}
+            alt={cat.label}
+            fill
+            className="object-cover transition-transform duration-700"
+            style={{ transform: hov ? "scale(1.04)" : "scale(1)" }}
+            sizes="(max-width: 640px) 100vw, 33vw"
+            priority
+          />
+          {/* Gradient overlay so text is legible */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to top, rgba(10,10,10,0.72) 0%, rgba(10,10,10,0.25) 50%, rgba(10,10,10,0.08) 100%)",
+            }}
+          />
+        </>
+      )}
+
+      {!cat.image && (
+        <div style={{
+          position: "absolute", inset: 0, pointerEvents: "none",
+          backgroundImage: "repeating-linear-gradient(45deg,transparent,transparent 24px,rgba(164,133,76,0.03) 24px,rgba(164,133,76,0.03) 25px)",
+        }} />
+      )}
+
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0, height: 2,
         background: "var(--gold)",
@@ -41,20 +89,34 @@ function CategoryTile({ cat }: { cat: typeof CATEGORIES[0] }) {
         transformOrigin: "left",
         transition: "transform 0.4s cubic-bezier(0.4,0,0.2,1)",
       }} />
+
       <p
         className="font-sans uppercase"
-        style={{ fontSize: 9, letterSpacing: "0.4em", color: "var(--gold)", marginBottom: 8, position: "relative" }}
+        style={{
+          fontSize: 9,
+          letterSpacing: "0.4em",
+          color: "var(--gold)",
+          marginBottom: 8,
+          position: "relative",
+        }}
       >
         {cat.sub}
       </p>
       <p
         className="font-display"
-        style={{ fontSize: "clamp(32px, 3.5vw, 44px)", lineHeight: 1, color: cat.dark ? "#f5f0e8" : "#1c1917", position: "relative" }}
+        style={{
+          fontSize: "clamp(32px, 3.5vw, 44px)",
+          lineHeight: 1,
+          color: cat.image || cat.dark ? "#f5f0e8" : "#1c1917",
+          position: "relative",
+        }}
       >
         {cat.label}
       </p>
       <div style={{ marginTop: 16, position: "relative" }}>
-        <span className={`elegant-btn ${cat.dark ? "text-cream" : "text-text-dark"} hover:text-gold`}>Ver todo</span>
+        <span className={`elegant-btn ${cat.image || cat.dark ? "text-cream" : "text-text-dark"} hover:text-gold`}>
+          Ver todo
+        </span>
       </div>
     </Link>
   );
