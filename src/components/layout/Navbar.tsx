@@ -139,6 +139,7 @@ const NAV_ITEMS = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<MegaMenuKey | null>(null);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -199,6 +200,11 @@ export default function Navbar() {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  // Close mobile search on navigation
+  useEffect(() => {
+    setMobileSearchOpen(false);
+  }, [pathname, searchParams]);
 
   // Scroll detection
   useEffect(() => {
@@ -263,13 +269,13 @@ export default function Navbar() {
           {/* Icons */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto sm:ml-0">
             {/* Search icon — mobile only */}
-            <Link
-              href="/catalogo"
+            <button
+              onClick={() => setMobileSearchOpen((v) => !v)}
               className={cn("sm:hidden w-9 h-9 flex items-center justify-center transition-colors rounded-full", T.iconBtn)}
               aria-label="Buscar"
             >
-              <Search size={18} strokeWidth={1.5} />
-            </Link>
+              {mobileSearchOpen ? <X size={18} strokeWidth={1.5} /> : <Search size={18} strokeWidth={1.5} />}
+            </button>
 
             {/* Account */}
             <div className="relative" ref={accountRef}>
@@ -447,6 +453,26 @@ export default function Navbar() {
             </button>
           </div>
         </div>
+
+        {/* ——— Mobile search bar ——— */}
+        <AnimatePresence>
+          {mobileSearchOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="sm:hidden overflow-hidden border-t border-white/10"
+            >
+              <div className="px-4 py-3">
+                <SearchBar
+                  dark={isDark}
+                  className="w-full"
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ——— Bottom row: Nav + Mega menu container ——— */}
         <div
