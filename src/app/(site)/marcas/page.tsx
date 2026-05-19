@@ -179,7 +179,7 @@ function BrandCard({ brand }: { brand: BrandData }) {
       className="group flex flex-col border border-border-light rounded-2xl overflow-hidden hover:border-gold/40 hover:shadow-[0_8px_32px_rgba(164,133,76,0.10)] transition-all duration-300 bg-white"
     >
       {/* Logo area */}
-      <div className="relative h-36 bg-[#f8f7f4] flex items-center justify-center overflow-hidden border-b border-border-light">
+      <div className="relative h-36 bg-white flex items-center justify-center overflow-hidden border-b border-border-light">
         {logo ? (
           <Image
             src={logo}
