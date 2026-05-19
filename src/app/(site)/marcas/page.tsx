@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import Image from "next/image";
 import Link from "next/link";
 import GoldDivider from "@/components/ui/GoldDivider";
 import type { Metadata } from "next";
@@ -24,7 +23,6 @@ interface BrandData {
   name: string;
   category: ProductCategory;
   count: number;
-  imageUrl: string | null;
 }
 
 export default async function MarcasPage() {
@@ -32,28 +30,21 @@ export default async function MarcasPage() {
 
   const { data: products } = await supabase
     .from("products")
-    .select("brand, category, images:product_images(url, is_primary)")
+    .select("brand, category")
     .eq("is_active", true);
 
   // Aggregate brands
   const brandMap = new Map<string, BrandData>();
 
   for (const p of products ?? []) {
-    const key = p.brand;
-    const existing = brandMap.get(key);
-
-    const images = (p.images ?? []) as { url: string; is_primary: boolean }[];
-    const primaryImg = images.find((i) => i.is_primary) ?? images[0];
-
+    const existing = brandMap.get(p.brand);
     if (existing) {
       existing.count += 1;
-      if (!existing.imageUrl && primaryImg) existing.imageUrl = primaryImg.url;
     } else {
-      brandMap.set(key, {
+      brandMap.set(p.brand, {
         name: p.brand,
         category: p.category as ProductCategory,
         count: 1,
-        imageUrl: primaryImg?.url ?? null,
       });
     }
   }
@@ -105,7 +96,7 @@ export default async function MarcasPage() {
                   </Link>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                   {catBrands.map((brand) => (
                     <BrandCard key={brand.name} brand={brand} />
                   ))}
@@ -120,49 +111,38 @@ export default async function MarcasPage() {
 }
 
 function BrandCard({ brand }: { brand: BrandData }) {
-  const initials = brand.name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join("")
-    .toUpperCase();
+  const initial = brand.name.charAt(0).toUpperCase();
 
   return (
     <Link
       href={`/catalogo?category=${brand.category}&brand=${encodeURIComponent(brand.name)}`}
-      className="group block border border-border-light rounded-2xl overflow-hidden hover:shadow-card hover:border-gold/30 transition-all duration-300"
+      className="group relative flex flex-col justify-between border border-border-light rounded-2xl p-5 hover:border-gold/40 hover:shadow-[0_4px_24px_rgba(164,133,76,0.08)] transition-all duration-300 overflow-hidden bg-white"
     >
-      {/* Image area */}
-      <div className="relative aspect-square bg-[#f5f4f0] overflow-hidden">
-        {brand.imageUrl ? (
-          <Image
-            src={brand.imageUrl}
-            alt={brand.name}
-            fill
-            className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="font-display text-4xl text-text-light/30 italic">
-              {initials}
-            </span>
-          </div>
-        )}
-      </div>
+      {/* Decorative initial — background */}
+      <span
+        aria-hidden
+        className="absolute -bottom-3 -right-2 font-display text-[5rem] leading-none text-text-dark/[0.04] group-hover:text-gold/[0.07] transition-colors duration-300 select-none pointer-events-none"
+      >
+        {initial}
+      </span>
 
-      {/* Info */}
-      <div className="p-4">
-        <p className="font-sans text-[10px] tracking-widest uppercase text-gold mb-1">
-          {CATEGORY_LABELS[brand.category]}
-        </p>
-        <h3 className="font-display text-base text-text-dark leading-tight mb-1 group-hover:text-gold transition-colors duration-200">
-          {brand.name}
-        </h3>
-        <p className="font-sans text-xs text-text-light">
-          {brand.count} {brand.count === 1 ? "perfume" : "perfumes"}
-        </p>
-      </div>
+      {/* Category pill */}
+      <p className="font-sans text-[9px] tracking-[0.35em] uppercase text-gold mb-4">
+        {CATEGORY_LABELS[brand.category]}
+      </p>
+
+      {/* Brand name */}
+      <h3 className="font-display text-xl leading-tight text-text-dark group-hover:text-gold transition-colors duration-200 mb-3 relative">
+        {brand.name}
+      </h3>
+
+      {/* Count */}
+      <p className="font-sans text-xs text-text-light relative">
+        {brand.count} {brand.count === 1 ? "perfume" : "perfumes"}
+      </p>
+
+      {/* Bottom gold line on hover */}
+      <div className="absolute bottom-0 left-0 h-[2px] w-0 bg-gold group-hover:w-full transition-all duration-400" />
     </Link>
   );
 }
