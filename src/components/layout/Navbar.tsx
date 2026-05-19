@@ -133,7 +133,7 @@ const NAV_ITEMS = [
   { label: "Diseñador" as MegaMenuKey, href: "/catalogo?category=disenador", hasMega: true },
   { label: "Nicho" as MegaMenuKey, href: "/catalogo/nicho", hasMega: true },
   { label: "Novedades", href: "/catalogo?sort=newest", hasMega: false },
-  { label: "Marcas", href: "/catalogo", hasMega: false },
+  { label: "Marcas", href: "/marcas", hasMega: false },
 ] as const;
 
 export default function Navbar() {
