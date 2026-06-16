@@ -5,6 +5,7 @@ import CategorySection from "@/components/home/CategorySection";
 import BrandCarousel from "@/components/home/BrandCarousel";
 import CategoryFeaturedSection from "@/components/home/CategoryFeaturedSection";
 import EditorialBanner from "@/components/home/EditorialBanner";
+import RevealSection from "@/components/ui/RevealSection";
 import { createClient } from "@/lib/supabase/server";
 
 export const revalidate = 60;
@@ -67,29 +68,41 @@ export default async function HomePage() {
     <>
       <HeroSection />
       <BrandCarousel />
-      <FeaturedCarousel products={featured} />
+      <RevealSection>
+        <FeaturedCarousel products={featured} />
+      </RevealSection>
       <CategorySection />
-      <EditorialBanner />
-      <CategoryFeaturedSection
-        title="Árabe — Destacados"
-        eyebrow="Colección Árabe"
-        href="/catalogo?category=arabe"
-        products={arabeProducts}
-      />
-      <CategoryFeaturedSection
-        title="Diseñador — Destacados"
-        eyebrow="Colección Diseñador"
-        href="/catalogo?category=disenador"
-        products={disenadorProducts}
-      />
-      <CategoryFeaturedSection
-        title="Nicho — Destacados"
-        eyebrow="Colección Nicho"
-        href="/catalogo/nicho"
-        products={nichoProducts}
-        dark
-      />
-      <NewArrivalsCarousel products={newArrivals} />
+      <RevealSection>
+        <EditorialBanner />
+      </RevealSection>
+      <RevealSection>
+        <CategoryFeaturedSection
+          title="Árabe — Destacados"
+          eyebrow="Colección Árabe"
+          href="/catalogo?category=arabe"
+          products={arabeProducts}
+        />
+      </RevealSection>
+      <RevealSection>
+        <CategoryFeaturedSection
+          title="Diseñador — Destacados"
+          eyebrow="Colección Diseñador"
+          href="/catalogo?category=disenador"
+          products={disenadorProducts}
+        />
+      </RevealSection>
+      <RevealSection>
+        <CategoryFeaturedSection
+          title="Nicho — Destacados"
+          eyebrow="Colección Nicho"
+          href="/catalogo/nicho"
+          products={nichoProducts}
+          dark
+        />
+      </RevealSection>
+      <RevealSection>
+        <NewArrivalsCarousel products={newArrivals} />
+      </RevealSection>
     </>
   );
 }

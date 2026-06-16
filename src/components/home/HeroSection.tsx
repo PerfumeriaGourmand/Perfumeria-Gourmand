@@ -14,7 +14,7 @@ const SLIDES = [
   },
   {
     eyebrow: "Perfumería árabe · Selección premium",
-    title: "Intensidad\norientalque persiste",
+    title: "Intensidad\noriental que persiste",
     sub: "Oud, ámbar y especias. La tradición árabe en frascos de alta concentración.",
     cta: { label: "Ver colección árabe", href: "/catalogo?category=arabe" },
     accent: null,
