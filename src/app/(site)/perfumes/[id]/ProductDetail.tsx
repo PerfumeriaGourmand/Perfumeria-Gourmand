@@ -151,7 +151,7 @@ export default function ProductDetail({
             <div
               className={cn(
                 "relative h-[420px] sm:h-[520px] lg:h-[600px] overflow-hidden group",
-                isNicho ? "bg-[#111]" : "bg-[#f5f4f0]",
+                isNicho ? "bg-transparent" : "bg-[#f5f4f0]",
                 selectedImage && "cursor-zoom-in"
               )}
               onClick={openLightbox}
