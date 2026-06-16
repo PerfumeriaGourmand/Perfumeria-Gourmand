@@ -74,7 +74,7 @@ export default function HeroSection() {
   return (
     <section
       className="relative overflow-hidden bg-[#0a0a0a]"
-      style={{ height: "68vh", minHeight: 480 }}
+      style={{ height: "52vh", minHeight: 400 }}
     >
       {/* Radial glow — shifts per slide */}
       <div

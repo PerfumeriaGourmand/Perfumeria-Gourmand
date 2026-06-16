@@ -31,7 +31,7 @@ export default function BrandCarousel() {
         background: "#111",
         borderTop: "1px solid rgba(164,133,76,0.1)",
         borderBottom: "1px solid rgba(164,133,76,0.1)",
-        padding: "18px 0",
+        padding: "22px 0",
       }}
     >
       <div className="marquee-track">
@@ -39,15 +39,15 @@ export default function BrandCarousel() {
           <div
             key={`${logo.alt}-${i}`}
             className="shrink-0 flex items-center justify-center bg-white rounded"
-            style={{ width: 112, height: 44, margin: "0 10px", padding: "6px 10px" }}
+            style={{ width: 160, height: 64, margin: "0 12px", padding: "10px 16px" }}
           >
             <Image
               src={logo.src}
               alt={logo.alt}
-              width={92}
-              height={32}
+              width={128}
+              height={44}
               className="object-contain w-full h-full"
-              sizes="112px"
+              sizes="160px"
             />
           </div>
         ))}
