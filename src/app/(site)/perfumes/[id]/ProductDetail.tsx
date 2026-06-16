@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, ChevronLeft, X, ZoomIn } from "lucide-react";
+import { ShoppingBag, ChevronLeft, X, ZoomIn, Heart, Shield, Truck, CreditCard, ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Product, ProductVariant } from "@/types";
 import {
@@ -16,6 +16,8 @@ import {
 } from "@/lib/utils";
 import { useCartStore } from "@/store/cart";
 import { useThemeStore } from "@/store/theme";
+import { useWishlistStore } from "@/store/wishlist";
+import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import GoldDivider from "@/components/ui/GoldDivider";
 import ProductCarousel from "@/components/home/ProductCarousel";
@@ -24,9 +26,11 @@ import { showCartToast } from "@/components/ui/CartToast";
 export default function ProductDetail({
   product,
   relatedBySeason = [],
+  relatedByBrand = [],
 }: {
   product: Product;
   relatedBySeason?: Product[];
+  relatedByBrand?: Product[];
 }) {
   const images = product.images ?? [];
   const variants = (product.variants ?? []).filter((v) => v.is_active);
@@ -42,6 +46,9 @@ export default function ProductDetail({
   const ctaRef = useRef<HTMLButtonElement>(null);
   const { addItem, openCart } = useCartStore();
   const { setIsNichoProduct } = useThemeStore();
+  const { toggle: toggleWishlist, isWishlisted } = useWishlistStore();
+  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
+  const wishlisted = isWishlisted(product.id);
 
   const openLightbox = useCallback(() => {
     if (selectedImage) setLightboxOpen(true);
@@ -144,6 +151,7 @@ export default function ProductDetail({
             <div
               className={cn(
                 "relative h-[420px] sm:h-[520px] lg:h-[600px] overflow-hidden group",
+                isNicho ? "bg-[#111]" : "bg-[#f5f4f0]",
                 selectedImage && "cursor-zoom-in"
               )}
               onClick={openLightbox}
@@ -154,7 +162,7 @@ export default function ProductDetail({
                     src={selectedImage}
                     alt={product.name}
                     fill
-                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                    className="object-contain p-8 transition-transform duration-500 ease-out group-hover:scale-105"
                     priority
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />
@@ -271,15 +279,46 @@ export default function ProductDetail({
 
           {/* ——— Info ——— */}
           <div className="flex flex-col">
-            <p className="font-sans text-xs tracking-[0.4em] uppercase text-gold mb-3">
-              {product.brand}
-            </p>
-            <h1 className={cn(
-              "font-display font-light text-[clamp(2.5rem,5vw,4.5rem)] leading-none mb-4",
-              isNicho ? "text-cream" : "text-text-dark"
-            )}>
-              {product.name}
-            </h1>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="font-sans text-xs tracking-[0.4em] uppercase text-gold mb-3">
+                  <Link
+                    href={`/catalogo?category=${product.category}&brand=${encodeURIComponent(product.brand)}`}
+                    className="hover:text-gold-light transition-colors"
+                  >
+                    {product.brand}
+                  </Link>
+                </p>
+                <h1 className={cn(
+                  "font-display font-light text-[clamp(2.5rem,5vw,4.5rem)] leading-none mb-4",
+                  isNicho ? "text-cream" : "text-text-dark"
+                )}>
+                  {product.name}
+                </h1>
+              </div>
+              <button
+                onClick={() => {
+                  toggleWishlist(product);
+                  toast.success(wishlisted ? "Eliminado de favoritos" : "Agregado a favoritos");
+                }}
+                className={cn(
+                  "shrink-0 mt-1 w-10 h-10 flex items-center justify-center rounded-full border transition-all duration-200 hover:scale-110",
+                  isNicho
+                    ? "border-gold/20 hover:border-gold"
+                    : "border-border-light hover:border-gold"
+                )}
+                aria-label={wishlisted ? "Quitar de favoritos" : "Agregar a favoritos"}
+              >
+                <Heart
+                  size={18}
+                  strokeWidth={1.5}
+                  className={cn(
+                    "transition-colors duration-200",
+                    wishlisted ? "fill-gold stroke-gold" : isNicho ? "stroke-gold/50" : "stroke-text-light"
+                  )}
+                />
+              </button>
+            </div>
             <p className={cn(
               "font-sans text-xs tracking-wide mb-8",
               isNicho ? "text-cream-dim" : "text-text-light"
@@ -454,6 +493,28 @@ export default function ProductDetail({
               </p>
             )}
 
+            {/* Trust signals */}
+            <div className={cn(
+              "flex flex-col sm:flex-row gap-3 mt-5 pt-5 border-t",
+              isNicho ? "border-gold/10" : "border-border-light"
+            )}>
+              {[
+                { icon: CreditCard, label: "12 cuotas sin interés" },
+                { icon: Truck, label: "Envío 24/48hs" },
+                { icon: Shield, label: "100% originales" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <Icon size={14} strokeWidth={1.5} className="text-gold shrink-0" />
+                  <span className={cn(
+                    "font-sans text-xs",
+                    isNicho ? "text-cream-dim" : "text-text-mid"
+                  )}>
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
+
             <GoldDivider className="mt-8" />
 
             {/* Meta */}
@@ -473,6 +534,52 @@ export default function ProductDetail({
                 </div>
               ))}
             </dl>
+            {/* Accordions */}
+            <div className={cn("mt-8 border-t divide-y", isNicho ? "border-gold/10 divide-gold/10" : "border-border-light divide-border-light")}>
+              {[
+                {
+                  id: "envios",
+                  title: "Envíos y devoluciones",
+                  content: "Envíos a todo el país. CABA y GBA en 24/48hs hábiles, interior en 3-5 días. Aceptamos devoluciones dentro de los 10 días de recibido el producto, siempre que esté sin uso y en su packaging original.",
+                },
+                {
+                  id: "cuidados",
+                  title: "Cómo usar y conservar",
+                  content: "Aplicá en los puntos de calor: muñecas, cuello y detrás de las orejas. Guardá el frasco en un lugar fresco y oscuro, alejado de la luz solar directa y el calor, para preservar la fragancia.",
+                },
+              ].map(({ id, title, content }) => (
+                <div key={id}>
+                  <button
+                    onClick={() => setOpenAccordion(openAccordion === id ? null : id)}
+                    className={cn(
+                      "w-full flex items-center justify-between py-4 font-sans text-xs tracking-widest uppercase text-left transition-colors",
+                      isNicho ? "text-cream-dim hover:text-cream" : "text-text-mid hover:text-text-dark"
+                    )}
+                  >
+                    {title}
+                    <ChevronDown
+                      size={14}
+                      strokeWidth={1.5}
+                      className={cn(
+                        "shrink-0 transition-transform duration-300 text-gold",
+                        openAccordion === id && "rotate-180"
+                      )}
+                    />
+                  </button>
+                  <div
+                    className="overflow-hidden transition-all duration-300 ease-in-out"
+                    style={{ maxHeight: openAccordion === id ? "200px" : "0px" }}
+                  >
+                    <p className={cn(
+                      "font-sans text-sm leading-relaxed pb-5",
+                      isNicho ? "text-cream-dim" : "text-text-mid"
+                    )}>
+                      {content}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -516,6 +623,39 @@ export default function ProductDetail({
             </motion.div>
           )}
         </AnimatePresence>
+      )}
+
+      {/* ——— Más de la marca ——— */}
+      {relatedByBrand.length > 0 && (
+        <div className="max-w-7xl mx-auto px-6 mt-24">
+          <GoldDivider className="mb-12" />
+          <div className="mb-8 flex items-end justify-between">
+            <div>
+              <p className={cn(
+                "font-sans text-[10px] tracking-[0.4em] uppercase mb-2",
+                isNicho ? "text-gold/60" : "text-text-light"
+              )}>
+                Misma marca
+              </p>
+              <h2 className={cn(
+                "font-display font-light text-3xl",
+                isNicho ? "text-cream" : "text-text-dark"
+              )}>
+                Más de {product.brand}
+              </h2>
+            </div>
+            <Link
+              href={`/catalogo?category=${product.category}&brand=${encodeURIComponent(product.brand)}`}
+              className={cn(
+                "hidden md:inline font-sans text-xs tracking-widest uppercase transition-colors hover:text-gold",
+                isNicho ? "text-gold/50" : "text-text-light"
+              )}
+            >
+              Ver todo →
+            </Link>
+          </div>
+          <ProductCarousel products={relatedByBrand} dark={isNicho} />
+        </div>
       )}
 
       {/* ——— Misma estación ——— */}

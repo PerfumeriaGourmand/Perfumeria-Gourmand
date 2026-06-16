@@ -47,17 +47,26 @@ export default async function ProductPage({
   // Track page view (fire-and-forget)
   supabase.from("page_views").insert({ path: `/perfumes/${id}`, product_id: id }).then(() => {});
 
-  let relatedBySeason: Product[] = [];
-  if (product.seasons.length > 0) {
-    const { data } = await supabase
+  const [relatedBySeason, relatedByBrand] = await Promise.all([
+    product.seasons.length > 0
+      ? supabase
+          .from("products")
+          .select("*, images:product_images(*), variants:product_variants(*)")
+          .eq("is_active", true)
+          .overlaps("seasons", product.seasons)
+          .neq("id", id)
+          .limit(10)
+          .then(({ data }) => (data ?? []) as Product[])
+      : Promise.resolve([] as Product[]),
+    supabase
       .from("products")
       .select("*, images:product_images(*), variants:product_variants(*)")
       .eq("is_active", true)
-      .overlaps("seasons", product.seasons)
+      .eq("brand", product.brand)
       .neq("id", id)
-      .limit(10);
-    relatedBySeason = (data ?? []) as Product[];
-  }
+      .limit(8)
+      .then(({ data }) => (data ?? []) as Product[]),
+  ]);
 
-  return <ProductDetail product={product} relatedBySeason={relatedBySeason} />;
+  return <ProductDetail product={product} relatedBySeason={relatedBySeason} relatedByBrand={relatedByBrand} />;
 }
