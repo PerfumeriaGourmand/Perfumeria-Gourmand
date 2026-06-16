@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import Link from "next/link";
 import GoldDivider from "@/components/ui/GoldDivider";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import type { Metadata } from "next";
 import type { ProductCategory } from "@/types";
 
@@ -120,9 +121,10 @@ export default async function MarcasPage() {
   );
 
   return (
-    <div className="min-h-screen pt-24 pb-24 bg-white">
+    <div className="min-h-screen pt-28 pb-24 bg-white">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="py-12">
+        <div className="pt-4 pb-12">
+          <Breadcrumb items={[{ label: "Inicio", href: "/" }, { label: "Marcas" }]} />
           <p className="font-sans text-xs tracking-[0.4em] uppercase text-gold mb-4">
             Colección completa
           </p>

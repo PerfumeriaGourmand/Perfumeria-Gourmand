@@ -111,7 +111,7 @@ export default function ProductDetail({
   const isNicho = product.category === "nicho";
 
   return (
-    <div className={cn("min-h-screen pt-24 pb-24", isNicho ? "bg-obsidian" : "bg-page-bg")}>
+    <div className={cn("min-h-screen pt-32 pb-24", isNicho ? "bg-obsidian" : "bg-page-bg")}>
       <div className="max-w-7xl mx-auto px-6">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-12">
@@ -151,7 +151,7 @@ export default function ProductDetail({
             <div
               className={cn(
                 "relative h-[420px] sm:h-[520px] lg:h-[600px] overflow-hidden group",
-                isNicho ? "bg-transparent" : "bg-[#f5f4f0]",
+                "bg-transparent",
                 selectedImage && "cursor-zoom-in"
               )}
               onClick={openLightbox}
@@ -566,31 +566,9 @@ export default function ProductDetail({
 
             <GoldDivider className="mt-8" />
 
-            {/* Meta */}
-            <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 text-xs font-sans">
-              {[
-                ["Categoría", CATEGORY_LABELS[product.category]],
-                ["Concentración", CONCENTRATION_LABELS[product.concentration]],
-                ["Género", GENDER_LABELS[product.gender]],
-                ["Marca", product.brand],
-              ].map(([label, value]) => (
-                <div key={label}>
-                  <dt className={cn(
-                    "tracking-widest uppercase text-[10px] mb-1",
-                    isNicho ? "text-cream-dim" : "text-text-light"
-                  )}>{label}</dt>
-                  <dd className={isNicho ? "text-cream-muted" : "text-text-mid"}>{value}</dd>
-                </div>
-              ))}
-            </dl>
             {/* Accordions */}
             <div className={cn("mt-8 border-t divide-y", isNicho ? "border-gold/10 divide-gold/10" : "border-border-light divide-border-light")}>
               {[
-                {
-                  id: "envios",
-                  title: "Envíos y devoluciones",
-                  content: "Envíos a todo el país. CABA y GBA en 24/48hs hábiles, interior en 3-5 días. Aceptamos devoluciones dentro de los 10 días de recibido el producto, siempre que esté sin uso y en su packaging original.",
-                },
                 {
                   id: "cuidados",
                   title: "Cómo usar y conservar",

@@ -3,6 +3,7 @@
 import { useWishlistStore } from "@/store/wishlist";
 import ProductCard from "@/components/catalog/ProductCard";
 import GoldDivider from "@/components/ui/GoldDivider";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import Link from "next/link";
 import { Heart, Trash2 } from "lucide-react";
 
@@ -11,10 +12,11 @@ export default function FavoritosPage() {
   const total = count();
 
   return (
-    <div className="min-h-screen pt-24 pb-24 bg-white">
+    <div className="min-h-screen pt-28 pb-24 bg-white">
       <div className="max-w-7xl mx-auto px-6">
+        <Breadcrumb items={[{ label: "Inicio", href: "/" }, { label: "Favoritos" }]} className="pt-4" />
         {/* Header */}
-        <div className="py-12 flex items-end justify-between">
+        <div className="pb-12 flex items-end justify-between">
           <div>
             <p className="font-sans text-xs tracking-[0.4em] uppercase text-gold mb-4">
               Tu selección

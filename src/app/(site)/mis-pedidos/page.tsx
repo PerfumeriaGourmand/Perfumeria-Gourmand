@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Package, ChevronDown, Search, ShoppingBag } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { STATUS_LABELS, STATUS_COLORS } from "@/lib/order-utils";
+import Breadcrumb from "@/components/ui/Breadcrumb";
 import Link from "next/link";
 
 interface OrderItem {
@@ -75,6 +76,7 @@ export default function MisPedidosPage() {
 
   return (
     <div className="min-h-screen pt-28 pb-24 px-6 max-w-2xl mx-auto">
+      <Breadcrumb items={[{ label: "Inicio", href: "/" }, { label: "Mi cuenta", href: "/mi-cuenta" }, { label: "Mis pedidos" }]} className="pt-4" />
       <div className="mb-8 flex items-center gap-3">
         <Package size={20} strokeWidth={1.5} className="text-text-light" />
         <h1 className="font-display text-2xl font-bold text-text-dark">Mis pedidos</h1>
