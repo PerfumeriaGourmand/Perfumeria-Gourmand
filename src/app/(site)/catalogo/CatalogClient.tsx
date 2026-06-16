@@ -122,7 +122,7 @@ export default function CatalogClient({ initialProducts, initialFilters, brands 
           {initialFilters.search
             ? `Resultados para "${initialFilters.search}"`
             : initialFilters.category
-            ? `Perfumes ${CATEGORY_LABELS[initialFilters.category]}s`
+            ? ({ arabe: "Perfumes Árabes", disenador: "Perfumes de Diseñador", nicho: "Perfumes Nicho", kit: "Kits" } as Record<string, string>)[initialFilters.category] ?? CATEGORY_LABELS[initialFilters.category]
             : "Catálogo"}
         </h1>
       </div>
