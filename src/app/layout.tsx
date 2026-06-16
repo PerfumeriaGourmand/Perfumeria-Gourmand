@@ -26,18 +26,51 @@ const outfit = Outfit({
   display: "swap",
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.perfumeriagourmand.com";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: {
-    default: "Gourmand - Perfumería",
-    template: "Gourmand - %s",
+    default: "Gourmand Perfumería",
+    template: "%s | Gourmand",
   },
   description:
-    "Perfumería de nicho, árabe y diseñador. Fragancias seleccionadas para quienes buscan lo extraordinario.",
-  keywords: ["perfumería", "nicho", "árabe", "diseñador", "fragancias", "Buenos Aires"],
+    "Perfumería premium online. Fragancias de nicho, árabe y diseñador seleccionadas para quienes buscan lo extraordinario. Envíos a todo Argentina. 12 cuotas sin interés.",
+  keywords: [
+    "perfumería", "perfumes", "nicho", "árabe", "diseñador",
+    "fragancias", "Buenos Aires", "Argentina", "Byredo", "Creed",
+    "Tom Ford", "Lattafa", "Dior", "YSL", "comprar perfumes online",
+  ],
+  authors: [{ name: "Gourmand Perfumería" }],
+  creator: "Gourmand Perfumería",
   openGraph: {
     type: "website",
     locale: "es_AR",
-    siteName: "Gourmand",
+    url: BASE_URL,
+    siteName: "Gourmand Perfumería",
+    title: "Gourmand Perfumería",
+    description:
+      "Perfumería premium online. Fragancias de nicho, árabe y diseñador. Envíos a todo Argentina. 12 cuotas sin interés.",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Gourmand Perfumería",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Gourmand Perfumería",
+    description:
+      "Perfumería premium online. Fragancias de nicho, árabe y diseñador. Envíos a todo Argentina.",
+    images: ["/og-image.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
 };
 
