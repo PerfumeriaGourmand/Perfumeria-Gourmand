@@ -49,6 +49,9 @@ export interface Product {
   sort_order: number;
   created_at: string;
   updated_at: string;
+  notes_top?: string[];
+  notes_heart?: string[];
+  notes_base?: string[];
   // Relations (joined)
   images?: ProductImage[];
   variants?: ProductVariant[];

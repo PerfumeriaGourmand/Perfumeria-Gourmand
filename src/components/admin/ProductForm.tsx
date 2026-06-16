@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, Upload, ImageIcon } from "lucide-react";
+import { Plus, Trash2, Upload, ImageIcon, X } from "lucide-react";
 import type { Product, ProductVariant, ProductImage } from "@/types";
 import Button from "@/components/ui/Button";
 import GoldDivider from "@/components/ui/GoldDivider";
@@ -55,11 +55,16 @@ export default function ProductForm({ product }: ProductFormProps) {
     gender: product?.gender ?? "unisex",
     concentration: product?.concentration ?? "edp",
     seasons: product?.seasons ?? [],
+    notes_top: product?.notes_top ?? [],
+    notes_heart: product?.notes_heart ?? [],
+    notes_base: product?.notes_base ?? [],
     is_featured: product?.is_featured ?? false,
     is_new: product?.is_new ?? false,
     is_active: product?.is_active ?? true,
     sort_order: product?.sort_order ?? 0,
   });
+
+  const [noteInputs, setNoteInputs] = useState({ notes_top: "", notes_heart: "", notes_base: "" });
 
   const [variants, setVariants] = useState<Partial<ProductVariant>[]>(
     product?.variants ?? [{ size_ml: 100, price: 0, stock: 0, is_active: true }]
@@ -72,6 +77,21 @@ export default function ProductForm({ product }: ProductFormProps) {
 
   const updateForm = (key: string, value: unknown) =>
     setForm((f) => ({ ...f, [key]: value }));
+
+  const addNote = (field: "notes_top" | "notes_heart" | "notes_base") => {
+    const raw = noteInputs[field].trim();
+    if (!raw) return;
+    const tags = raw.split(",").map((t) => t.trim()).filter(Boolean);
+    setForm((f) => ({ ...f, [field]: [...new Set([...f[field], ...tags])] }));
+    setNoteInputs((n) => ({ ...n, [field]: "" }));
+  };
+
+  const removeNote = (field: "notes_top" | "notes_heart" | "notes_base", tag: string) =>
+    setForm((f) => ({ ...f, [field]: f[field].filter((t) => t !== tag) }));
+
+  const handleNoteKeyDown = (e: KeyboardEvent<HTMLInputElement>, field: "notes_top" | "notes_heart" | "notes_base") => {
+    if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addNote(field); }
+  };
 
   const toggleSeason = (s: string) => {
     setForm((f) => ({
@@ -337,6 +357,62 @@ export default function ProductForm({ product }: ProductFormProps) {
             placeholder="Texto poético breve para la sección nicho"
             className="w-full bg-obsidian border border-gold/10 text-cream text-sm font-sans p-3 focus:border-gold/30 focus:outline-none resize-none transition-colors placeholder:text-cream-dim/30"
           />
+        </div>
+
+        {/* Olfactory notes */}
+        <div className="space-y-4">
+          <label className="block font-sans text-[10px] tracking-widest uppercase text-cream-dim">
+            Notas olfativas
+          </label>
+          {(
+            [
+              { field: "notes_top",   label: "Salida" },
+              { field: "notes_heart", label: "Corazón" },
+              { field: "notes_base",  label: "Base" },
+            ] as const
+          ).map(({ field, label }) => (
+            <div key={field} className="border border-gold/10 p-4 space-y-3">
+              <p className="font-sans text-[10px] tracking-widest uppercase text-gold/60">{label}</p>
+              {/* Tags */}
+              {form[field].length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {form[field].map((tag) => (
+                    <span
+                      key={tag}
+                      className="flex items-center gap-1 font-sans text-xs px-2.5 py-1 bg-gold/10 text-gold border border-gold/20"
+                    >
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => removeNote(field, tag)}
+                        className="text-gold/50 hover:text-gold transition-colors"
+                      >
+                        <X size={10} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              {/* Input */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={noteInputs[field]}
+                  onChange={(e) => setNoteInputs((n) => ({ ...n, [field]: e.target.value }))}
+                  onKeyDown={(e) => handleNoteKeyDown(e, field)}
+                  placeholder="Bergamota, limón... (Enter para agregar)"
+                  className="flex-1 bg-obsidian border border-gold/10 text-cream text-sm font-sans px-3 py-2 focus:border-gold/30 focus:outline-none transition-colors placeholder:text-cream-dim/30"
+                />
+                <button
+                  type="button"
+                  onClick={() => addNote(field)}
+                  className="px-3 py-2 border border-gold/20 text-gold/60 hover:text-gold hover:border-gold/40 transition-colors font-sans text-xs"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Flags */}

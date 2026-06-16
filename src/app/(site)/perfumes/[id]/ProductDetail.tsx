@@ -339,6 +339,55 @@ export default function ProductDetail({
               </p>
             )}
 
+            {/* Olfactory notes */}
+            {(product.notes_top?.length || product.notes_heart?.length || product.notes_base?.length) ? (
+              <div className="mb-8">
+                <p className={cn(
+                  "font-sans text-[10px] tracking-widest uppercase mb-4",
+                  isNicho ? "text-cream-dim" : "text-text-light"
+                )}>
+                  Notas olfativas
+                </p>
+                <div className="space-y-3">
+                  {(
+                    [
+                      { key: "notes_top",   label: "Salida" },
+                      { key: "notes_heart", label: "Corazón" },
+                      { key: "notes_base",  label: "Base" },
+                    ] as const
+                  ).map(({ key, label }) => {
+                    const notes = product[key];
+                    if (!notes?.length) return null;
+                    return (
+                      <div key={key} className="flex items-start gap-4">
+                        <span className={cn(
+                          "font-sans text-[10px] tracking-widest uppercase w-16 shrink-0 pt-1",
+                          isNicho ? "text-gold/50" : "text-text-light"
+                        )}>
+                          {label}
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {notes.map((note) => (
+                            <span
+                              key={note}
+                              className={cn(
+                                "font-sans text-xs px-2.5 py-1 border",
+                                isNicho
+                                  ? "border-gold/15 text-cream-muted/80"
+                                  : "border-border-light text-text-mid"
+                              )}
+                            >
+                              {note}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+
             {/* Seasons */}
             {product.seasons.length > 0 && (
               <div className="mb-8">
