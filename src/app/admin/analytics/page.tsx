@@ -280,10 +280,6 @@ export default async function AnalyticsPage({
     (sum, item) => sum + (item.total_price - (item.cost_price ?? 0) * item.quantity),
     0
   );
-  const totalCost = itemsWithCost.reduce(
-    (sum, item) => sum + (item.cost_price ?? 0) * item.quantity,
-    0
-  );
   const totalRevenueWithCost = itemsWithCost.reduce(
     (sum, item) => sum + item.total_price,
     0

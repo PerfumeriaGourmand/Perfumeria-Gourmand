@@ -8,7 +8,7 @@ const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
 });
 
-function verifyMpSignature(req: NextRequest, rawBody: string): boolean {
+function verifyMpSignature(req: NextRequest, _rawBody: string): boolean {
   const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
   if (!secret) return true; // Si no está configurado, se omite la validación
 
