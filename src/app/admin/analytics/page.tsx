@@ -170,6 +170,13 @@ function getChartBuckets(
   return buckets.length > 0 ? buckets : [{ label: "—", revenue: 0, count: 0 }];
 }
 
+function formatPriceCompact(value: number): string {
+  if (value === 0) return "$0";
+  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+  if (value >= 1_000) return `$${Math.round(value / 1_000)}K`;
+  return `$${Math.round(value)}`;
+}
+
 function formatUSD(amount: number) {
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
@@ -503,46 +510,74 @@ export default async function AnalyticsPage({
         <h2 className="font-sans text-xs tracking-widest uppercase text-cream-dim mb-6">
           {getChartTitle(period)}
         </h2>
-        <div
-          className={`flex items-end h-40 ${
-            period === "monthly" ? "gap-[3px]" : "gap-1"
-          }`}
-        >
-          {chartBuckets.map((b, i) => {
-            const heightPct =
-              maxChartRevenue > 0 ? (b.revenue / maxChartRevenue) * 100 : 0;
-            return (
-              <div
-                key={i}
-                className="flex-1 h-full flex flex-col items-center justify-end group relative"
+        <div className="flex gap-3">
+          {/* Y-axis labels */}
+          <div className="relative h-40 w-14 shrink-0">
+            {[1, 0.75, 0.5, 0.25, 0].map((pct) => (
+              <span
+                key={pct}
+                className="absolute right-0 font-sans text-[8px] text-cream-dim/40 leading-none -translate-y-1/2"
+                style={{ bottom: `${pct * 100}%` }}
               >
-                <div
-                  className="w-full bg-gold/30 hover:bg-gold/60 transition-colors duration-200 min-h-[2px] rounded-t-sm"
-                  style={{ height: `${Math.max(heightPct, 1)}%` }}
-                />
-                <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-obsidian border border-gold/20 px-2 py-1 text-[9px] font-sans text-cream whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  {b.label}
-                  <br />
-                  {formatPrice(b.revenue)}
-                  {b.count > 0 && (
-                    <>
+                {formatPriceCompact(maxChartRevenue * pct)}
+              </span>
+            ))}
+          </div>
+
+          {/* Bars + gridlines */}
+          <div className="relative flex-1">
+            {/* Horizontal gridlines */}
+            {[0, 0.25, 0.5, 0.75, 1].map((pct) => (
+              <div
+                key={pct}
+                className="absolute left-0 right-0 border-t border-gold/5 pointer-events-none"
+                style={{ bottom: `${pct * 100}%` }}
+              />
+            ))}
+
+            <div
+              className={`relative flex items-end h-40 ${
+                period === "monthly" ? "gap-[3px]" : "gap-1"
+              }`}
+            >
+              {chartBuckets.map((b, i) => {
+                const heightPct =
+                  maxChartRevenue > 0 ? (b.revenue / maxChartRevenue) * 100 : 0;
+                return (
+                  <div
+                    key={i}
+                    className="flex-1 h-full flex flex-col items-center justify-end group relative"
+                  >
+                    <div
+                      className="w-full bg-gold/30 hover:bg-gold/60 transition-colors duration-200 min-h-[2px] rounded-t-sm"
+                      style={{ height: `${Math.max(heightPct, 1)}%` }}
+                    />
+                    <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-obsidian border border-gold/20 px-2 py-1 text-[9px] font-sans text-cream whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                      {b.label}
                       <br />
-                      {b.count} orden{b.count !== 1 ? "es" : ""}
-                    </>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        {/* X axis labels: first and last */}
-        <div className="flex justify-between mt-2">
-          <span className="font-sans text-[9px] text-cream-dim">
-            {chartBuckets[0]?.label}
-          </span>
-          <span className="font-sans text-[9px] text-cream-dim">
-            {chartBuckets[chartBuckets.length - 1]?.label}
-          </span>
+                      {formatPrice(b.revenue)}
+                      {b.count > 0 && (
+                        <>
+                          <br />
+                          {b.count} orden{b.count !== 1 ? "es" : ""}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* X-axis labels: first and last */}
+            <div className="flex justify-between mt-2">
+              <span className="font-sans text-[9px] text-cream-dim">
+                {chartBuckets[0]?.label}
+              </span>
+              <span className="font-sans text-[9px] text-cream-dim">
+                {chartBuckets[chartBuckets.length - 1]?.label}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
