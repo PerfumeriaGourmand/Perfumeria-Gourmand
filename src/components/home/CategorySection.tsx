@@ -21,7 +21,7 @@ const CATEGORIES = [
     sub: "Grandes firmas",
     dark: false,
     href: "/catalogo?category=disenador",
-    image: null,
+    image: "/banners/disenador.png",
     watermark: "D",
   },
   {
@@ -30,7 +30,7 @@ const CATEGORIES = [
     sub: "Perfumería de autor",
     dark: true,
     href: "/catalogo/nicho",
-    image: null,
+    image: "/banners/nicho.png",
     watermark: "N",
   },
 ];
