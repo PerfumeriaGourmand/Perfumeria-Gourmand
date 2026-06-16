@@ -1,8 +1,12 @@
 import { Resend } from "resend";
 import { formatPrice } from "@/lib/utils";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.RESEND_FROM_EMAIL ?? "Gourmand Perfumería <noreply@perfumeriagourmand.com>";
+
+function getResend() {
+  if (!process.env.RESEND_API_KEY) return null;
+  return new Resend(process.env.RESEND_API_KEY);
+}
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.perfumeriagourmand.com";
 
 const STATUS_LABELS: Record<string, { label: string; message: string; color: string }> = {
@@ -157,6 +161,8 @@ export async function sendOrderConfirmation(data: OrderConfirmationData) {
     </p>
   `;
 
+  const resend = getResend();
+  if (!resend) return;
   await resend.emails.send({
     from: FROM,
     to: data.customerEmail,
@@ -208,6 +214,8 @@ export async function sendStatusUpdate(data: StatusUpdateData) {
     </p>
   `;
 
+  const resend = getResend();
+  if (!resend) return;
   await resend.emails.send({
     from: FROM,
     to: data.customerEmail,
