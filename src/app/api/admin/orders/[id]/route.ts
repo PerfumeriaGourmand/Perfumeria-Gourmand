@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
+import { sendStatusUpdate } from "@/lib/email";
 
 const VALID_STATUSES = ["pending", "in_process", "approved", "rejected", "cancelled", "refunded"];
 
@@ -40,6 +41,23 @@ export async function PATCH(
     const { error: fifoError } = await admin.rpc("apply_fifo_lots_on_order", { p_order_id: id });
     if (fifoError) console.error("[orders PATCH] apply_fifo_lots_on_order:", fifoError);
   }
+
+  // Send status update email (fire-and-forget)
+  admin
+    .from("orders")
+    .select("id, customer_name, customer_email, total")
+    .eq("id", id)
+    .single()
+    .then(({ data: order }) => {
+      if (!order) return;
+      sendStatusUpdate({
+        orderId: order.id,
+        customerName: order.customer_name,
+        customerEmail: order.customer_email,
+        newStatus: status,
+        total: order.total,
+      }).catch((err) => console.error("[email] sendStatusUpdate:", err));
+    });
 
   return NextResponse.json({ ok: true });
 }

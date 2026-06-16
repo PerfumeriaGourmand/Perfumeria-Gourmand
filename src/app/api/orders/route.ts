@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import MercadoPagoConfig, { Preference } from "mercadopago";
+import { sendOrderConfirmation } from "@/lib/email";
 
 const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -138,6 +139,20 @@ export async function POST(req: NextRequest) {
         // Still return order ID even if MP fails
       }
     }
+
+    // Send confirmation email (fire-and-forget)
+    sendOrderConfirmation({
+      orderId: order.id,
+      customerName: customer_name,
+      customerEmail: customer_email,
+      items,
+      subtotal,
+      total,
+      paymentMethod: payment_method,
+      installments: installments ?? 1,
+      shippingAddress: shipping_address ?? null,
+      notes: notes ?? null,
+    }).catch((err) => console.error("[email] sendOrderConfirmation:", err));
 
     return NextResponse.json({ order_id: order.id });
   } catch (err) {

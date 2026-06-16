@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import MercadoPagoConfig, { Payment } from "mercadopago";
 import { createHmac } from "crypto";
+import { sendStatusUpdate } from "@/lib/email";
 
 const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -80,6 +81,23 @@ export async function POST(req: NextRequest) {
 
       // 2. Asignar lotes FIFO y registrar cost_price real (ARS histórico del lote)
       await supabase.rpc("apply_fifo_lots_on_order", { p_order_id: orderId });
+
+      // 3. Send payment approved email (fire-and-forget)
+      supabase
+        .from("orders")
+        .select("id, customer_name, customer_email, total")
+        .eq("id", orderId)
+        .single()
+        .then(({ data: order }) => {
+          if (!order) return;
+          sendStatusUpdate({
+            orderId: order.id,
+            customerName: order.customer_name,
+            customerEmail: order.customer_email,
+            newStatus: "approved",
+            total: order.total,
+          }).catch((err) => console.error("[email] sendStatusUpdate MP:", err));
+        });
     }
 
     return NextResponse.json({ received: true });
