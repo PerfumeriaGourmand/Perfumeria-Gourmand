@@ -4,7 +4,6 @@ import NewArrivalsCarousel from "@/components/home/NewArrivalsCarousel";
 import CategorySection from "@/components/home/CategorySection";
 import BrandCarousel from "@/components/home/BrandCarousel";
 import CategoryFeaturedSection from "@/components/home/CategoryFeaturedSection";
-import EditorialBanner from "@/components/home/EditorialBanner";
 import RevealSection from "@/components/ui/RevealSection";
 import { createClient } from "@/lib/supabase/server";
 
@@ -72,9 +71,6 @@ export default async function HomePage() {
         <FeaturedCarousel products={featured} />
       </RevealSection>
       <CategorySection />
-      <RevealSection>
-        <EditorialBanner />
-      </RevealSection>
       <RevealSection>
         <CategoryFeaturedSection
           title="Árabe — Destacados"
