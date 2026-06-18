@@ -63,6 +63,8 @@ export default async function CatalogPage({
     concentration: params.concentration as ProductFilters["concentration"],
     brand: params.brand,
     search: params.search,
+    minPrice: params.minPrice ? Number(params.minPrice) : undefined,
+    maxPrice: params.maxPrice ? Number(params.maxPrice) : undefined,
     sort: (params.sort as ProductFilters["sort"]) ?? undefined,
   };
 

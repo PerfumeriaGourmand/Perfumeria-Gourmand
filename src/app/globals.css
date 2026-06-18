@@ -178,6 +178,47 @@ body {
 }
 
 /* ——————————————————————————————————————————
+   Price range slider (catalog filter modal)
+   —————————————————————————————————————————— */
+.price-range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+.price-range-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #1c1917;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  cursor: pointer;
+  margin-top: -8.5px;
+}
+.price-range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #1c1917;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  cursor: pointer;
+}
+.price-range-thumb::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 1px;
+}
+.price-range-thumb::-moz-range-track {
+  background: transparent;
+  height: 1px;
+}
+
+/* ——————————————————————————————————————————
    Marquee (brand carousel)
    —————————————————————————————————————————— */
 .marquee-track {

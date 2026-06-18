@@ -5,7 +5,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import type { Product, ProductFilters } from "@/types";
 import ProductCard from "@/components/catalog/ProductCard";
 import { SlidersHorizontal, X, ChevronDown, ChevronRight } from "lucide-react";
-import { cn, CATEGORY_LABELS, GENDER_LABELS, SEASON_LABELS, CONCENTRATION_LABELS } from "@/lib/utils";
+import { cn, formatPrice, CATEGORY_LABELS, GENDER_LABELS, SEASON_LABELS, CONCENTRATION_LABELS } from "@/lib/utils";
 import { useThemeStore } from "@/store/theme";
 import Link from "next/link";
 
@@ -35,22 +35,51 @@ export default function CatalogClient({ initialProducts, initialFilters, brands 
     return () => { document.body.style.overflow = ""; };
   }, [filtersOpen]);
 
-  const updateFilter = (key: string, value: string | undefined) => {
+  const updateFilters = (updates: Record<string, string | undefined>) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (value) params.set(key, value);
-    else params.delete(key);
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value) params.set(key, value);
+      else params.delete(key);
+    });
     router.push(`${pathname}?${params.toString()}`);
   };
 
+  const updateFilter = (key: string, value: string | undefined) => updateFilters({ [key]: value });
+
   const clearFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
-    ["category", "gender", "season", "concentration", "brand", "search"].forEach((k) => params.delete(k));
+    ["category", "gender", "season", "concentration", "brand", "search", "minPrice", "maxPrice"].forEach((k) => params.delete(k));
     router.push(`${pathname}?${params.toString()}`);
     setFiltersOpen(false);
   };
 
-  // Client-side search + sort
+  // Price bounds derived from currently loaded products (before price filtering)
+  const priceBounds = useMemo<[number, number]>(() => {
+    const prices = initialProducts.flatMap((p) => (p.variants ?? []).map((v) => v.price));
+    if (prices.length === 0) return [0, 100000];
+    return [Math.floor(Math.min(...prices)), Math.ceil(Math.max(...prices))];
+  }, [initialProducts]);
+
+  const getMinVariantPrice = (p: Product) => {
+    const prices = (p.variants ?? []).map((v) => v.price);
+    return prices.length ? Math.min(...prices) : 0;
+  };
+
+  const priceRange: [number, number] = [
+    initialFilters.minPrice ?? priceBounds[0],
+    initialFilters.maxPrice ?? priceBounds[1],
+  ];
+
+  const handlePriceChange = ([min, max]: [number, number]) => {
+    updateFilters({
+      minPrice: min > priceBounds[0] ? String(min) : undefined,
+      maxPrice: max < priceBounds[1] ? String(max) : undefined,
+    });
+  };
+
+  // Client-side search + price + sort
   const search = initialFilters.search ?? "";
+  const { minPrice, maxPrice } = initialFilters;
   const products = useMemo(() => {
     let result = initialProducts;
     if (search.trim()) {
@@ -58,6 +87,14 @@ export default function CatalogClient({ initialProducts, initialFilters, brands 
       result = result.filter(
         (p) => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)
       );
+    }
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      result = result.filter((p) => {
+        const price = getMinVariantPrice(p);
+        if (minPrice !== undefined && price < minPrice) return false;
+        if (maxPrice !== undefined && price > maxPrice) return false;
+        return true;
+      });
     }
     // Default: en stock alfabético primero, sin stock alfabético después
     if (!initialFilters.sort) {
@@ -69,7 +106,9 @@ export default function CatalogClient({ initialProducts, initialFilters, brands 
       });
     }
     return result;
-  }, [initialProducts, search, initialFilters.sort]);
+  }, [initialProducts, search, minPrice, maxPrice, initialFilters.sort]);
+
+  const hasPriceFilter = initialFilters.minPrice !== undefined || initialFilters.maxPrice !== undefined;
 
   const activeFilterCount = [
     initialFilters.category,
@@ -77,6 +116,7 @@ export default function CatalogClient({ initialProducts, initialFilters, brands 
     initialFilters.season,
     initialFilters.concentration,
     initialFilters.brand,
+    hasPriceFilter ? "price" : undefined,
   ].filter(Boolean).length;
 
   const N = isNicho;
@@ -172,6 +212,13 @@ export default function CatalogClient({ initialProducts, initialFilters, brands 
               {initialFilters.brand && (
                 <FilterChip label={initialFilters.brand} onRemove={() => updateFilter("brand", undefined)} dark={N} />
               )}
+              {hasPriceFilter && (
+                <FilterChip
+                  label={`${formatPrice(priceRange[0])} - ${formatPrice(priceRange[1])}`}
+                  onRemove={() => updateFilters({ minPrice: undefined, maxPrice: undefined })}
+                  dark={N}
+                />
+              )}
             </div>
 
             {/* Sort */}
@@ -216,6 +263,13 @@ export default function CatalogClient({ initialProducts, initialFilters, brands 
               )}
               {initialFilters.brand && (
                 <FilterChip label={initialFilters.brand} onRemove={() => updateFilter("brand", undefined)} dark={N} />
+              )}
+              {hasPriceFilter && (
+                <FilterChip
+                  label={`${formatPrice(priceRange[0])} - ${formatPrice(priceRange[1])}`}
+                  onRemove={() => updateFilters({ minPrice: undefined, maxPrice: undefined })}
+                  dark={N}
+                />
               )}
             </div>
           )}
@@ -311,6 +365,13 @@ export default function CatalogClient({ initialProducts, initialFilters, brands 
                 value={initialFilters.concentration}
                 onChange={(v) => updateFilter("concentration", v)}
               />
+              <div className="divider-light" />
+              <PriceRangeFilter
+                min={priceBounds[0]}
+                max={priceBounds[1]}
+                value={priceRange}
+                onChange={handlePriceChange}
+              />
               {brands.length > 0 && (
                 <>
                   <div className="divider-light" />
@@ -395,6 +456,80 @@ function BrandFilterGroup({
             {brand}
           </button>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function PriceRangeFilter({
+  min,
+  max,
+  value,
+  onChange,
+}: {
+  min: number;
+  max: number;
+  value: [number, number];
+  onChange: (range: [number, number]) => void;
+}) {
+  const [localMin, setLocalMin] = useState(value[0]);
+  const [localMax, setLocalMax] = useState(value[1]);
+
+  useEffect(() => {
+    setLocalMin(value[0]);
+    setLocalMax(value[1]);
+  }, [value[0], value[1]]);
+
+  const commit = (a: number, b: number) => onChange([a, b]);
+
+  const range = max - min || 1;
+  const minPct = ((localMin - min) / range) * 100;
+  const maxPct = ((localMax - min) / range) * 100;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <p className="font-sans text-xs font-semibold text-text-dark tracking-widest uppercase">
+          Precio
+        </p>
+        <p className="font-sans text-xs text-text-mid">
+          {formatPrice(localMin)} – {formatPrice(localMax)}
+        </p>
+      </div>
+      <div className="relative h-1.5">
+        <div className="absolute inset-0 rounded-full bg-border-light" />
+        <div
+          className="absolute h-full rounded-full bg-text-dark"
+          style={{ left: `${minPct}%`, right: `${100 - maxPct}%` }}
+        />
+        <input
+          type="range"
+          min={min}
+          max={max}
+          value={localMin}
+          onChange={(e) => {
+            const v = Math.min(Number(e.target.value), localMax - 1);
+            setLocalMin(v);
+          }}
+          onMouseUp={() => commit(localMin, localMax)}
+          onTouchEnd={() => commit(localMin, localMax)}
+          onKeyUp={() => commit(localMin, localMax)}
+          className="price-range-thumb absolute top-0 left-0 w-full h-1.5"
+        />
+        <input
+          type="range"
+          min={min}
+          max={max}
+          value={localMax}
+          onChange={(e) => {
+            const v = Math.max(Number(e.target.value), localMin + 1);
+            setLocalMax(v);
+          }}
+          onMouseUp={() => commit(localMin, localMax)}
+          onTouchEnd={() => commit(localMin, localMax)}
+          onKeyUp={() => commit(localMin, localMax)}
+          className="price-range-thumb absolute top-0 left-0 w-full h-1.5"
+        />
       </div>
     </div>
   );

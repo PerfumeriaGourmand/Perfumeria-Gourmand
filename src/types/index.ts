@@ -191,6 +191,8 @@ export interface ProductFilters {
   concentration?: ConcentrationType;
   brand?: string;
   search?: string;
+  minPrice?: number;
+  maxPrice?: number;
   sort?: "price_asc" | "price_desc" | "newest" | "name_asc";
   page?: number;
   limit?: number;
