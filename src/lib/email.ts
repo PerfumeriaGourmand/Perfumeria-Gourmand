@@ -18,6 +18,11 @@ const STATUS_LABELS: Record<string, { label: string; message: string; color: str
   refunded:   { label: "Reintegro procesado",  color: "#4a9e6a", message: "El reintegro de tu pago fue procesado correctamente." },
 };
 
+const FULFILLMENT_LABELS: Record<string, { label: string; message: string; color: string }> = {
+  shipped:   { label: "Pedido enviado ✓",  color: "#a4854c", message: "Tu pedido ya está en camino. Te va a llegar pronto." },
+  delivered: { label: "Pedido entregado ✓", color: "#4a9e6a", message: "¡Tu pedido fue entregado! Esperamos que disfrutes tu compra." },
+};
+
 const PAYMENT_LABELS: Record<string, string> = {
   credit_card:          "Tarjeta de crédito",
   debit_card:           "Tarjeta de débito",
@@ -220,6 +225,57 @@ export async function sendStatusUpdate(data: StatusUpdateData) {
     from: FROM,
     to: data.customerEmail,
     subject: `Tu pedido #${orderNum} — ${statusInfo.label}`,
+    html: layout(content),
+  });
+}
+
+// ─── Fulfillment update (shipped / delivered) ────────────────────────────────
+
+interface FulfillmentUpdateData {
+  orderId: string;
+  customerName: string;
+  customerEmail: string;
+  fulfillmentStatus: "shipped" | "delivered";
+  total: number;
+}
+
+export async function sendFulfillmentUpdate(data: FulfillmentUpdateData) {
+  const orderNum = data.orderId.slice(0, 8).toUpperCase();
+  const info = FULFILLMENT_LABELS[data.fulfillmentStatus];
+
+  const content = `
+    <p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:11px;letter-spacing:0.4em;text-transform:uppercase;color:rgba(245,240,232,0.4);">Actualización de envío</p>
+    <h2 style="margin:0 0 6px;font-weight:300;font-size:28px;color:#f5f0e8;">${info.label}</h2>
+    <p style="margin:0 0 32px;font-family:Arial,sans-serif;font-size:13px;color:rgba(245,240,232,0.5);">Hola ${data.customerName.split(" ")[0]},</p>
+
+    <!-- Order number -->
+    <div style="background:#111;border:1px solid rgba(164,133,76,0.15);padding:16px 20px;margin-bottom:20px;">
+      <p style="margin:0;font-family:Arial,sans-serif;font-size:10px;letter-spacing:0.4em;text-transform:uppercase;color:rgba(245,240,232,0.35);">Número de orden</p>
+      <p style="margin:4px 0 0;font-family:'Courier New',monospace;font-size:18px;color:#a4854c;letter-spacing:0.1em;">#${orderNum}</p>
+    </div>
+
+    <!-- Status -->
+    <div style="background:#111;border-left:3px solid ${info.color};padding:16px 20px;margin-bottom:28px;">
+      <p style="margin:0;font-family:Arial,sans-serif;font-size:13px;color:rgba(245,240,232,0.6);line-height:1.6;">${info.message}</p>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;padding:14px 0;border-top:1px solid rgba(164,133,76,0.15);margin-bottom:28px;">
+      <span style="font-family:Arial,sans-serif;font-size:12px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(245,240,232,0.4);">Total del pedido</span>
+      <span style="font-size:18px;color:#a4854c;">${formatPrice(data.total)}</span>
+    </div>
+
+    <p style="font-family:Arial,sans-serif;font-size:13px;color:rgba(245,240,232,0.5);line-height:1.7;margin:0;">
+      Si tenés alguna pregunta, podés responder este mail o visitarnos en
+      <a href="${BASE_URL}" style="color:#a4854c;text-decoration:none;">perfumeriagourmand.com</a>.
+    </p>
+  `;
+
+  const resend = getResend();
+  if (!resend) return;
+  await resend.emails.send({
+    from: FROM,
+    to: data.customerEmail,
+    subject: `Tu pedido #${orderNum} — ${info.label}`,
     html: layout(content),
   });
 }

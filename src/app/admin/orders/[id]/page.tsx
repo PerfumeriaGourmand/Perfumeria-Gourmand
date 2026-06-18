@@ -5,6 +5,7 @@ import { formatPrice } from "@/lib/utils";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import OrderStatusUpdater from "@/components/admin/OrderStatusUpdater";
+import FulfillmentStatusUpdater from "@/components/admin/FulfillmentStatusUpdater";
 
 export default async function OrderDetailPage({
   params,
@@ -64,6 +65,15 @@ export default async function OrderDetailPage({
         <InfoBlock title="Estado">
           <OrderStatusUpdater orderId={order.id} currentStatus={order.payment_status} />
         </InfoBlock>
+
+        {order.payment_status === "approved" && (
+          <InfoBlock title="Envío">
+            <FulfillmentStatusUpdater
+              orderId={order.id}
+              currentStatus={order.fulfillment_status}
+            />
+          </InfoBlock>
+        )}
       </div>
 
       {/* Items */}

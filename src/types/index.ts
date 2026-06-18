@@ -7,6 +7,7 @@ export type ProductGender = "hombre" | "mujer" | "unisex";
 export type ProductSeason = "verano" | "invierno" | "primavera" | "otono" | "todo_clima";
 export type ConcentrationType = "parfum" | "edp" | "edt" | "edc" | "oil" | "otro";
 export type OrderStatus = "pending" | "approved" | "rejected" | "cancelled" | "refunded" | "in_process";
+export type FulfillmentStatus = "shipped" | "delivered";
 export type PaymentMethod = "credit_card" | "debit_card" | "bank_transfer" | "mercadopago_wallet";
 
 // ——————————————————————————————————————————
@@ -138,6 +139,7 @@ export interface Order {
   shipping_address: ShippingAddress | null;
   payment_method: PaymentMethod | null;
   payment_status: OrderStatus;
+  fulfillment_status: FulfillmentStatus | null;
   mp_preference_id: string | null;
   mp_payment_id: string | null;
   mp_merchant_order_id: string | null;

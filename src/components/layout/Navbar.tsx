@@ -140,6 +140,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileSearchAnimDone, setMobileSearchAnimDone] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<MegaMenuKey | null>(null);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -205,6 +206,11 @@ export default function Navbar() {
   useEffect(() => {
     setMobileSearchOpen(false);
   }, [pathname, searchParams]);
+
+  // Reset overflow-clip state whenever mobile search closes, so it re-clips on next open animation
+  useEffect(() => {
+    if (!mobileSearchOpen) setMobileSearchAnimDone(false);
+  }, [mobileSearchOpen]);
 
   // Scroll detection
   useEffect(() => {
@@ -462,7 +468,11 @@ export default function Navbar() {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="sm:hidden overflow-hidden border-t border-white/10"
+              onAnimationComplete={() => setMobileSearchAnimDone(true)}
+              className={cn(
+                "sm:hidden border-t border-white/10",
+                !mobileSearchAnimDone && "overflow-hidden"
+              )}
             >
               <div className="px-4 py-3">
                 <SearchBar

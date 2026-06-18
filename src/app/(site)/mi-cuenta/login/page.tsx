@@ -58,6 +58,14 @@ export default function LoginPage() {
               placeholder="••••••••"
             />
           </div>
+          <div className="flex justify-end">
+            <Link
+              href="/mi-cuenta/recuperar-contrasena"
+              className="font-sans text-xs text-text-light hover:text-gold transition-colors"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
           <button
             type="submit"
             disabled={loading}

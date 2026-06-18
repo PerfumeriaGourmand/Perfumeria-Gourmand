@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
-import { sendStatusUpdate } from "@/lib/email";
+import { sendStatusUpdate, sendFulfillmentUpdate } from "@/lib/email";
 
 const VALID_STATUSES = ["pending", "in_process", "approved", "rejected", "cancelled", "refunded"];
+const VALID_FULFILLMENT_STATUSES = ["shipped", "delivered"];
 
 export async function PATCH(
   req: NextRequest,
@@ -17,7 +18,47 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  const { status } = await req.json();
+  const { status, fulfillment_status } = await req.json();
+
+  if (fulfillment_status !== undefined) {
+    if (!VALID_FULFILLMENT_STATUSES.includes(fulfillment_status)) {
+      return NextResponse.json({ error: "Estado de envío inválido" }, { status: 400 });
+    }
+
+    const admin = await createAdminClient();
+
+    const { data: existing } = await admin
+      .from("orders")
+      .select("payment_status")
+      .eq("id", id)
+      .single();
+
+    if (existing?.payment_status !== "approved") {
+      return NextResponse.json({ error: "El pedido todavía no tiene el pago aprobado" }, { status: 400 });
+    }
+
+    const { data: order, error } = await admin
+      .from("orders")
+      .update({ fulfillment_status })
+      .eq("id", id)
+      .select("id, customer_name, customer_email, total")
+      .single();
+
+    if (error) {
+      console.error("[orders PATCH] fulfillment_status update:", error);
+      return NextResponse.json({ error: "No se pudo actualizar el estado de envío" }, { status: 500 });
+    }
+
+    sendFulfillmentUpdate({
+      orderId: order.id,
+      customerName: order.customer_name,
+      customerEmail: order.customer_email,
+      fulfillmentStatus: fulfillment_status,
+      total: order.total,
+    }).catch((err) => console.error("[email] sendFulfillmentUpdate:", err));
+
+    return NextResponse.json({ ok: true });
+  }
 
   if (!status || !VALID_STATUSES.includes(status)) {
     return NextResponse.json({ error: "Estado inválido" }, { status: 400 });
@@ -31,7 +72,8 @@ export async function PATCH(
     .eq("id", id);
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[orders PATCH] payment_status update:", error);
+    return NextResponse.json({ error: "No se pudo actualizar el estado" }, { status: 500 });
   }
 
   if (status === "approved") {
