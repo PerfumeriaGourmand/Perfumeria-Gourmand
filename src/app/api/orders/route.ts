@@ -2,12 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import MercadoPagoConfig, { Preference } from "mercadopago";
 import { sendOrderConfirmation } from "@/lib/email";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
 });
 
 export async function POST(req: NextRequest) {
+  if (!rateLimit(`orders:${getClientIp(req)}`, 5, 10 * 60 * 1000)) {
+    return NextResponse.json({ error: "Demasiados intentos. Probá de nuevo en unos minutos." }, { status: 429 });
+  }
+
   try {
     const body = await req.json();
     const {
