@@ -85,6 +85,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Error al crear los items del pedido" }, { status: 500 });
     }
 
+    // Send confirmation email (fire-and-forget)
+    sendOrderConfirmation({
+      orderId: order.id,
+      customerName: customer_name,
+      customerEmail: customer_email,
+      items,
+      subtotal,
+      total,
+      paymentMethod: payment_method,
+      installments: installments ?? 1,
+      shippingAddress: shipping_address ?? null,
+      notes: notes ?? null,
+    }).catch((err) => console.error("[email] sendOrderConfirmation:", err));
+
     // Create MercadoPago preference (for card payments)
     if (payment_method !== "bank_transfer") {
       try {
@@ -139,20 +153,6 @@ export async function POST(req: NextRequest) {
         // Still return order ID even if MP fails
       }
     }
-
-    // Send confirmation email (fire-and-forget)
-    sendOrderConfirmation({
-      orderId: order.id,
-      customerName: customer_name,
-      customerEmail: customer_email,
-      items,
-      subtotal,
-      total,
-      paymentMethod: payment_method,
-      installments: installments ?? 1,
-      shippingAddress: shipping_address ?? null,
-      notes: notes ?? null,
-    }).catch((err) => console.error("[email] sendOrderConfirmation:", err));
 
     return NextResponse.json({ order_id: order.id });
   } catch (err) {
