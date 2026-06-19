@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
+import { apiError } from "@/lib/api-error";
 
 export async function POST(req: NextRequest) {
   try {
@@ -67,10 +68,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ id });
   } catch (err) {
-    console.error("[products API] error:", err);
-    const message = err instanceof Error ? err.message : JSON.stringify(err);
-    const status = message === "Unauthorized" ? 401 : 500;
-    return NextResponse.json({ error: message }, { status });
+    return apiError(err, "products POST", "No se pudo guardar el producto");
   }
 }
 
@@ -83,7 +81,6 @@ export async function DELETE(req: NextRequest) {
     if (error) throw error;
     return NextResponse.json({ ok: true });
   } catch (err) {
-    const message = err instanceof Error ? err.message : JSON.stringify(err);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError(err, "products DELETE", "No se pudo eliminar el producto");
   }
 }

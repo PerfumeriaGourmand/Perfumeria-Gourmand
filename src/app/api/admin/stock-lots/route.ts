@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
+import { apiError } from "@/lib/api-error";
 
 // GET /api/admin/stock-lots — lista todos los lotes con detalle de producto y variant
 export async function GET() {
@@ -17,11 +18,7 @@ export async function GET() {
     if (error) throw error;
     return NextResponse.json(data ?? []);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Error";
-    return NextResponse.json(
-      { error: message },
-      { status: message === "Unauthorized" ? 401 : 500 }
-    );
+    return apiError(err, "stock-lots GET", "No se pudieron obtener los lotes de stock");
   }
 }
 
@@ -127,11 +124,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ id: lot.id, ok: true });
   } catch (err) {
-    console.error("[stock-lots POST]", err);
-    const message = err instanceof Error ? err.message : "Error";
-    return NextResponse.json(
-      { error: message },
-      { status: message === "Unauthorized" ? 401 : 500 }
-    );
+    return apiError(err, "stock-lots POST", "No se pudo crear el lote de stock");
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { apiError } from "@/lib/api-error";
 
 export async function GET(req: NextRequest) {
   if (!rateLimit(`orders-by-email:${getClientIp(req)}`, 8, 5 * 60 * 1000)) {
@@ -19,6 +20,6 @@ export async function GET(req: NextRequest) {
     .eq("customer_email", email)
     .order("created_at", { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return apiError(error, "orders/by-email", "No se pudieron obtener los pedidos");
   return NextResponse.json({ orders: data ?? [] });
 }

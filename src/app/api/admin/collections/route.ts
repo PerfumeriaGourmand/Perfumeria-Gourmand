@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
+import { apiError } from "@/lib/api-error";
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,10 +40,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ id });
   } catch (err) {
-    console.error("[collections API] error:", err);
-    const message = err instanceof Error ? err.message : "Error interno";
-    const status = message === "Unauthorized" ? 401 : message === "Forbidden" ? 403 : 500;
-    return NextResponse.json({ error: message }, { status });
+    return apiError(err, "collections POST", "No se pudo guardar la colección");
   }
 }
 
@@ -55,7 +53,6 @@ export async function DELETE(req: NextRequest) {
     if (error) throw error;
     return NextResponse.json({ ok: true });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Error interno";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return apiError(err, "collections DELETE", "No se pudo eliminar la colección");
   }
 }

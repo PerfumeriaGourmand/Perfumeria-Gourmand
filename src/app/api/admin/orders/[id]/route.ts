@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
 import { sendStatusUpdate, sendFulfillmentUpdate } from "@/lib/email";
+import { apiError } from "@/lib/api-error";
 
 const VALID_STATUSES = ["pending", "in_process", "approved", "rejected", "cancelled", "refunded"];
 const VALID_FULFILLMENT_STATUSES = ["shipped", "delivered"];
@@ -13,8 +14,7 @@ export async function PATCH(
   try {
     await requireAdmin();
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unauthorized";
-    return NextResponse.json({ error: message }, { status: message === "Forbidden" ? 403 : 401 });
+    return apiError(err, "orders PATCH auth");
   }
 
   const { id } = await params;

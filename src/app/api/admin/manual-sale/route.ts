@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
+import { apiError } from "@/lib/api-error";
 
 // POST /api/admin/manual-sale
 // Body: { product_id, variant_id, product_name, size_ml, quantity, unit_price, customer_name?, notes? }
@@ -128,11 +129,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, order_id: order.id });
   } catch (err) {
-    console.error("[manual-sale POST]", err);
-    const message = err instanceof Error ? err.message : "Error inesperado";
-    return NextResponse.json(
-      { error: message },
-      { status: message === "Unauthorized" ? 401 : 500 }
-    );
+    return apiError(err, "manual-sale POST", "No se pudo registrar la venta");
   }
 }

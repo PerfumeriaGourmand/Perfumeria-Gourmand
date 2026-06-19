@@ -1,13 +1,13 @@
 import { createAdminClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
+import { apiError } from "@/lib/api-error";
 
 export async function POST(req: NextRequest) {
   try {
     await requireAdmin();
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unauthorized";
-    return NextResponse.json({ error: message }, { status: message === "Forbidden" ? 403 : 401 });
+    return apiError(err, "admin/settings auth");
   }
 
   const supabase = await createAdminClient();
@@ -24,6 +24,9 @@ export async function POST(req: NextRequest) {
     .from("site_settings")
     .upsert(body, { onConflict: "id" });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    console.error("[admin/settings] upsert error:", error);
+    return NextResponse.json({ error: "No se pudo guardar la configuración" }, { status: 400 });
+  }
   return NextResponse.json({ success: true });
 }
