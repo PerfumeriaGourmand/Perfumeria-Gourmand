@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://www.perfumeriagourmand.com/sitemap.xml
+Sitemap: https://www.perfumeriagourmand.com.ar/sitemap.xml

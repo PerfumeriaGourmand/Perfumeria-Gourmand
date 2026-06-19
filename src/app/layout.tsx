@@ -26,12 +26,12 @@ const outfit = Outfit({
   display: "swap",
 });
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.perfumeriagourmand.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.perfumeriagourmand.com.ar";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Gourmand Perfumería",
+    default: "Gourmand",
     template: "%s | Gourmand",
   },
   description:

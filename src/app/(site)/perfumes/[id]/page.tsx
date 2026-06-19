@@ -7,7 +7,7 @@ import { CONCENTRATION_LABELS, CATEGORY_LABELS } from "@/lib/utils";
 
 export const revalidate = 60;
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.perfumeriagourmand.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.perfumeriagourmand.com.ar";
 
 async function getProduct(id: string) {
   const supabase = await createClient();

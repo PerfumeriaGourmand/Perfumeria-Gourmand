@@ -1,13 +1,13 @@
 import { Resend } from "resend";
 import { formatPrice } from "@/lib/utils";
 
-const FROM = process.env.RESEND_FROM_EMAIL ?? "Gourmand Perfumería <noreply@perfumeriagourmand.com>";
+const FROM = process.env.RESEND_FROM_EMAIL ?? "Gourmand Perfumería <noreply@perfumeriagourmand.com.ar>";
 
 function getResend() {
   if (!process.env.RESEND_API_KEY) return null;
   return new Resend(process.env.RESEND_API_KEY);
 }
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.perfumeriagourmand.com";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.perfumeriagourmand.com.ar";
 
 const STATUS_LABELS: Record<string, { label: string; message: string; color: string }> = {
   pending:    { label: "Pendiente de pago",    color: "#a4854c", message: "Tu pedido está esperando confirmación de pago." },
@@ -56,7 +56,7 @@ function layout(content: string) {
     <div style="margin-top:48px;padding-top:24px;border-top:1px solid rgba(164,133,76,0.1);text-align:center;">
       <p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:11px;color:rgba(245,240,232,0.25);">© ${new Date().getFullYear()} Gourmand Perfumería</p>
       <p style="margin:0;font-family:Arial,sans-serif;font-size:11px;color:rgba(245,240,232,0.2);">
-        <a href="${BASE_URL}" style="color:#a4854c;text-decoration:none;">perfumeriagourmand.com</a>
+        <a href="${BASE_URL}" style="color:#a4854c;text-decoration:none;">perfumeriagourmand.com.ar</a>
       </p>
     </div>
 
@@ -215,7 +215,7 @@ export async function sendStatusUpdate(data: StatusUpdateData) {
 
     <p style="font-family:Arial,sans-serif;font-size:13px;color:rgba(245,240,232,0.5);line-height:1.7;margin:0;">
       Si tenés alguna pregunta, podés responder este mail o visitarnos en
-      <a href="${BASE_URL}" style="color:#a4854c;text-decoration:none;">perfumeriagourmand.com</a>.
+      <a href="${BASE_URL}" style="color:#a4854c;text-decoration:none;">perfumeriagourmand.com.ar</a>.
     </p>
   `;
 
@@ -266,7 +266,7 @@ export async function sendFulfillmentUpdate(data: FulfillmentUpdateData) {
 
     <p style="font-family:Arial,sans-serif;font-size:13px;color:rgba(245,240,232,0.5);line-height:1.7;margin:0;">
       Si tenés alguna pregunta, podés responder este mail o visitarnos en
-      <a href="${BASE_URL}" style="color:#a4854c;text-decoration:none;">perfumeriagourmand.com</a>.
+      <a href="${BASE_URL}" style="color:#a4854c;text-decoration:none;">perfumeriagourmand.com.ar</a>.
     </p>
   `;
 
