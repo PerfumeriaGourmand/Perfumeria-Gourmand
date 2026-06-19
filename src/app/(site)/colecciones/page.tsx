@@ -76,7 +76,7 @@ function CollectionCard({ collection }: { collection: Collection }) {
       </div>
 
       <div className="p-6">
-        <h3 className="font-display text-2xl text-text-dark group-hover:text-gold transition-colors duration-200 mb-2">
+        <h3 className="font-body text-2xl text-text-dark group-hover:text-gold transition-colors duration-200 mb-2">
           {collection.name}
         </h3>
         {collection.description && (
