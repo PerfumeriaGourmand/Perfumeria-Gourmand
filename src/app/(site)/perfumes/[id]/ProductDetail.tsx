@@ -268,7 +268,7 @@ export default function ProductDetail({
                             : "border-white/20 opacity-50 hover:opacity-80"
                         )}
                       >
-                        <Image src={img.url} alt="" fill className="object-cover" sizes="48px" />
+                        <Image src={img.url} alt={img.alt || product.name} fill className="object-cover" sizes="48px" />
                       </button>
                     ))}
                   </div>

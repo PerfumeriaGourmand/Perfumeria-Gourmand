@@ -552,7 +552,7 @@ export default function ProductForm({ product }: ProductFormProps) {
             {pendingPreviews.map((p, i) => (
               <div key={i} className="relative w-20 h-24 rounded overflow-hidden border border-gold/20">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.preview} alt="" className="w-full h-full object-cover opacity-50" />
+                <img src={p.preview} alt={`Vista previa de imagen para ${form.name || "producto"}`} className="w-full h-full object-cover opacity-50" />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-4 h-4 border-2 border-gold border-t-transparent rounded-full animate-spin" />
                 </div>
@@ -569,7 +569,7 @@ export default function ProductForm({ product }: ProductFormProps) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={img.url}
-                  alt=""
+                  alt={img.alt || form.name || "Imagen de producto"}
                   className={`w-full h-full object-cover border transition-all ${
                     img.is_primary ? "border-gold" : "border-gold/10"
                   }`}
