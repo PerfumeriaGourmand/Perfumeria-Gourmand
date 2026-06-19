@@ -121,6 +121,7 @@ export default function CheckoutPage() {
             size_ml: i.size_ml,
             quantity: i.quantity,
             unit_price: i.price,
+            image_url: i.image_url,
           })),
           notes: form.notes,
           coupon_code: appliedCoupon?.code ?? null,

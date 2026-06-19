@@ -46,7 +46,6 @@ function layout(content: string) {
     <!-- Header -->
     <div style="text-align:center;padding-bottom:32px;margin-bottom:32px;border-bottom:1px solid rgba(164,133,76,0.2);">
       <h1 style="margin:0;font-weight:300;font-size:30px;letter-spacing:0.15em;color:#a4854c;">GOURMAND</h1>
-      <p style="margin:6px 0 0;font-family:Arial,sans-serif;font-size:9px;letter-spacing:0.5em;text-transform:uppercase;color:rgba(245,240,232,0.35);">Perfumería Premium</p>
     </div>
 
     <!-- Body -->
@@ -72,6 +71,7 @@ interface OrderItem {
   size_ml?: number | null;
   quantity: number;
   unit_price: number;
+  image_url?: string | null;
 }
 
 interface OrderConfirmationData {
@@ -101,6 +101,11 @@ export async function sendOrderConfirmation(data: OrderConfirmationData) {
     .map(
       (i) => `
       <tr>
+        <td style="padding:10px 0;border-bottom:1px solid rgba(164,133,76,0.07);width:56px;">
+          ${i.image_url
+            ? `<img src="${i.image_url}" alt="${i.name}" width="48" height="48" style="display:block;width:48px;height:48px;object-fit:contain;background:#fff;border-radius:8px;">`
+            : ""}
+        </td>
         <td style="padding:10px 0;border-bottom:1px solid rgba(164,133,76,0.07);color:#f5f0e8;font-size:14px;">
           ${i.name}${i.size_ml ? ` <span style="color:rgba(245,240,232,0.4);font-size:12px;">${i.size_ml}ml</span>` : ""}
           <br><span style="font-family:Arial,sans-serif;font-size:11px;color:rgba(245,240,232,0.4);">x${i.quantity}</span>
@@ -161,8 +166,12 @@ export async function sendOrderConfirmation(data: OrderConfirmationData) {
       </table>
     </div>
 
-    <p style="font-family:Arial,sans-serif;font-size:13px;color:rgba(245,240,232,0.5);line-height:1.7;margin:0;">
+    <p style="font-family:Arial,sans-serif;font-size:13px;color:rgba(245,240,232,0.5);line-height:1.7;margin:0 0 20px;">
       Nos pondremos en contacto para coordinar el envío. Si tenés alguna duda podés responder este mail.
+    </p>
+
+    <p style="font-family:Georgia,'Times New Roman',serif;font-size:15px;font-style:italic;color:#a4854c;line-height:1.7;margin:0;">
+      Gracias por elegirnos. Esperamos que disfrutes tu fragancia.
     </p>
   `;
 
