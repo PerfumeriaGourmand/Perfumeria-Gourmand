@@ -67,7 +67,7 @@ export default async function AdminProductsPage() {
     <div>
       <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="font-display text-3xl text-cream mb-1">Catálogo</h1>
+          <h1 className="font-display text-3xl text-cream mb-1">Productos</h1>
           <p className="font-sans text-xs text-cream-dim">
             {list.length} perfumes en el catálogo
           </p>

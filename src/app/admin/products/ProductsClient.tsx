@@ -28,19 +28,29 @@ function priceRange(variants: Variant[]): string {
   return min === max ? ars.format(min) : `${ars.format(min)} – ${ars.format(max)}`;
 }
 
+const CATEGORY_FILTERS: { value: string; label: string }[] = [
+  { value: "all", label: "Todos" },
+  { value: "disenador", label: "Diseñador" },
+  { value: "nicho", label: "Nicho" },
+  { value: "arabe", label: "Árabe" },
+  { value: "kit", label: "Kit" },
+];
+
 export function ProductsClient({ products }: { products: Product[] }) {
   const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("all");
 
-  const filtered = query.trim()
-    ? products.filter((p) => {
-        const q = query.toLowerCase();
-        return p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q);
-      })
-    : products;
+  const filtered = products
+    .filter((p) => category === "all" || p.category === category)
+    .filter((p) => {
+      if (!query.trim()) return true;
+      const q = query.toLowerCase();
+      return p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q);
+    });
 
   return (
     <>
-      <div className="relative mb-6">
+      <div className="relative mb-4">
         <Search
           size={14}
           className="absolute left-3 top-1/2 -translate-y-1/2 text-cream-dim pointer-events-none"
@@ -52,6 +62,22 @@ export function ProductsClient({ products }: { products: Product[] }) {
           placeholder="Buscar por nombre o marca…"
           className="w-full bg-obsidian-surface border border-gold/10 pl-9 pr-4 py-2.5 font-sans text-sm text-cream placeholder:text-cream-dim/50 focus:outline-none focus:border-gold/40 transition-colors"
         />
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-6">
+        {CATEGORY_FILTERS.map((f) => (
+          <button
+            key={f.value}
+            onClick={() => setCategory(f.value)}
+            className={`font-sans text-xs px-4 py-2 border transition-colors ${
+              category === f.value
+                ? "border-gold bg-gold/10 text-gold"
+                : "border-gold/10 text-cream-dim hover:border-gold/30 hover:text-cream"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       <div className="border border-gold/10 bg-obsidian-surface overflow-hidden">
@@ -137,6 +163,8 @@ export function ProductsClient({ products }: { products: Product[] }) {
                 >
                   {query.trim()
                     ? `Sin resultados para "${query}"`
+                    : category !== "all"
+                    ? "Sin productos en esta categoría"
                     : "No hay productos todavía"}
                 </td>
               </tr>

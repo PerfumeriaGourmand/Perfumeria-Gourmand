@@ -22,7 +22,7 @@ import { createClient } from "@/lib/supabase/client";
 
 const LINKS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/products", label: "Productos & Kits", icon: Package },
+  { href: "/admin/products", label: "Productos", icon: Package },
   { href: "/admin/orders", label: "Órdenes", icon: ShoppingBag },
   { href: "/admin/stock", label: "Stock", icon: Layers },
   { href: "/admin/ventas-manuales", label: "Venta Manual", icon: PenLine },
