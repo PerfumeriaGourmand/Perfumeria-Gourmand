@@ -32,6 +32,32 @@ export async function POST(req: NextRequest) {
 
     const supabase = await createAdminClient();
 
+    // Validate stock at the moment of order creation — stock is only
+    // decremented later on payment approval, so this can't fully close the
+    // race window, but it stops accepting orders for items already sold out.
+    const variantIds = items
+      .map((i: { id: string }) => i.id)
+      .filter(Boolean);
+    const { data: variants, error: variantsError } = await supabase
+      .from("product_variants")
+      .select("id, stock, is_active")
+      .in("id", variantIds);
+
+    if (variantsError) {
+      console.error("Stock check error:", variantsError);
+      return NextResponse.json({ error: "Error al verificar stock" }, { status: 500 });
+    }
+
+    for (const item of items as { id: string; name: string; quantity: number }[]) {
+      const variant = variants?.find((v) => v.id === item.id);
+      if (!variant || !variant.is_active || variant.stock < item.quantity) {
+        return NextResponse.json(
+          { error: `"${item.name}" ya no tiene stock disponible. Actualizá tu carrito.` },
+          { status: 409 }
+        );
+      }
+    }
+
     // Calculate totals
     const subtotal: number = items.reduce(
       (sum: number, i: { unit_price: number; quantity: number }) =>
