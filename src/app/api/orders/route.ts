@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import MercadoPagoConfig, { Preference } from "mercadopago";
 import { sendOrderConfirmation } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { validateCoupon } from "@/lib/coupons";
 
 const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -24,6 +25,7 @@ export async function POST(req: NextRequest) {
       installments,
       items,
       notes,
+      coupon_code,
     } = body;
 
     if (!customer_name || !customer_email || !items?.length) {
@@ -64,7 +66,21 @@ export async function POST(req: NextRequest) {
         sum + i.unit_price * i.quantity,
       0
     );
-    const total = subtotal; // shipping TBD
+
+    // Re-validate the coupon and recompute the discount server-side — never
+    // trust a discount_amount sent by the client, it could be tampered with.
+    let appliedCouponCode: string | null = null;
+    let discountAmount = 0;
+    if (coupon_code) {
+      const couponResult = await validateCoupon(supabase, coupon_code, subtotal);
+      if (!couponResult.valid) {
+        return NextResponse.json({ error: couponResult.error }, { status: 400 });
+      }
+      appliedCouponCode = couponResult.code;
+      discountAmount = couponResult.discount_amount;
+    }
+
+    const total = Math.max(0, subtotal - discountAmount); // shipping TBD
 
     // Create order
     const { data: order, error: orderError } = await supabase
@@ -79,6 +95,8 @@ export async function POST(req: NextRequest) {
         subtotal,
         shipping_cost: 0,
         total,
+        coupon_code: appliedCouponCode,
+        discount_amount: discountAmount,
         notes: notes || null,
         payment_status: "pending",
       })
@@ -140,6 +158,18 @@ export async function POST(req: NextRequest) {
           quantity: i.quantity,
           currency_id: "ARS",
         }));
+
+        // Reflect the coupon discount as a negative line item so the amount
+        // charged in MercadoPago matches the discounted total — without this
+        // the customer would see a discount in the UI but pay full price.
+        if (discountAmount > 0) {
+          mpItems.push({
+            title: `Descuento (${appliedCouponCode})`,
+            unit_price: -discountAmount,
+            quantity: 1,
+            currency_id: "ARS",
+          });
+        }
 
         const preferenceData = await preference.create({
           body: {

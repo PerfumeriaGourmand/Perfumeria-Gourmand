@@ -66,6 +66,13 @@ export async function PATCH(
 
   const admin = await createAdminClient();
 
+  const { data: existingOrder } = await admin
+    .from("orders")
+    .select("payment_status, coupon_code")
+    .eq("id", id)
+    .single();
+  const wasAlreadyApproved = existingOrder?.payment_status === "approved";
+
   const { error } = await admin
     .from("orders")
     .update({ payment_status: status })
@@ -76,12 +83,17 @@ export async function PATCH(
     return NextResponse.json({ error: "No se pudo actualizar el estado" }, { status: 500 });
   }
 
-  if (status === "approved") {
+  if (status === "approved" && !wasAlreadyApproved) {
     const { error: decrementError } = await admin.rpc("decrement_stock_on_order", { p_order_id: id });
     if (decrementError) console.error("[orders PATCH] decrement_stock_on_order:", decrementError);
 
     const { error: fifoError } = await admin.rpc("apply_fifo_lots_on_order", { p_order_id: id });
     if (fifoError) console.error("[orders PATCH] apply_fifo_lots_on_order:", fifoError);
+
+    if (existingOrder?.coupon_code) {
+      const { error: couponError } = await admin.rpc("increment_coupon_usage", { p_code: existingOrder.coupon_code });
+      if (couponError) console.error("[orders PATCH] increment_coupon_usage:", couponError);
+    }
   }
 
   // Send status update email (fire-and-forget)

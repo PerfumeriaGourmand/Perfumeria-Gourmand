@@ -147,6 +147,8 @@ export interface Order {
   subtotal: number;
   shipping_cost: number;
   total: number;
+  coupon_code: string | null;
+  discount_amount: number;
   notes: string | null;
   source: string | null;
   created_at: string;

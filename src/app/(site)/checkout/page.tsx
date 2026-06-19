@@ -125,7 +125,6 @@ export default function CheckoutPage() {
           })),
           notes: form.notes,
           coupon_code: appliedCoupon?.code ?? null,
-          discount_amount: appliedCoupon?.discount_amount ?? 0,
         }),
       });
 

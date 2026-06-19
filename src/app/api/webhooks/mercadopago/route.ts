@@ -65,6 +65,16 @@ export async function POST(req: NextRequest) {
 
     const newStatus = statusMap[payment.status ?? ""] ?? "pending";
 
+    // Fetch prior status before updating — MercadoPago retries webhooks, so
+    // this guards stock decrement / coupon usage from running more than once
+    // for the same order.
+    const { data: existingOrder } = await supabase
+      .from("orders")
+      .select("payment_status, coupon_code")
+      .eq("id", orderId)
+      .single();
+    const wasAlreadyApproved = existingOrder?.payment_status === "approved";
+
     // Update order
     await supabase
       .from("orders")
@@ -75,14 +85,19 @@ export async function POST(req: NextRequest) {
       })
       .eq("id", orderId);
 
-    if (newStatus === "approved") {
+    if (newStatus === "approved" && !wasAlreadyApproved) {
       // 1. Descontar stock de product_variants
       await supabase.rpc("decrement_stock_on_order", { p_order_id: orderId });
 
       // 2. Asignar lotes FIFO y registrar cost_price real (ARS histórico del lote)
       await supabase.rpc("apply_fifo_lots_on_order", { p_order_id: orderId });
 
-      // 3. Send payment approved email (fire-and-forget)
+      // 3. Incrementar el contador de usos del cupón, si se usó uno
+      if (existingOrder?.coupon_code) {
+        await supabase.rpc("increment_coupon_usage", { p_code: existingOrder.coupon_code });
+      }
+
+      // 4. Send payment approved email (fire-and-forget)
       supabase
         .from("orders")
         .select("id, customer_name, customer_email, total")

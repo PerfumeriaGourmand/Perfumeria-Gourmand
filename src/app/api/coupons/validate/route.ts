@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { validateCoupon } from "@/lib/coupons";
 
 export async function POST(req: NextRequest) {
   if (!rateLimit(`coupon:${getClientIp(req)}`, 15, 5 * 60 * 1000)) {
@@ -15,46 +16,13 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = await createAdminClient();
+    const result = await validateCoupon(supabase, code, subtotal);
 
-    const { data: coupon, error } = await supabase
-      .from("coupons")
-      .select("*")
-      .eq("code", code.toUpperCase().trim())
-      .eq("is_active", true)
-      .single();
-
-    if (error || !coupon) {
-      return NextResponse.json({ error: "Cupón inválido o inexistente" }, { status: 404 });
+    if (!result.valid) {
+      return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
-    if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
-      return NextResponse.json({ error: "El cupón ha expirado" }, { status: 400 });
-    }
-
-    if (coupon.max_uses !== null && coupon.current_uses >= coupon.max_uses) {
-      return NextResponse.json({ error: "El cupón ya no tiene usos disponibles" }, { status: 400 });
-    }
-
-    if (coupon.min_order_amount !== null && subtotal < coupon.min_order_amount) {
-      return NextResponse.json(
-        { error: `El monto mínimo para este cupón es ${coupon.min_order_amount}` },
-        { status: 400 }
-      );
-    }
-
-    const discount_amount =
-      coupon.discount_type === "percentage"
-        ? Math.round((subtotal * coupon.discount_value) / 100)
-        : Math.min(coupon.discount_value, subtotal);
-
-    return NextResponse.json({
-      valid: true,
-      code: coupon.code,
-      description: coupon.description,
-      discount_type: coupon.discount_type,
-      discount_value: coupon.discount_value,
-      discount_amount,
-    });
+    return NextResponse.json(result);
   } catch {
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
