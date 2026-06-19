@@ -3,9 +3,12 @@ import type { NextConfig } from "next";
 // script-src/style-src keep 'unsafe-inline': Next.js injects inline hydration
 // scripts and the codebase relies on inline style={{}} attributes throughout.
 // Dropping it would break rendering without a nonce-based setup.
+// 'unsafe-eval' is added only in dev — Next.js Fast Refresh/HMR uses eval()
+// to apply hot updates, and without it the client bundle crashes on load.
+const isDev = process.env.NODE_ENV !== "production";
 const contentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https://*.supabase.co",
   "font-src 'self' data:",
