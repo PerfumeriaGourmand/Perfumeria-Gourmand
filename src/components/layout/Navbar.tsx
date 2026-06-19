@@ -132,6 +132,7 @@ const NAV_ITEMS = [
   { label: "Árabe" as MegaMenuKey, href: "/catalogo?category=arabe", hasMega: true },
   { label: "Diseñador" as MegaMenuKey, href: "/catalogo?category=disenador", hasMega: true },
   { label: "Nicho" as MegaMenuKey, href: "/catalogo/nicho", hasMega: true },
+  { label: "Colecciones", href: "/colecciones", hasMega: false },
   { label: "Novedades", href: "/catalogo?sort=newest", hasMega: false },
   { label: "Marcas", href: "/marcas", hasMega: false },
 ] as const;

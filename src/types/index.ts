@@ -59,6 +59,26 @@ export interface Product {
 }
 
 // ——————————————————————————————————————————
+// Collections (e.g. "Asad" groups Asad, Asad Bourbon, Asad Zanzibar...)
+// ——————————————————————————————————————————
+
+export interface Collection {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CollectionWithProducts extends Collection {
+  products?: Product[];
+}
+
+// ——————————————————————————————————————————
 // Cart
 // ——————————————————————————————————————————
 

@@ -14,6 +14,7 @@ import {
   Layers,
   PenLine,
   Tag,
+  Sparkles,
   Menu,
   X,
 } from "lucide-react";
@@ -23,6 +24,7 @@ import { createClient } from "@/lib/supabase/client";
 const LINKS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/products", label: "Productos", icon: Package },
+  { href: "/admin/collections", label: "Colecciones", icon: Sparkles },
   { href: "/admin/orders", label: "Órdenes", icon: ShoppingBag },
   { href: "/admin/stock", label: "Stock", icon: Layers },
   { href: "/admin/ventas-manuales", label: "Venta Manual", icon: PenLine },
