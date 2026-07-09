@@ -39,6 +39,9 @@ const nextConfig: NextConfig = {
         pathname: "/storage/v1/object/public/**",
       },
     ],
+    // Vercel Hobby limita las transformaciones de next/image (402 al superar la cuota).
+    // Servimos las imágenes de Supabase Storage tal cual están; comprimirlas antes de subir.
+    unoptimized: true,
   },
   async headers() {
     return [
