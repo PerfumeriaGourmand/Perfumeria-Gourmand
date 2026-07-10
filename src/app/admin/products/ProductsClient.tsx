@@ -80,8 +80,8 @@ export function ProductsClient({ products }: { products: Product[] }) {
         ))}
       </div>
 
-      <div className="border border-gold/10 bg-obsidian-surface overflow-hidden">
-        <table className="w-full">
+      <div className="border border-gold/10 bg-obsidian-surface overflow-x-auto">
+        <table className="w-full min-w-[900px]">
           <thead>
             <tr className="border-b border-gold/10">
               {["Nombre / Marca", "Categoría", "Concentración", "Costo lote ($)", "Precio ARS", "Stock mín.", "Estado", ""].map(
