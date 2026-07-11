@@ -491,22 +491,10 @@ export default function Navbar() {
           className={cn("hidden lg:block border-t relative", T.navBorder)}
           onMouseLeave={closeDrop}
         >
-          <nav className="max-w-7xl mx-auto px-5 flex items-center justify-between">
-            {/* Invisible mirror of the promo block, reserves equal space so the ul below is truly centered */}
-            <div className="hidden xl:flex items-center gap-5 invisible" aria-hidden="true">
-              <span
-                className="font-sans whitespace-nowrap border px-3 py-1.5 rounded-full"
-                style={{ fontSize: 9, letterSpacing: "0.1em" }}
-              >
-                ✦ ENCONTRÁ TU PERFUME
-              </span>
-              {["12 cuotas sin interés · Banco Nación", "Envío gratis desde $40.000"].map((t) => (
-                <span key={t} className="font-sans whitespace-nowrap" style={{ fontSize: 9, letterSpacing: "0.1em" }}>
-                  {t}
-                </span>
-              ))}
-            </div>
-            <ul className="flex items-center">
+          <nav className="max-w-7xl mx-auto px-5 grid grid-cols-[1fr_auto_1fr] items-center">
+            {/* Empty left column — keeps the ul mathematically centered regardless of the right column's content/breakpoint */}
+            <div aria-hidden="true" />
+            <ul className="flex items-center justify-self-center">
               {NAV_ITEMS.map((item) => (
                 <li
                   key={item.label}
@@ -536,7 +524,7 @@ export default function Navbar() {
                 </li>
               ))}
             </ul>
-            <div className="hidden xl:flex items-center gap-5">
+            <div className="hidden xl:flex items-center gap-5 justify-self-end">
               <Link
                 href="/encontrar-mi-perfume"
                 className={cn(
