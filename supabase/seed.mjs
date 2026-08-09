@@ -1,9 +1,12 @@
-// Seed script — run with: node supabase/seed.mjs
+// Seed script — run with: node --env-file=.env.local supabase/seed.mjs
 import { createClient } from "@supabase/supabase-js";
 
-const SUPABASE_URL = "https://qhlkxojumfrgymimvplo.supabase.co";
-const SERVICE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFobGt4b2p1bWZyZ3ltaW12cGxvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkyNjY4NiwiZXhwIjoyMDkwNTAyNjg2fQ.DJWxKLpFU7rxlj-_uLOASA4psy2Pfx1gNkUQgn5Rbng";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  throw new Error("Faltan NEXT_PUBLIC_SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY en el entorno");
+}
 
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
