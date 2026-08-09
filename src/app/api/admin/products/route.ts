@@ -30,6 +30,8 @@ export async function POST(req: NextRequest) {
 
     if (!id) throw new Error("No product ID returned");
 
+    const warnings: string[] = [];
+
     // Upsert variants — single query instead of N sequential updates
     if ((variants as Record<string, unknown>[]).length > 0) {
       const rows = (variants as Record<string, unknown>[]).map((v) => ({
@@ -39,7 +41,10 @@ export async function POST(req: NextRequest) {
       const { error } = await admin
         .from("product_variants")
         .upsert(rows, { onConflict: "id" });
-      if (error) console.error("[products API] variants upsert:", error);
+      if (error) {
+        console.error("[products API] variants upsert:", error);
+        warnings.push("No se pudieron guardar los tamaños/precios. Volvé a intentar.");
+      }
     }
 
     // Upsert images — always upsert so new images (id = storage path) get
@@ -62,11 +67,11 @@ export async function POST(req: NextRequest) {
 
       if (error) {
         console.error("[products API] image upsert error:", error);
-        // Non-fatal — product was saved, just log it
+        warnings.push("No se pudieron guardar las imágenes. Volvé a intentar.");
       }
     }
 
-    return NextResponse.json({ id });
+    return NextResponse.json({ id, warnings });
   } catch (err) {
     return apiError(err, "products POST", "No se pudo guardar el producto");
   }

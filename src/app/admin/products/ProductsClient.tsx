@@ -3,9 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Edit, AlertCircle, Search } from "lucide-react";
+import toast from "react-hot-toast";
 import { CATEGORY_LABELS, CONCENTRATION_LABELS } from "@/lib/utils";
 
-type Variant = { stock: number; price: number };
+type Variant = { id: string; size_ml: number; stock: number; price: number };
 
 type Product = {
   id: string;
@@ -20,12 +21,75 @@ type Product = {
 
 const ars = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
 
-function priceRange(variants: Variant[]): string {
-  if (!variants.length) return "—";
-  const prices = variants.map((v) => v.price);
-  const min = Math.min(...prices);
-  const max = Math.max(...prices);
-  return min === max ? ars.format(min) : `${ars.format(min)} – ${ars.format(max)}`;
+function EditablePrice({ variant, onSaved }: { variant: Variant; onSaved: (price: number) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(String(variant.price));
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    const price = Number(value);
+    if (!Number.isFinite(price) || price < 0) {
+      toast.error("Precio inválido");
+      setValue(String(variant.price));
+      setEditing(false);
+      return;
+    }
+    if (price === variant.price) {
+      setEditing(false);
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/admin/products/variants/${variant.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ price }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+      onSaved(price);
+      toast.success("Precio actualizado");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo actualizar el precio");
+      setValue(String(variant.price));
+    } finally {
+      setSaving(false);
+      setEditing(false);
+    }
+  }
+
+  if (editing) {
+    return (
+      <input
+        type="number"
+        min={0}
+        autoFocus
+        value={value}
+        disabled={saving}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={save}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.currentTarget.blur();
+          if (e.key === "Escape") {
+            setValue(String(variant.price));
+            setEditing(false);
+          }
+        }}
+        className="w-24 bg-obsidian border border-gold/40 text-cream text-xs font-sans px-2 py-1 focus:outline-none"
+      />
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => setEditing(true)}
+      className="font-sans text-xs text-cream-muted hover:text-gold hover:underline decoration-dotted underline-offset-2 transition-colors text-left"
+      title="Click para editar el precio"
+    >
+      {variant.size_ml}ml — {ars.format(variant.price)}
+    </button>
+  );
 }
 
 const CATEGORY_FILTERS: { value: string; label: string }[] = [
@@ -36,9 +100,20 @@ const CATEGORY_FILTERS: { value: string; label: string }[] = [
   { value: "kit", label: "Kit" },
 ];
 
-export function ProductsClient({ products }: { products: Product[] }) {
+export function ProductsClient({ products: initialProducts }: { products: Product[] }) {
+  const [products, setProducts] = useState(initialProducts);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
+
+  function updateVariantPrice(productId: string, variantId: string, price: number) {
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id !== productId
+          ? p
+          : { ...p, variants: p.variants.map((v) => (v.id === variantId ? { ...v, price } : v)) }
+      )
+    );
+  }
 
   const filtered = products
     .filter((p) => category === "all" || p.category === category)
@@ -119,8 +194,16 @@ export function ProductsClient({ products }: { products: Product[] }) {
                   <td className="px-5 py-4 font-sans text-xs text-cream-muted">
                     {product.fifo_cost_ars != null ? ars.format(product.fifo_cost_ars) : "—"}
                   </td>
-                  <td className="px-5 py-4 font-sans text-xs text-cream-muted">
-                    {priceRange(product.variants ?? [])}
+                  <td className="px-5 py-4">
+                    <div className="flex flex-col gap-1">
+                      {(product.variants ?? []).map((v) => (
+                        <EditablePrice
+                          key={v.id}
+                          variant={v}
+                          onSaved={(price) => updateVariantPrice(product.id, v.id, price)}
+                        />
+                      ))}
+                    </div>
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1.5">

@@ -234,7 +234,11 @@ export default function ProductForm({ product }: ProductFormProps) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
 
-      toast.success(product?.id ? "Producto actualizado" : "Producto creado");
+      if (data.warnings?.length) {
+        (data.warnings as string[]).forEach((w) => toast.error(w, { duration: 6000 }));
+      } else {
+        toast.success(product?.id ? "Producto actualizado" : "Producto creado");
+      }
       router.push("/admin/products");
       router.refresh();
     } catch (err) {
