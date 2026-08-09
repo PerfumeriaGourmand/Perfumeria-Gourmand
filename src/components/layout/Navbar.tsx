@@ -137,7 +137,7 @@ const NAV_ITEMS = [
   { label: "Marcas", href: "/marcas", hasMega: false },
 ] as const;
 
-export default function Navbar() {
+export default function Navbar({ hasAnnouncement = false }: { hasAnnouncement?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -256,7 +256,8 @@ export default function Navbar() {
     <>
       <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
+          "fixed left-0 right-0 z-50 transition-all duration-300",
+          hasAnnouncement ? "top-9" : "top-0",
           T.header
         )}
       >

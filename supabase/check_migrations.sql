@@ -50,4 +50,12 @@ UNION ALL
 SELECT
   'migration_orders_coupon.sql (orders.coupon_code + increment_coupon_usage)',
   EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'orders' AND column_name = 'coupon_code')
-  AND EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'increment_coupon_usage');
+  AND EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'increment_coupon_usage')
+UNION ALL
+SELECT
+  'migration_site_settings_public_view.sql (vista site_settings_public + policy publica removida)',
+  EXISTS (SELECT 1 FROM information_schema.views WHERE table_name = 'site_settings_public')
+  AND NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'site_settings' AND policyname = 'Public can read site settings'
+  );

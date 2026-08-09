@@ -249,3 +249,11 @@ export interface SiteSettings {
   low_stock_threshold: number;
   current_exchange_rate: number | null;
 }
+
+// Subconjunto de columnas seguras de site_settings, expuesto via la vista
+// site_settings_public (ver migration_site_settings_public_view.sql) —
+// nunca agregar aca columnas sensibles como mp_access_token.
+export interface SiteSettingsPublic {
+  announcement_text: string | null;
+  announcement_active: boolean;
+}
