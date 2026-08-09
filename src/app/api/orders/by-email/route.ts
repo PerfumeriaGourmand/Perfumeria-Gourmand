@@ -4,7 +4,7 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { apiError } from "@/lib/api-error";
 
 export async function GET(req: NextRequest) {
-  if (!rateLimit(`orders-by-email:${getClientIp(req)}`, 8, 5 * 60 * 1000)) {
+  if (!(await rateLimit(`orders-by-email:${getClientIp(req)}`, 8, 5 * 60 * 1000))) {
     return NextResponse.json({ error: "Demasiados intentos. Probá de nuevo en unos minutos." }, { status: 429 });
   }
 

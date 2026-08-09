@@ -11,7 +11,7 @@ const mpClient = new MercadoPagoConfig({
 });
 
 export async function POST(req: NextRequest) {
-  if (!rateLimit(`orders:${getClientIp(req)}`, 5, 10 * 60 * 1000)) {
+  if (!(await rateLimit(`orders:${getClientIp(req)}`, 5, 10 * 60 * 1000))) {
     return NextResponse.json({ error: "Demasiados intentos. Probá de nuevo en unos minutos." }, { status: 429 });
   }
 

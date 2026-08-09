@@ -4,7 +4,7 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { validateCoupon } from "@/lib/coupons";
 
 export async function POST(req: NextRequest) {
-  if (!rateLimit(`coupon:${getClientIp(req)}`, 15, 5 * 60 * 1000)) {
+  if (!(await rateLimit(`coupon:${getClientIp(req)}`, 15, 5 * 60 * 1000))) {
     return NextResponse.json({ error: "Demasiados intentos. Probá de nuevo en unos minutos." }, { status: 429 });
   }
 
