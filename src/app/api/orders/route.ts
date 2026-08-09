@@ -4,6 +4,7 @@ import MercadoPagoConfig, { Preference } from "mercadopago";
 import { sendOrderConfirmation } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { validateCoupon } from "@/lib/coupons";
+import { findOutOfStockItem } from "@/lib/stock";
 
 const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -50,14 +51,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Error al verificar stock" }, { status: 500 });
     }
 
-    for (const item of items as { id: string; name: string; quantity: number }[]) {
-      const variant = variants?.find((v) => v.id === item.id);
-      if (!variant || !variant.is_active || variant.stock < item.quantity) {
-        return NextResponse.json(
-          { error: `"${item.name}" ya no tiene stock disponible. Actualizá tu carrito.` },
-          { status: 409 }
-        );
-      }
+    const outOfStockItem = findOutOfStockItem(items, variants ?? []);
+    if (outOfStockItem) {
+      return NextResponse.json(
+        { error: `"${outOfStockItem.name}" ya no tiene stock disponible. Actualizá tu carrito.` },
+        { status: 409 }
+      );
     }
 
     // Calculate totals

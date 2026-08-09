@@ -1,38 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import MercadoPagoConfig, { Payment } from "mercadopago";
-import { createHmac } from "crypto";
 import { sendStatusUpdate } from "@/lib/email";
+import { verifyMpSignature } from "@/lib/mercadopago-signature";
 
 const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
 });
 
-function verifyMpSignature(req: NextRequest, _rawBody: string): boolean {
-  const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET;
-  if (!secret) return true; // Si no está configurado, se omite la validación
-
-  const xSignature = req.headers.get("x-signature");
-  const xRequestId = req.headers.get("x-request-id");
-  const dataId = new URL(req.url).searchParams.get("data.id");
-
-  if (!xSignature || !xRequestId) return false;
-
-  const parts = Object.fromEntries(xSignature.split(",").map((p) => p.split("=")));
-  const ts = parts["ts"];
-  const v1 = parts["v1"];
-  if (!ts || !v1) return false;
-
-  const manifest = `id:${dataId ?? ""};request-id:${xRequestId};ts:${ts};`;
-  const expected = createHmac("sha256", secret).update(manifest).digest("hex");
-  return expected === v1;
-}
-
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();
 
-    if (!verifyMpSignature(req, rawBody)) {
+    const isValidSignature = verifyMpSignature({
+      signatureHeader: req.headers.get("x-signature"),
+      requestId: req.headers.get("x-request-id"),
+      dataId: new URL(req.url).searchParams.get("data.id"),
+      secret: process.env.MERCADOPAGO_WEBHOOK_SECRET,
+    });
+
+    if (!isValidSignature) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
