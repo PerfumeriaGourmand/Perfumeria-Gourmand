@@ -208,10 +208,15 @@ export default function Navbar({ hasAnnouncement = false }: { hasAnnouncement?: 
     setMobileSearchOpen(false);
   }, [pathname, searchParams]);
 
-  // Reset overflow-clip state whenever mobile search closes, so it re-clips on next open animation
-  useEffect(() => {
+  // Reset overflow-clip state whenever mobile search closes, so it re-clips on next open
+  // animation. Adjusted during render (not in an effect, and not via a ref — refs can't be
+  // read/written during render) per React's guidance for resetting state in response to a
+  // prop/state change: https://react.dev/learn/you-might-not-need-an-effect
+  const [prevMobileSearchOpen, setPrevMobileSearchOpen] = useState(mobileSearchOpen);
+  if (prevMobileSearchOpen !== mobileSearchOpen) {
+    setPrevMobileSearchOpen(mobileSearchOpen);
     if (!mobileSearchOpen) setMobileSearchAnimDone(false);
-  }, [mobileSearchOpen]);
+  }
 
   // Scroll detection
   useEffect(() => {

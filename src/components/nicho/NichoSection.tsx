@@ -332,14 +332,18 @@ const NichoProductCard = ({
 };
 
 function NichoParticles() {
-  const particles = Array.from({ length: 30 }, (_, i) => ({
-    id: i,
-    size: Math.random() * 2 + 0.5,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    duration: 8 + Math.random() * 12,
-    delay: Math.random() * 8,
-  }));
+  // Random values generated once via useState's lazy initializer (React's documented
+  // escape hatch for one-time impure computation), not on every render.
+  const [particles] = useState(() =>
+    Array.from({ length: 30 }, (_, i) => ({
+      id: i,
+      size: Math.random() * 2 + 0.5,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      duration: 8 + Math.random() * 12,
+      delay: Math.random() * 8,
+    }))
+  );
 
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">

@@ -25,14 +25,11 @@ export default function SearchBar({ dark, className }: { dark?: boolean; classNa
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  // Debounced search — 300ms
+  // Debounced search — 300ms. Clearing results for short queries happens in the
+  // input's onChange instead of here, so this effect never calls setState synchronously.
   useEffect(() => {
     const q = query.trim();
-    if (q.length < 2) {
-      setResults([]);
-      setOpen(false);
-      return;
-    }
+    if (q.length < 2) return;
 
     setLoading(true);
     const timer = setTimeout(async () => {
@@ -106,7 +103,14 @@ export default function SearchBar({ dark, className }: { dark?: boolean; classNa
           ref={inputRef}
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            setQuery(value);
+            if (value.trim().length < 2) {
+              setResults([]);
+              setOpen(false);
+            }
+          }}
           onFocus={() => hasQuery && setOpen(true)}
           placeholder="Buscar perfumes, marcas..."
           className={cn(
