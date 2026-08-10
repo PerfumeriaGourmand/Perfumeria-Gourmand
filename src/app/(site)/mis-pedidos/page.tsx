@@ -6,7 +6,9 @@ import { Package, ChevronDown, Search, ShoppingBag } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { STATUS_LABELS, STATUS_COLORS } from "@/lib/order-utils";
 import Breadcrumb from "@/components/ui/Breadcrumb";
+import ShippingProgress from "@/components/ui/ShippingProgress";
 import Link from "next/link";
+import type { FulfillmentStatus } from "@/types";
 
 interface OrderItem {
   product_name: string;
@@ -21,6 +23,7 @@ interface Order {
   customer_name: string;
   total: number;
   payment_status: string;
+  fulfillment_status: FulfillmentStatus | null;
   created_at: string;
   payment_method: string | null;
   installments: number;
@@ -215,9 +218,16 @@ export default function MisPedidosPage() {
                 {/* Expandable detail */}
                 <div
                   className="overflow-hidden transition-all duration-300"
-                  style={{ maxHeight: isOpen ? "600px" : "0px" }}
+                  style={{ maxHeight: isOpen ? "700px" : "0px" }}
                 >
                   <div className="border-t border-border-light px-5 py-4 space-y-4">
+                    {/* Shipping progress — solo tiene sentido si el pago esta aprobado */}
+                    {order.payment_status === "approved" && (
+                      <div className="pb-3 border-b border-border-light">
+                        <ShippingProgress fulfillmentStatus={order.fulfillment_status} />
+                      </div>
+                    )}
+
                     {/* Items */}
                     <div className="space-y-2">
                       {order.items.map((item, i) => (

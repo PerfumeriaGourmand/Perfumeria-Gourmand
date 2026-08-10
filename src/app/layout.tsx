@@ -51,21 +51,12 @@ export const metadata: Metadata = {
     title: "Gourmand Perfumería",
     description:
       "Perfumería premium online. Fragancias de nicho, árabe y diseñador. Envíos a todo Argentina. 12 cuotas sin interés.",
-    images: [
-      {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Gourmand Perfumería",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Gourmand Perfumería",
     description:
       "Perfumería premium online. Fragancias de nicho, árabe y diseñador. Envíos a todo Argentina.",
-    images: ["/og-image.jpg"],
   },
   robots: {
     index: true,
