@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Fraunces, Spectral, Outfit } from "next/font/google";
+import { Italiana, Spectral, Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import CartDrawer from "@/components/cart/CartDrawer";
 
-const fraunces = Fraunces({
+const italiana = Italiana({
   subsets: ["latin"],
-  weight: ["600"],
-  variable: "--font-display",
+  weight: ["400"],
+  variable: "--font-italiana",
   display: "swap",
 });
 
@@ -71,7 +71,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`${fraunces.variable} ${spectral.variable} ${outfit.variable}`}>
+    <html lang="es" className={`${italiana.variable} ${spectral.variable} ${outfit.variable}`}>
       <body className="font-sans bg-page-bg text-text-dark">
         {children}
         <CartDrawer />

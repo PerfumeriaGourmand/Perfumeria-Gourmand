@@ -35,7 +35,7 @@ const config: Config = {
         "border-subtle": "rgba(164,133,76,0.07)",
       },
       fontFamily: {
-        display: ["var(--font-display)", "Georgia", "serif"],
+        display: ["var(--font-italiana)", "Georgia", "serif"],
         body: ["var(--font-spectral)", "Georgia", "serif"],
         sans: ["var(--font-outfit)", "system-ui", "sans-serif"],
       },
