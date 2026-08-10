@@ -23,7 +23,7 @@ export default function CategoryFeaturedSection({ title, eyebrow, href, products
     >
       <div className="px-5 sm:px-8 lg:px-20 mb-9 flex justify-between items-end">
         <div>
-          <p className="font-sans uppercase text-gold" style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.32em", marginBottom: 10 }}>
+          <p className="font-sans uppercase text-gold" style={{ fontSize: 9, letterSpacing: "0.5em", marginBottom: 10 }}>
             {eyebrow}
           </p>
           <h2

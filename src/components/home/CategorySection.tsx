@@ -177,7 +177,7 @@ export default function CategorySection() {
           marginBottom: 52,
         }}
       >
-        <p className="font-sans uppercase text-gold text-center" style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.32em", marginBottom: 10 }}>
+        <p className="font-sans uppercase text-gold text-center" style={{ fontSize: 9, letterSpacing: "0.5em", marginBottom: 10 }}>
           Explorar
         </p>
         <h2 className="font-display text-text-dark text-center" style={{ fontSize: "clamp(28px, 4vw, 42px)" }}>

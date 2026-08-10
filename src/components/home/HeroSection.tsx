@@ -127,7 +127,7 @@ export default function HeroSection() {
       >
         <p
           className="font-sans uppercase text-gold mb-4"
-          style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.32em", animation: "fadeUp 0.5s 0.05s both" }}
+          style={{ fontSize: 10, letterSpacing: "0.5em", animation: "fadeUp 0.5s 0.05s both" }}
         >
           {slide.eyebrow}
         </p>
