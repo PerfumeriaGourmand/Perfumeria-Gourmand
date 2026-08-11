@@ -508,7 +508,7 @@ export default function Quiz() {
       </div>
 
       {/* Question area */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 min-h-0 overflow-hidden">
+      <div className="flex-1 flex flex-col items-center px-6 py-6 min-h-0 overflow-y-auto justify-start sm:justify-center">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={stepIndex}
