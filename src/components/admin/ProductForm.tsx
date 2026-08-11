@@ -34,6 +34,17 @@ const SEASONS = [
   { value: "otono", label: "Otoño" },
   { value: "todo_clima", label: "Todo clima" },
 ];
+const OCCASIONS = [
+  { value: "diario", label: "Diario" },
+  { value: "oficina", label: "Oficina" },
+  { value: "noche", label: "Noche" },
+  { value: "evento", label: "Evento" },
+  { value: "cita", label: "Cita" },
+  { value: "deportivo", label: "Deportivo" },
+  { value: "casual", label: "Casual" },
+  { value: "formal", label: "Formal" },
+  { value: "versatil", label: "Versátil" },
+];
 
 
 interface ProductFormProps {
@@ -58,6 +69,9 @@ export default function ProductForm({ product }: ProductFormProps) {
     notes_top: product?.notes_top ?? [],
     notes_heart: product?.notes_heart ?? [],
     notes_base: product?.notes_base ?? [],
+    occasions: product?.occasions ?? [],
+    age_min: product?.age_min ?? null,
+    age_max: product?.age_max ?? null,
     is_featured: product?.is_featured ?? false,
     is_new: product?.is_new ?? false,
     is_active: product?.is_active ?? true,
@@ -99,6 +113,15 @@ export default function ProductForm({ product }: ProductFormProps) {
       seasons: f.seasons.includes(s as never)
         ? f.seasons.filter((x) => x !== s)
         : [...f.seasons, s as never],
+    }));
+  };
+
+  const toggleOccasion = (o: string) => {
+    setForm((f) => ({
+      ...f,
+      occasions: f.occasions.includes(o as never)
+        ? f.occasions.filter((x) => x !== o)
+        : [...f.occasions, o as never],
     }));
   };
 
@@ -336,6 +359,43 @@ export default function ProductForm({ product }: ProductFormProps) {
               </button>
             ))}
           </div>
+        </div>
+
+        <div>
+          <label className="block font-sans text-[10px] tracking-widest uppercase text-cream-dim mb-2">
+            Ocasiones
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {OCCASIONS.map((o) => (
+              <button
+                key={o.value}
+                type="button"
+                onClick={() => toggleOccasion(o.value)}
+                className={`font-sans text-xs px-3 py-1.5 border transition-all ${
+                  form.occasions.includes(o.value as never)
+                    ? "border-gold bg-gold/10 text-gold"
+                    : "border-gold/10 text-cream-muted hover:border-gold/30"
+                }`}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-5">
+          <AdminInput
+            label="Edad mínima"
+            type="number"
+            value={form.age_min === null ? "" : String(form.age_min)}
+            onChange={(v) => updateForm("age_min", v === "" ? null : parseInt(v))}
+          />
+          <AdminInput
+            label="Edad máxima"
+            type="number"
+            value={form.age_max === null ? "" : String(form.age_max)}
+            onChange={(v) => updateForm("age_max", v === "" ? null : parseInt(v))}
+          />
         </div>
 
         <div>

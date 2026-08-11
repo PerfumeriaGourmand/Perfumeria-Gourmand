@@ -6,6 +6,16 @@ export type ProductCategory = "arabe" | "disenador" | "nicho" | "kit";
 export type ProductGender = "hombre" | "mujer" | "unisex";
 export type ProductSeason = "verano" | "invierno" | "primavera" | "otono" | "todo_clima";
 export type ConcentrationType = "parfum" | "edp" | "edt" | "edc" | "oil" | "otro";
+export type ProductOccasion =
+  | "diario"
+  | "oficina"
+  | "noche"
+  | "evento"
+  | "cita"
+  | "deportivo"
+  | "casual"
+  | "formal"
+  | "versatil";
 export type OrderStatus = "pending" | "approved" | "rejected" | "cancelled" | "refunded" | "in_process";
 export type FulfillmentStatus = "shipped" | "delivered";
 export type PaymentMethod = "credit_card" | "debit_card" | "bank_transfer" | "mercadopago_wallet";
@@ -53,6 +63,9 @@ export interface Product {
   notes_top?: string[];
   notes_heart?: string[];
   notes_base?: string[];
+  occasions: ProductOccasion[];
+  age_min: number | null;
+  age_max: number | null;
   // Relations (joined)
   images?: ProductImage[];
   variants?: ProductVariant[];

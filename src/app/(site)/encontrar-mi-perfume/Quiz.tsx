@@ -76,6 +76,18 @@ const STEPS: Step[] = [
     ],
   },
   {
+    id: "age",
+    question: "¿Qué edad tenés?",
+    subtitle: "Para ajustar la recomendación a vos",
+    cols: 2,
+    options: [
+      { value: "18-24", label: "18 a 24",   desc: "Fragancias frescas y accesibles para arrancar",       symbol: "○" },
+      { value: "25-35", label: "25 a 35",   desc: "El rango más amplio del catálogo",                    symbol: "◐" },
+      { value: "36-50", label: "36 a 50",   desc: "Perfumes con más carácter y sofisticación",            symbol: "◆" },
+      { value: "51+",   label: "51 o más",  desc: "Clásicos elegantes y de autor",                        symbol: "◈" },
+    ],
+  },
+  {
     id: "budget",
     question: "¿Cuál es tu presupuesto?",
     subtitle: "Precio por frasco",
@@ -90,6 +102,41 @@ const STEPS: Step[] = [
 ];
 
 // ─── Query builder ─────────────────────────────────────────────────────────────
+
+// Las notas son texto libre cargado a mano ("Rosa de Damasco", "Rosa Turca", "Rosa Búlgara"...)
+// así que un match exacto por array no sirve — se busca por substring sobre texto normalizado.
+const FAMILY_NOTES: Record<string, string[]> = {
+  fresh: ["limon", "bergamota", "menta", "pomelo", "mandarina", "marina", "acuatica", "citricos", "naranja", "toronja", "lima"],
+  floral: ["jazmin", "rosa", "muguet", "flor de naranjo", "peonia", "violeta", "iris", "gardenia", "tuberosa", "magnolia", "orquidea", "neroli", "freesia"],
+  oriental: ["oud", "ambar", "incienso", "vainilla", "azafran", "almizcle", "mirra", "benjui", "labdanum", "cuero", "tabaco", "canela"],
+  woody: ["cedro", "sandalo", "vetiver", "pachuli", "musgo", "guayaco", "cashmeran", "amberwood", "ambroxan"],
+};
+
+const OCCASION_TAG: Record<string, string> = {
+  daily: "diario",
+  night: "noche",
+  versatile: "versatil",
+};
+
+const AGE_RANGE: Record<string, [number, number]> = {
+  "18-24": [18, 24],
+  "25-35": [25, 35],
+  "36-50": [36, 50],
+  "51+": [51, 200],
+};
+
+function normalize(s: string) {
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
+function matchesFamily(product: Product, family: string) {
+  const keywords = FAMILY_NOTES[family];
+  if (!keywords) return true;
+  const allNotes = [...(product.notes_top ?? []), ...(product.notes_heart ?? []), ...(product.notes_base ?? [])]
+    .map(normalize)
+    .join(" | ");
+  return keywords.some((k) => allNotes.includes(k));
+}
 
 async function fetchRecommendations(answers: Answers): Promise<Product[]> {
   const supabase = createClient();
@@ -106,30 +153,28 @@ async function fetchRecommendations(answers: Answers): Promise<Product[]> {
     query = query.in("gender", ["mujer", "unisex"]);
   }
 
-  // Style → category
-  const categoryMap: Record<string, string | null> = {
-    fresh: "disenador",
-    floral: "disenador",
-    oriental: "arabe",
-    woody: "nicho",
-    unknown: null,
-  };
-  const category = categoryMap[answers.style ?? ""] ?? null;
-  if (category) query = query.eq("category", category);
-
-  // Occasion → concentration
-  const concentrationMap: Record<string, string[]> = {
-    daily:     ["edt", "edc"],
-    night:     ["edp", "parfum", "oil"],
-    versatile: [],
-  };
-  const concentrations = concentrationMap[answers.occasion ?? ""] ?? [];
-  if (concentrations.length > 0) {
-    query = query.in("concentration", concentrations);
+  // Occasion → columna real `occasions` (enum cargado a mano), reemplaza el proxy roto por concentration
+  const occasionTag = OCCASION_TAG[answers.occasion ?? ""];
+  if (occasionTag) {
+    query = query.overlaps("occasions", [occasionTag]);
   }
 
-  const { data } = await query.order("sort_order").limit(30);
+  // Age → overlap real entre el rango elegido y age_min/age_max del perfume
+  const ageRange = AGE_RANGE[answers.age ?? ""];
+  if (ageRange) {
+    const [userMin, userMax] = ageRange;
+    query = query.lte("age_min", userMax).gte("age_max", userMin);
+  }
+
+  const { data } = await query.order("sort_order").limit(60);
   let products = (data ?? []) as Product[];
+
+  // Style → familia olfativa real (notes_top/heart/base), reemplaza el proxy roto por category
+  const style = answers.style;
+  if (style && FAMILY_NOTES[style]) {
+    const byFamily = products.filter((p) => matchesFamily(p, style));
+    if (byFamily.length >= 3) products = byFamily;
+  }
 
   // Budget filter (client-side on min variant price)
   const budgetMap: Record<string, { min?: number; max?: number }> = {
@@ -152,8 +197,8 @@ async function fetchRecommendations(answers: Answers): Promise<Product[]> {
     });
   }
 
-  // If too few results, relax category filter and retry
-  if (products.length < 3 && category) {
+  // Si los filtros dejaron muy pocos resultados, mostramos lo más relevante posible sin filtrar
+  if (products.length < 3) {
     const { data: fallback } = await supabase
       .from("products")
       .select("*, images:product_images(*), variants:product_variants(*)")
