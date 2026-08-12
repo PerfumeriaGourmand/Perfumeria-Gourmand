@@ -58,4 +58,9 @@ SELECT
   AND NOT EXISTS (
     SELECT 1 FROM pg_policies
     WHERE tablename = 'site_settings' AND policyname = 'Public can read site settings'
-  );
+  )
+UNION ALL
+SELECT
+  'migration_payment_destinations.sql (tabla payment_destinations + orders.payment_destination_id)',
+  EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'payment_destinations')
+  AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'orders' AND column_name = 'payment_destination_id');

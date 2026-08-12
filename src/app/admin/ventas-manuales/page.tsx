@@ -15,6 +15,11 @@ export type ProductOption = {
   }>;
 };
 
+export type PaymentDestination = {
+  id: string;
+  name: string;
+};
+
 export default async function ManualSalePage() {
   const supabase = await createAdminClient();
 
@@ -38,6 +43,15 @@ export default async function ManualSalePage() {
     }))
     .filter((p) => p.variants.length > 0);
 
+  const { data: rawDestinations } = await supabase
+    .from("payment_destinations")
+    .select("id, name")
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true })
+    .order("name", { ascending: true });
+
+  const destinations: PaymentDestination[] = rawDestinations ?? [];
+
   return (
     <div>
       <div className="mb-10">
@@ -46,7 +60,7 @@ export default async function ManualSalePage() {
           Registrá ventas realizadas fuera del sitio (WhatsApp, mostrador, etc.)
         </p>
       </div>
-      <ManualSaleForm products={products} />
+      <ManualSaleForm products={products} destinations={destinations} />
     </div>
   );
 }

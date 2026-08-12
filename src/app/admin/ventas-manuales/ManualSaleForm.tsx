@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, X, CheckCircle, AlertTriangle, ShoppingBag } from "lucide-react";
+import { Search, X, CheckCircle, AlertTriangle, ShoppingBag, Wallet, Plus } from "lucide-react";
 import toast from "react-hot-toast";
 import { formatPrice } from "@/lib/utils";
-import type { ProductOption } from "./page";
+import type { ProductOption, PaymentDestination } from "./page";
 
 type Variant = ProductOption["variants"][number];
 
@@ -15,8 +15,10 @@ const labelClass =
 
 export default function ManualSaleForm({
   products,
+  destinations,
 }: {
   products: ProductOption[];
+  destinations: PaymentDestination[];
 }) {
   const [search, setSearch] = useState("");
   const [selectedProduct, setSelectedProduct] =
@@ -32,6 +34,12 @@ export default function ManualSaleForm({
     qty: number;
     total: number;
   } | null>(null);
+
+  const [destinationList, setDestinationList] = useState(destinations);
+  const [destinationId, setDestinationId] = useState<string | null>(null);
+  const [addingDestination, setAddingDestination] = useState(false);
+  const [newDestinationName, setNewDestinationName] = useState("");
+  const [savingDestination, setSavingDestination] = useState(false);
 
   // ── Búsqueda filtrada ──────────────────────────────────────────────────────
   const filteredProducts = useMemo(() => {
@@ -55,7 +63,8 @@ export default function ManualSaleForm({
     selectedVariant !== null &&
     qty > 0 &&
     price > 0 &&
-    qty <= (selectedVariant?.stock ?? 0);
+    qty <= (selectedVariant?.stock ?? 0) &&
+    destinationId !== null;
 
   // ── Handlers ───────────────────────────────────────────────────────────────
   const selectProduct = (p: ProductOption) => {
@@ -85,6 +94,33 @@ export default function ManualSaleForm({
     setCustomerName("");
     setNotes("");
     setSearch("");
+    setDestinationId(null);
+  };
+
+  const createDestination = async () => {
+    const name = newDestinationName.trim();
+    if (!name) return;
+
+    setSavingDestination(true);
+    try {
+      const res = await fetch("/api/admin/payment-destinations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Error al crear destino");
+
+      setDestinationList((prev) => [...prev, data.destination]);
+      setDestinationId(data.destination.id);
+      setNewDestinationName("");
+      setAddingDestination(false);
+      toast.success("Destino agregado");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error inesperado");
+    } finally {
+      setSavingDestination(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -103,6 +139,7 @@ export default function ManualSaleForm({
           unit_price: price,
           customer_name: customerName.trim() || undefined,
           notes: notes.trim() || undefined,
+          payment_destination_id: destinationId,
         }),
       });
 
@@ -356,6 +393,74 @@ export default function ManualSaleForm({
               placeholder="Ej: Venta por WhatsApp, pago en efectivo..."
               className={inputClass}
             />
+          </div>
+
+          <div>
+            <label className={labelClass}>Destino del dinero</label>
+            <div className="flex flex-wrap gap-2">
+              {destinationList.map((d) => {
+                const active = destinationId === d.id;
+                return (
+                  <button
+                    key={d.id}
+                    type="button"
+                    onClick={() => setDestinationId(d.id)}
+                    className={`flex items-center gap-1.5 px-3 py-2 border font-sans text-xs transition-all duration-150 ${
+                      active
+                        ? "border-gold bg-gold/10 text-gold"
+                        : "border-gold/20 text-cream-muted hover:border-gold/40 hover:text-cream"
+                    }`}
+                  >
+                    <Wallet size={12} strokeWidth={1.5} />
+                    {d.name}
+                  </button>
+                );
+              })}
+
+              {addingDestination ? (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="text"
+                    autoFocus
+                    value={newDestinationName}
+                    onChange={(e) => setNewDestinationName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") createDestination();
+                      if (e.key === "Escape") setAddingDestination(false);
+                    }}
+                    placeholder="Nombre del destino"
+                    className="bg-obsidian border border-gold/20 px-3 py-2 font-sans text-xs text-cream placeholder:text-cream-dim focus:outline-none focus:border-gold/60 transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={createDestination}
+                    disabled={savingDestination || !newDestinationName.trim()}
+                    className="px-3 py-2 border border-gold/40 text-gold font-sans text-xs hover:bg-gold/10 transition-colors disabled:opacity-40"
+                  >
+                    {savingDestination ? "..." : "Guardar"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAddingDestination(false);
+                      setNewDestinationName("");
+                    }}
+                    className="text-cream-dim hover:text-cream transition-colors"
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAddingDestination(true)}
+                  className="flex items-center gap-1.5 px-3 py-2 border border-dashed border-gold/20 text-cream-dim font-sans text-xs hover:border-gold/40 hover:text-cream transition-colors"
+                >
+                  <Plus size={12} strokeWidth={1.5} />
+                  Nuevo destino
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Resumen */}
