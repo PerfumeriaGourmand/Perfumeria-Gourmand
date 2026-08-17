@@ -1,12 +1,14 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { verifyMpSignature } from "@/lib/mercadopago-signature";
 import { syncMpPayment } from "@/lib/mercadopago-sync";
 
-// Default serverless timeout (10s) can be too tight for this chain: fetch
-// the payment from MercadoPago's API, two Supabase round-trips, the
-// stock/FIFO RPCs, and the email send — especially on a cold start. A
-// platform-level timeout kills the function before it can log anything,
-// which is consistent with these requests not showing up in Vercel logs.
+// MercadoPago (and the Vercel proxy in front of this function) expects a
+// fast response — if we make it wait on the full chain (fetch the payment
+// from MP's API, Supabase round-trips, stock/FIFO RPCs, email send) it can
+// report a 502 even though the work would've finished fine, and a
+// platform-level timeout kills the function before it logs anything.
+// Acknowledge immediately, then do the real work via after() so it keeps
+// running in the background after the response is already sent.
 export const maxDuration = 60;
 
 export async function POST(req: NextRequest) {
@@ -27,11 +29,14 @@ export async function POST(req: NextRequest) {
     const body = JSON.parse(rawBody);
     const { type, data } = body;
 
-    if (type !== "payment" || !data?.id) {
-      return NextResponse.json({ received: true });
+    if (type === "payment" && data?.id) {
+      const paymentId = String(data.id);
+      after(() =>
+        syncMpPayment(paymentId).catch((err) =>
+          console.error("[webhook] syncMpPayment (background):", err)
+        )
+      );
     }
-
-    await syncMpPayment(String(data.id));
 
     return NextResponse.json({ received: true });
   } catch (err) {
