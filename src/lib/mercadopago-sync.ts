@@ -30,7 +30,7 @@ export async function syncMpPayment(paymentId: string) {
 
   const { data: existingOrder } = await supabase
     .from("orders")
-    .select("payment_status, coupon_code")
+    .select("payment_status, coupon_code, customer_name, customer_email, total")
     .eq("id", orderId)
     .single();
 
@@ -49,27 +49,28 @@ export async function syncMpPayment(paymentId: string) {
     .eq("id", orderId);
 
   if (newStatus === "approved" && !wasAlreadyApproved) {
+    // Send the email right after the status write, before the slower
+    // stock/FIFO/coupon RPCs below — those are what previously made this
+    // function time out mid-flight, leaving the order marked "approved"
+    // but the email never sent (and no way to retry it, since a later
+    // sync sees wasAlreadyApproved=true and skips this whole block).
+    try {
+      await sendStatusUpdate({
+        orderId,
+        customerName: existingOrder.customer_name,
+        customerEmail: existingOrder.customer_email,
+        newStatus: "approved",
+        total: existingOrder.total,
+      });
+    } catch (err) {
+      console.error("[email] sendStatusUpdate:", err);
+    }
+
     await supabase.rpc("decrement_stock_on_order", { p_order_id: orderId });
     await supabase.rpc("apply_fifo_lots_on_order", { p_order_id: orderId });
 
     if (existingOrder.coupon_code) {
       await supabase.rpc("increment_coupon_usage", { p_code: existingOrder.coupon_code });
-    }
-
-    const { data: order } = await supabase
-      .from("orders")
-      .select("id, customer_name, customer_email, total")
-      .eq("id", orderId)
-      .single();
-
-    if (order) {
-      sendStatusUpdate({
-        orderId: order.id,
-        customerName: order.customer_name,
-        customerEmail: order.customer_email,
-        newStatus: "approved",
-        total: order.total,
-      }).catch((err) => console.error("[email] sendStatusUpdate:", err));
     }
   }
 
