@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyMpSignature } from "@/lib/mercadopago-signature";
 import { syncMpPayment } from "@/lib/mercadopago-sync";
 
+// Default serverless timeout (10s) can be too tight for this chain: fetch
+// the payment from MercadoPago's API, two Supabase round-trips, the
+// stock/FIFO RPCs, and the email send — especially on a cold start. A
+// platform-level timeout kills the function before it can log anything,
+// which is consistent with these requests not showing up in Vercel logs.
+export const maxDuration = 60;
+
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();

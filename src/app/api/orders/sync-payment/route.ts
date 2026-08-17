@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { syncMpPayment } from "@/lib/mercadopago-sync";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
+export const maxDuration = 60;
+
 // Fallback for when the MercadoPago webhook doesn't arrive/fails: called
 // from /checkout/success with the payment_id MercadoPago put in the
 // redirect URL. Always re-fetches the payment from MercadoPago's API rather
