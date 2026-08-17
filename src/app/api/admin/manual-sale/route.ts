@@ -136,6 +136,18 @@ export async function POST(req: NextRequest) {
       console.error("[manual-sale] RPC apply_fifo_lots_on_order falló:", fifoError);
     }
 
+    // 6. Registrar el movimiento de dinero (entrada) en la cuenta destino
+    const { error: movementError } = await admin.from("account_movements").insert({
+      destination_id: payment_destination_id,
+      kind: "venta",
+      amount: subtotal,
+      description: `${product_name}${size_ml ? ` ${size_ml}ml` : ""}`,
+      order_id: order.id,
+    });
+    if (movementError) {
+      console.error("[manual-sale] No se pudo registrar el movimiento de cuenta:", movementError);
+    }
+
     return NextResponse.json({ ok: true, order_id: order.id });
   } catch (err) {
     return apiError(err, "manual-sale POST", "No se pudo registrar la venta");

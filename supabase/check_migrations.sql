@@ -63,4 +63,8 @@ UNION ALL
 SELECT
   'migration_payment_destinations.sql (tabla payment_destinations + orders.payment_destination_id)',
   EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'payment_destinations')
-  AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'orders' AND column_name = 'payment_destination_id');
+  AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'orders' AND column_name = 'payment_destination_id')
+UNION ALL
+SELECT
+  'migration_account_movements.sql (tabla account_movements)',
+  EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'account_movements');

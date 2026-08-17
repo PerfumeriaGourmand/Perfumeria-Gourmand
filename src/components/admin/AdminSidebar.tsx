@@ -15,6 +15,7 @@ import {
   PenLine,
   Tag,
   Sparkles,
+  Wallet,
   Menu,
   X,
 } from "lucide-react";
@@ -28,6 +29,7 @@ const LINKS = [
   { href: "/admin/orders", label: "Órdenes", icon: ShoppingBag },
   { href: "/admin/stock", label: "Stock", icon: Layers },
   { href: "/admin/ventas-manuales", label: "Venta Manual", icon: PenLine },
+  { href: "/admin/cuentas", label: "Cuentas", icon: Wallet },
   { href: "/admin/coupons", label: "Cupones", icon: Tag },
   { href: "/admin/analytics", label: "Analytics", icon: TrendingUp },
   { href: "/admin/settings", label: "Configuración", icon: Settings },
