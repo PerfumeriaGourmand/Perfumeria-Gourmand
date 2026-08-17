@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { X, Pencil } from "lucide-react";
+import toast from "react-hot-toast";
 import { formatPrice } from "@/lib/utils";
 import { STATUS_LABELS, STATUS_STYLES } from "@/lib/order-utils";
 import OrderStatusUpdater from "@/components/admin/OrderStatusUpdater";
@@ -93,14 +95,75 @@ export default function OrdersTable({ orders }: { orders: OrderWithItems[] }) {
       </div>
 
       {selected && (
-        <OrderDetailModal order={selected} onClose={() => setSelected(null)} />
+        <OrderDetailModal
+          order={selected}
+          onClose={() => setSelected(null)}
+          onUpdated={(updated) => setSelected(updated)}
+        />
       )}
     </>
   );
 }
 
-function OrderDetailModal({ order, onClose }: { order: OrderWithItems; onClose: () => void }) {
+function OrderDetailModal({
+  order,
+  onClose,
+  onUpdated,
+}: {
+  order: OrderWithItems;
+  onClose: () => void;
+  onUpdated: (order: OrderWithItems) => void;
+}) {
+  const router = useRouter();
   const addr = order.shipping_address as Record<string, string> | null;
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [priceDrafts, setPriceDrafts] = useState<Record<string, string>>({});
+
+  const startEditing = () => {
+    setPriceDrafts(
+      Object.fromEntries(order.items.map((item) => [item.id, String(item.unit_price)]))
+    );
+    setEditing(true);
+  };
+
+  const cancelEditing = () => setEditing(false);
+
+  const handleSave = async () => {
+    const parsed = order.items.map((item) => ({
+      id: item.id,
+      unit_price: Number(priceDrafts[item.id]),
+    }));
+
+    if (parsed.some((p) => !Number.isFinite(p.unit_price) || p.unit_price < 0)) {
+      toast.error("Precio inválido");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${order.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items: parsed }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Error al actualizar");
+
+      const updatedItems = order.items.map((item) => {
+        const unit_price = parsed.find((p) => p.id === item.id)!.unit_price;
+        return { ...item, unit_price, total_price: unit_price * item.quantity };
+      });
+      onUpdated({ ...order, items: updatedItems, subtotal: data.subtotal, total: data.total });
+      setEditing(false);
+      toast.success("Precios actualizados");
+      router.refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error al actualizar");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div
@@ -163,10 +226,35 @@ function OrderDetailModal({ order, onClose }: { order: OrderWithItems; onClose: 
           </div>
 
           <div className="border border-gold/10 bg-obsidian mb-6">
-            <div className="px-5 py-3 border-b border-gold/10">
+            <div className="px-5 py-3 border-b border-gold/10 flex items-center justify-between">
               <p className="font-sans text-[10px] tracking-widest uppercase text-cream-dim">
                 Productos
               </p>
+              {!editing ? (
+                <button
+                  onClick={startEditing}
+                  className="flex items-center gap-1 font-sans text-[10px] tracking-widest uppercase text-gold/60 hover:text-gold transition-colors"
+                >
+                  <Pencil size={11} /> Editar precios
+                </button>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={cancelEditing}
+                    disabled={saving}
+                    className="font-sans text-[10px] tracking-widest uppercase text-cream-dim hover:text-cream transition-colors disabled:opacity-40"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="font-sans text-[10px] tracking-widest uppercase text-gold/60 hover:text-gold transition-colors disabled:opacity-40"
+                  >
+                    {saving ? "Guardando..." : "Guardar"}
+                  </button>
+                </div>
+              )}
             </div>
             {order.items.map((item) => (
               <div
@@ -179,12 +267,37 @@ function OrderDetailModal({ order, onClose }: { order: OrderWithItems; onClose: 
                     {item.size_ml ? `${item.size_ml}ml × ` : ""}{item.quantity}
                   </p>
                 </div>
-                <p className="font-sans text-sm text-gold">{formatPrice(item.total_price)}</p>
+                {editing ? (
+                  <div className="flex items-center gap-2">
+                    <span className="font-sans text-xs text-cream-dim">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={priceDrafts[item.id] ?? ""}
+                      onChange={(e) =>
+                        setPriceDrafts((d) => ({ ...d, [item.id]: e.target.value }))
+                      }
+                      className="w-28 bg-obsidian-surface border border-gold/20 text-cream font-sans text-sm px-2 py-1.5 text-right focus:outline-none focus:border-gold/40 transition-colors"
+                    />
+                  </div>
+                ) : (
+                  <p className="font-sans text-sm text-gold">{formatPrice(item.total_price)}</p>
+                )}
               </div>
             ))}
             <div className="px-5 py-4 flex justify-between">
               <span className="font-sans text-xs text-cream-muted uppercase tracking-widest">Total</span>
-              <span className="font-display text-xl text-gold">{formatPrice(order.total)}</span>
+              <span className="font-display text-xl text-gold">
+                {formatPrice(
+                  editing
+                    ? order.items.reduce(
+                        (sum, item) => sum + Number(priceDrafts[item.id] ?? item.unit_price) * item.quantity,
+                        0
+                      ) - order.discount_amount
+                    : order.total
+                )}
+              </span>
             </div>
           </div>
 

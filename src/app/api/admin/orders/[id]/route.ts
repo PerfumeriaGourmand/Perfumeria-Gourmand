@@ -18,7 +18,82 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  const { status, fulfillment_status } = await req.json();
+  const { status, fulfillment_status, items } = await req.json();
+
+  if (items !== undefined) {
+    if (
+      !Array.isArray(items) ||
+      items.length === 0 ||
+      items.some(
+        (item) =>
+          typeof item.id !== "string" ||
+          typeof item.unit_price !== "number" ||
+          !Number.isFinite(item.unit_price) ||
+          item.unit_price < 0
+      )
+    ) {
+      return NextResponse.json({ error: "Precios inválidos" }, { status: 400 });
+    }
+
+    const admin = await createAdminClient();
+
+    const { data: existingItems, error: itemsFetchError } = await admin
+      .from("order_items")
+      .select("id, quantity")
+      .eq("order_id", id);
+
+    if (itemsFetchError || !existingItems) {
+      return NextResponse.json({ error: "No se pudieron obtener los ítems" }, { status: 500 });
+    }
+
+    const quantityById = new Map(existingItems.map((i) => [i.id, i.quantity]));
+    if (items.some((item) => !quantityById.has(item.id))) {
+      return NextResponse.json({ error: "Ítem no pertenece a esta orden" }, { status: 400 });
+    }
+
+    for (const item of items as { id: string; unit_price: number }[]) {
+      const quantity = quantityById.get(item.id)!;
+      const { error: updateError } = await admin
+        .from("order_items")
+        .update({ unit_price: item.unit_price, total_price: item.unit_price * quantity })
+        .eq("id", item.id);
+
+      if (updateError) {
+        console.error("[orders PATCH] order_items update:", updateError);
+        return NextResponse.json({ error: "No se pudo actualizar el ítem" }, { status: 500 });
+      }
+    }
+
+    const { data: allItems, error: allItemsError } = await admin
+      .from("order_items")
+      .select("total_price")
+      .eq("order_id", id);
+
+    const { data: orderRow, error: orderFetchError } = await admin
+      .from("orders")
+      .select("discount_amount")
+      .eq("id", id)
+      .single();
+
+    if (allItemsError || !allItems || orderFetchError || !orderRow) {
+      return NextResponse.json({ error: "No se pudo recalcular el total" }, { status: 500 });
+    }
+
+    const subtotal = allItems.reduce((sum, i) => sum + i.total_price, 0);
+    const total = Math.max(0, subtotal - orderRow.discount_amount);
+
+    const { error: orderUpdateError } = await admin
+      .from("orders")
+      .update({ subtotal, total })
+      .eq("id", id);
+
+    if (orderUpdateError) {
+      console.error("[orders PATCH] order total update:", orderUpdateError);
+      return NextResponse.json({ error: "No se pudo actualizar el total" }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true, subtotal, total });
+  }
 
   if (fulfillment_status !== undefined) {
     if (!VALID_FULFILLMENT_STATUSES.includes(fulfillment_status)) {
