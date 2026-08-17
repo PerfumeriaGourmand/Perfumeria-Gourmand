@@ -133,19 +133,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Error al crear los items del pedido" }, { status: 500 });
     }
 
-    // Send confirmation email (fire-and-forget)
-    sendOrderConfirmation({
-      orderId: order.id,
-      customerName: customer_name,
-      customerEmail: customer_email,
-      items,
-      subtotal,
-      total,
-      paymentMethod: payment_method,
-      installments: installments ?? 1,
-      shippingAddress: shipping_address ?? null,
-      notes: notes ?? null,
-    }).catch((err) => console.error("[email] sendOrderConfirmation:", err));
+    // Send "order received" email only for bank transfer — there's no
+    // payment gateway step there, so order creation is the actual
+    // confirmation. For card/MercadoPago wallet, the customer hasn't paid
+    // yet at this point; they get sendStatusUpdate("approved") once the
+    // payment is actually confirmed (webhook or sync-payment fallback).
+    if (payment_method === "bank_transfer") {
+      sendOrderConfirmation({
+        orderId: order.id,
+        customerName: customer_name,
+        customerEmail: customer_email,
+        items,
+        subtotal,
+        total,
+        paymentMethod: payment_method,
+        installments: installments ?? 1,
+        shippingAddress: shipping_address ?? null,
+        notes: notes ?? null,
+      }).catch((err) => console.error("[email] sendOrderConfirmation:", err));
+    }
 
     // Create MercadoPago preference (for card payments)
     if (payment_method !== "bank_transfer") {

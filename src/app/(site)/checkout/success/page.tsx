@@ -11,11 +11,24 @@ import { Suspense } from "react";
 function SuccessContent() {
   const params = useSearchParams();
   const orderId = params.get("order_id");
+  const paymentId = params.get("payment_id") ?? params.get("collection_id");
   const { clearCart } = useCartStore();
 
   useEffect(() => {
     clearCart();
   }, [clearCart]);
+
+  // Fallback in case the MercadoPago webhook didn't arrive: MercadoPago puts
+  // the real payment_id in this redirect, so we can re-check the payment
+  // status directly instead of leaving the order stuck as "pending".
+  useEffect(() => {
+    if (!paymentId) return;
+    fetch("/api/orders/sync-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ payment_id: paymentId }),
+    }).catch((err) => console.error("[sync-payment] fallback failed:", err));
+  }, [paymentId]);
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6">
