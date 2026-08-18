@@ -54,6 +54,7 @@ export async function generateMetadata({
   return {
     title: data.collection.name,
     description: data.collection.description ?? `Colección ${data.collection.name} en Gourmand.`,
+    alternates: { canonical: `/colecciones/${slug}` },
   };
 }
 

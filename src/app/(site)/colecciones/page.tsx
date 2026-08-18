@@ -9,6 +9,7 @@ import type { Collection } from "@/types";
 export const metadata: Metadata = {
   title: "Colecciones",
   description: "Explorá nuestras colecciones de perfumes en Gourmand.",
+  alternates: { canonical: "/colecciones" },
 };
 
 export const revalidate = 60;

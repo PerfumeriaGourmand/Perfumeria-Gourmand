@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title: "Perfumes Nicho",
   description:
     "Perfumería de autor. Pequeñas tiradas, materias primas extraordinarias, olfatos que no se olvidan.",
+  alternates: { canonical: "/catalogo/nicho" },
 };
 
 export const revalidate = 60;

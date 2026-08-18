@@ -5,6 +5,7 @@ import CatalogClient from "./CatalogClient";
 export const metadata = {
   title: "Catálogo",
   description: "Explorá nuestra selección completa de perfumes de nicho, árabe y diseñador.",
+  alternates: { canonical: "/catalogo" },
 };
 
 export const revalidate = 60;

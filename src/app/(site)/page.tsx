@@ -10,6 +10,33 @@ import { createClient } from "@/lib/supabase/server";
 
 export const revalidate = 60;
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.perfumeriagourmand.com.ar";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${BASE_URL}/#organization`,
+      name: "Gourmand Perfumería",
+      url: BASE_URL,
+      logo: `${BASE_URL}/icon.png`,
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${BASE_URL}/#website`,
+      url: BASE_URL,
+      name: "Gourmand Perfumería",
+      publisher: { "@id": `${BASE_URL}/#organization` },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${BASE_URL}/catalogo?search={search_term_string}`,
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
+};
+
 async function getHomeData() {
   const supabase = await createClient();
   const [featuredRes, newRes, arabeRes, disenadorRes, nichoRes] = await Promise.all([
@@ -66,6 +93,10 @@ export default async function HomePage() {
     await getHomeData();
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <HeroSection />
       <BrandCarousel />
       <RevealSection>

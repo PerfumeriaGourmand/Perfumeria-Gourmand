@@ -9,6 +9,7 @@ import type { ProductCategory } from "@/types";
 export const metadata: Metadata = {
   title: "Marcas",
   description: "Explorá todas las marcas disponibles en Gourmand.",
+  alternates: { canonical: "/marcas" },
 };
 
 export const revalidate = 60;
