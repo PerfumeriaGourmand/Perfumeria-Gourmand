@@ -532,7 +532,7 @@ export default function Navbar({ hasAnnouncement = false }: { hasAnnouncement?: 
               <li>
                 <Link
                   href="/encontrar-mi-perfume"
-                  className="flex items-center gap-1 px-5 py-3 font-sans text-xs font-medium tracking-wide whitespace-nowrap text-gold border-b-2 border-gold hover:text-gold-light hover:border-gold-light transition-colors duration-200"
+                  className="flex items-center gap-1 px-5 py-3 rounded-full font-sans text-xs font-medium tracking-wide whitespace-nowrap text-gold border-b-2 border-gold hover:bg-gold hover:text-stone-600 hover:border-transparent transition-colors duration-200"
                 >
                   ✦ Encontrá tu perfume
                 </Link>
