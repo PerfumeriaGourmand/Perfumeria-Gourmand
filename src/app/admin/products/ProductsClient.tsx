@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Edit, AlertCircle, Search, MessageCircleQuestion } from "lucide-react";
+import { Edit, AlertCircle, Search, MessageCircleQuestion, Star, Sparkles } from "lucide-react";
 import toast from "react-hot-toast";
+import { cn } from "@/lib/utils";
 import { CATEGORY_LABELS, CONCENTRATION_LABELS } from "@/lib/utils";
 
 type Variant = { id: string; size_ml: number; stock: number; price: number };
@@ -15,9 +16,47 @@ type Product = {
   category: string;
   concentration: string;
   is_active: boolean;
+  is_featured: boolean;
+  is_new: boolean;
   variants: Variant[];
   fifo_cost_ars: number | null;
 };
+
+function ToggleFlagButton({
+  active,
+  label,
+  icon: Icon,
+  onToggle,
+}: {
+  active: boolean;
+  label: string;
+  icon: typeof Star;
+  onToggle: () => Promise<void>;
+}) {
+  const [saving, setSaving] = useState(false);
+
+  return (
+    <button
+      type="button"
+      disabled={saving}
+      onClick={async () => {
+        setSaving(true);
+        await onToggle();
+        setSaving(false);
+      }}
+      title={active ? `Quitar de ${label}` : `Marcar como ${label}`}
+      className={cn(
+        "flex items-center gap-1 px-2 py-1 border font-sans text-[10px] tracking-wide transition-colors disabled:opacity-40",
+        active
+          ? "border-gold bg-gold/10 text-gold"
+          : "border-gold/10 text-cream-dim hover:border-gold/30 hover:text-cream"
+      )}
+    >
+      <Icon size={11} strokeWidth={1.5} fill={active ? "currentColor" : "none"} />
+      {label}
+    </button>
+  );
+}
 
 const ars = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
 
@@ -122,6 +161,24 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
     );
   }
 
+  async function toggleFlag(productId: string, field: "is_featured" | "is_new", current: boolean) {
+    const next = !current;
+    try {
+      const res = await fetch(`/api/admin/products/${productId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: next }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error ?? "Error al actualizar");
+
+      setProducts((prev) =>
+        prev.map((p) => (p.id !== productId ? p : { ...p, [field]: next }))
+      );
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No se pudo actualizar");
+    }
+  }
+
   const filtered = products
     .filter((p) => category === "all" || p.category === category)
     .filter((p) => {
@@ -220,10 +277,10 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
       </div>
 
       <div className="border border-gold/10 bg-obsidian-surface overflow-x-auto">
-        <table className="w-full min-w-[900px]">
+        <table className="w-full min-w-[1050px]">
           <thead>
             <tr className="border-b border-gold/10">
-              {["Nombre / Marca", "Categoría", "Concentración", "Costo lote ($)", "Precio ARS", "Stock mín.", "Estado", ""].map(
+              {["Nombre / Marca", "Categoría", "Concentración", "Costo lote ($)", "Precio ARS", "Stock mín.", "Destacar", "Estado", ""].map(
                 (h) => (
                   <th
                     key={h}
@@ -280,6 +337,22 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
                     </div>
                   </td>
                   <td className="px-5 py-4">
+                    <div className="flex items-center gap-1.5">
+                      <ToggleFlagButton
+                        active={product.is_featured}
+                        label="Destacado"
+                        icon={Star}
+                        onToggle={() => toggleFlag(product.id, "is_featured", product.is_featured)}
+                      />
+                      <ToggleFlagButton
+                        active={product.is_new}
+                        label="Nuevo"
+                        icon={Sparkles}
+                        onToggle={() => toggleFlag(product.id, "is_new", product.is_new)}
+                      />
+                    </div>
+                  </td>
+                  <td className="px-5 py-4">
                     <span
                       className={`font-sans text-[10px] tracking-wide px-2 py-0.5 ${
                         product.is_active
@@ -305,7 +378,7 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
             {filtered.length === 0 && (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={9}
                   className="px-5 py-10 text-center font-sans text-sm text-cream-dim italic"
                 >
                   {query.trim()
