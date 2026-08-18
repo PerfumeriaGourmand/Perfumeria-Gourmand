@@ -133,7 +133,7 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
 
   function copyRestockMessage() {
     const message = [
-      "Hola, ¿cómo va? ¿Tienen estos perfumes en stock?",
+      "Hola cómo va, tienen estos perfumes en stock?",
       "",
       ...outOfStock.map((p) => `- ${p.brand} ${p.name}`),
     ].join("\n");
