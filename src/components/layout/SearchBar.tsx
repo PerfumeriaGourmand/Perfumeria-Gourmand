@@ -114,7 +114,7 @@ export default function SearchBar({ dark, className }: { dark?: boolean; classNa
           onFocus={() => hasQuery && setOpen(true)}
           placeholder="Buscar perfumes, marcas..."
           className={cn(
-            "w-full border rounded-full pl-10 pr-9 py-2.5 font-sans text-sm focus:outline-none transition-all duration-200",
+            "w-full border rounded-full pl-10 pr-9 py-2.5 font-sans text-base sm:text-sm focus:outline-none transition-all duration-200",
             inputClass
           )}
         />
