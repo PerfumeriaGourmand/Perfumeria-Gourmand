@@ -185,19 +185,17 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mb-6">
-        {CATEGORY_FILTERS.map((f) => (
-          <button
-            key={f.value}
-            onClick={() => setCategory(f.value)}
-            className={`font-sans text-xs px-4 py-2 border transition-colors ${
-              category === f.value
-                ? "border-gold bg-gold/10 text-gold"
-                : "border-gold/10 text-cream-dim hover:border-gold/30 hover:text-cream"
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="font-sans text-xs px-3 py-2 border border-gold/10 bg-obsidian-surface text-cream-dim hover:border-gold/30 focus:outline-none focus:border-gold/40 transition-colors cursor-pointer"
+        >
+          {CATEGORY_FILTERS.map((f) => (
+            <option key={f.value} value={f.value}>
+              {f.label}
+            </option>
+          ))}
+        </select>
         <select
           value={stockFilter}
           onChange={(e) => setStockFilter(e.target.value as typeof stockFilter)}
