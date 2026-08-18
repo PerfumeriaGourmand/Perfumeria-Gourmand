@@ -34,7 +34,7 @@ function SuccessContent() {
     <div className="min-h-screen flex items-center justify-center px-6">
       <div className="text-center max-w-md">
         <CheckCircle size={48} strokeWidth={1} className="text-gold mx-auto mb-8" />
-        <h1 className="font-display font-light text-4xl text-cream mb-4">
+        <h1 className="font-display font-semibold text-4xl text-cream mb-4">
           ¡Pedido confirmado!
         </h1>
         <p className="font-sans text-sm text-cream-muted mb-8 leading-relaxed">

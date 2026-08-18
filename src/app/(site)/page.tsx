@@ -1,4 +1,5 @@
 import HeroSection from "@/components/home/HeroSection";
+import QuizBanner from "@/components/home/QuizBanner";
 import FeaturedCarousel from "@/components/home/FeaturedCarousel";
 import NewArrivalsCarousel from "@/components/home/NewArrivalsCarousel";
 import CategorySection from "@/components/home/CategorySection";
@@ -66,6 +67,7 @@ export default async function HomePage() {
   return (
     <>
       <HeroSection />
+      <QuizBanner />
       <BrandCarousel />
       <RevealSection>
         <FeaturedCarousel products={featured} />
