@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, Pencil } from "lucide-react";
+import { Search, X, Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 import { formatPrice } from "@/lib/utils";
 import { STATUS_LABELS, STATUS_STYLES } from "@/lib/order-utils";
@@ -28,9 +28,31 @@ function itemsSummary(items: OrderItem[]) {
 
 export default function OrdersTable({ orders }: { orders: OrderWithItems[] }) {
   const [selected, setSelected] = useState<OrderWithItems | null>(null);
+  const [query, setQuery] = useState("");
+
+  const filteredOrders = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return orders;
+    return orders.filter(
+      (order) =>
+        order.customer_name.toLowerCase().includes(q) ||
+        order.items.some((item) => item.product_name.toLowerCase().includes(q))
+    );
+  }, [orders, query]);
 
   return (
     <>
+      <div className="relative mb-5 max-w-sm">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-cream-dim" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Buscar por cliente o perfume..."
+          className="w-full bg-obsidian-surface border border-gold/10 text-cream font-sans text-sm pl-9 pr-3 py-2.5 focus:outline-none focus:border-gold/30 transition-colors placeholder:text-cream-dim"
+        />
+      </div>
+
       <div className="border border-gold/10 bg-obsidian-surface overflow-hidden">
         <table className="w-full">
           <thead>
@@ -46,7 +68,7 @@ export default function OrdersTable({ orders }: { orders: OrderWithItems[] }) {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order) => (
+            {filteredOrders.map((order) => (
               <tr key={order.id} className="border-b border-gold/5 hover:bg-obsidian/40 transition-colors">
                 <td className="px-5 py-4 font-mono text-xs text-cream-dim">
                   #{order.id.slice(0, 8).toUpperCase()}
@@ -83,10 +105,10 @@ export default function OrdersTable({ orders }: { orders: OrderWithItems[] }) {
                 </td>
               </tr>
             ))}
-            {orders.length === 0 && (
+            {filteredOrders.length === 0 && (
               <tr>
                 <td colSpan={8} className="px-5 py-10 text-center font-sans text-sm text-cream-dim italic">
-                  Sin órdenes
+                  {query ? "Sin resultados para tu búsqueda" : "Sin órdenes"}
                 </td>
               </tr>
             )}
