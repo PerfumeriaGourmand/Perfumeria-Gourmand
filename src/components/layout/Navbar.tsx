@@ -529,14 +529,16 @@ export default function Navbar({ hasAnnouncement = false }: { hasAnnouncement?: 
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  href="/encontrar-mi-perfume"
+                  className="flex items-center gap-1 px-5 py-3 font-sans text-xs font-medium tracking-wide whitespace-nowrap text-gold border-b-2 border-gold hover:text-gold-light hover:border-gold-light transition-colors duration-200"
+                >
+                  ✦ Encontrá tu perfume
+                </Link>
+              </li>
             </ul>
             <div className="hidden xl:flex items-center gap-5 justify-self-end">
-              <Link
-                href="/encontrar-mi-perfume"
-                className="flex items-center gap-1 py-3 font-sans text-xs font-medium tracking-wide whitespace-nowrap text-gold border-b-2 border-gold hover:text-gold-light hover:border-gold-light transition-colors duration-200"
-              >
-                ✦ Encontrá tu perfume
-              </Link>
               {["Envío gratis desde $40.000"].map((t) => (
                 <span key={t} className="font-sans text-gold whitespace-nowrap" style={{ fontSize: 9, letterSpacing: "0.1em" }}>
                   {t}
