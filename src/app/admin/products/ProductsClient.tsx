@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Edit, AlertCircle, Search } from "lucide-react";
+import { Edit, AlertCircle, Search, MessageCircleQuestion } from "lucide-react";
 import toast from "react-hot-toast";
 import { CATEGORY_LABELS, CONCENTRATION_LABELS } from "@/lib/utils";
 
@@ -123,20 +123,53 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
       return p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q);
     });
 
+  const outOfStock = useMemo(
+    () =>
+      products.filter(
+        (p) => p.is_active && (p.variants ?? []).length > 0 && (p.variants ?? []).every((v) => v.stock === 0)
+      ),
+    [products]
+  );
+
+  function copyRestockMessage() {
+    const message = [
+      "Hola, ¿cómo va? ¿Tienen estos perfumes en stock?",
+      "",
+      ...outOfStock.map((p) => `- ${p.brand} ${p.name}`),
+    ].join("\n");
+
+    navigator.clipboard
+      .writeText(message)
+      .then(() => toast.success("Mensaje copiado al portapapeles"))
+      .catch(() => toast.error("No se pudo copiar el mensaje"));
+  }
+
   return (
     <>
-      <div className="relative mb-4">
-        <Search
-          size={14}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-cream-dim pointer-events-none"
-        />
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar por nombre o marca…"
-          className="w-full bg-obsidian-surface border border-gold/10 pl-9 pr-4 py-2.5 font-sans text-sm text-cream placeholder:text-cream-dim/50 focus:outline-none focus:border-gold/40 transition-colors"
-        />
+      <div className="flex items-center gap-3 mb-4">
+        <div className="relative flex-1">
+          <Search
+            size={14}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-cream-dim pointer-events-none"
+          />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar por nombre o marca…"
+            className="w-full bg-obsidian-surface border border-gold/10 pl-9 pr-4 py-2.5 font-sans text-sm text-cream placeholder:text-cream-dim/50 focus:outline-none focus:border-gold/40 transition-colors"
+          />
+        </div>
+        {outOfStock.length > 0 && (
+          <button
+            onClick={copyRestockMessage}
+            className="flex items-center gap-2 shrink-0 border border-gold/30 text-gold font-sans text-xs tracking-wide px-4 py-2.5 hover:bg-gold/10 transition-colors"
+            title="Copia un mensaje con todos los perfumes sin stock para mandarle al proveedor"
+          >
+            <MessageCircleQuestion size={14} strokeWidth={1.5} />
+            Mensaje de reposición ({outOfStock.length})
+          </button>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2 mb-6">
