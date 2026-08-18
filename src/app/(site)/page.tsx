@@ -71,6 +71,9 @@ export default async function HomePage() {
       <RevealSection>
         <FeaturedCarousel products={featured} />
       </RevealSection>
+      <RevealSection>
+        <NewArrivalsCarousel products={newArrivals} />
+      </RevealSection>
       <CategorySection />
       <RevealSection>
         <CategoryFeaturedSection
@@ -98,9 +101,6 @@ export default async function HomePage() {
         />
       </RevealSection>
       <QuizBanner />
-      <RevealSection>
-        <NewArrivalsCarousel products={newArrivals} />
-      </RevealSection>
     </>
   );
 }
