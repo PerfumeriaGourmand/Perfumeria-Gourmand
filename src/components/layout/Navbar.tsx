@@ -533,17 +533,12 @@ export default function Navbar({ hasAnnouncement = false }: { hasAnnouncement?: 
             <div className="hidden xl:flex items-center gap-5 justify-self-end">
               <Link
                 href="/encontrar-mi-perfume"
-                className={cn(
-                  "font-sans whitespace-nowrap border px-3 py-1.5 rounded-full transition-colors duration-200",
-                  isDark
-                    ? "border-gold/30 text-gold hover:bg-gold/10"
-                    : "border-gold/40 text-gold hover:bg-gold/5"
-                )}
-                style={{ fontSize: 9, letterSpacing: "0.1em" }}
+                className="font-sans font-semibold whitespace-nowrap bg-gold text-obsidian px-4 py-2 rounded-full transition-all duration-200 hover:bg-gold-light hover:shadow-md"
+                style={{ fontSize: 10, letterSpacing: "0.1em" }}
               >
                 ✦ ENCONTRÁ TU PERFUME
               </Link>
-              {["12 cuotas sin interés · Banco Nación", "Envío gratis desde $40.000"].map((t) => (
+              {["Envío gratis desde $40.000"].map((t) => (
                 <span key={t} className="font-sans text-gold whitespace-nowrap" style={{ fontSize: 9, letterSpacing: "0.1em" }}>
                   {t}
                 </span>
