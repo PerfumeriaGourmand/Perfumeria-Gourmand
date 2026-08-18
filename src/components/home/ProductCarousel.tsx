@@ -18,7 +18,7 @@ export default function ProductCarousel({ products, autoplay = false, dark = fal
   const plugins = autoplay ? [Autoplay({ delay: 5000, stopOnInteraction: true })] : [];
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
-    { align: "start", containScroll: "trimSnaps", dragFree: true },
+    { align: "start", loop: true, dragFree: true },
     plugins
   );
 
