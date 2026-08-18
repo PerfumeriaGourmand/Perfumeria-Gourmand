@@ -533,8 +533,8 @@ export default function Navbar({ hasAnnouncement = false }: { hasAnnouncement?: 
             <div className="hidden xl:flex items-center gap-5 justify-self-end">
               <Link
                 href="/encontrar-mi-perfume"
-                className="font-sans font-semibold whitespace-nowrap bg-gold text-obsidian px-4 py-1 rounded-full transition-all duration-200 hover:bg-gold-light hover:shadow-md"
-                style={{ fontSize: 10, letterSpacing: "0.1em" }}
+                className="font-sans font-semibold whitespace-nowrap text-gold transition-colors duration-200 hover:text-gold-light"
+                style={{ fontSize: 9, letterSpacing: "0.1em" }}
               >
                 ✦ ENCONTRÁ TU PERFUME
               </Link>
