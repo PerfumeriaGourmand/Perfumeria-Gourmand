@@ -10,14 +10,14 @@ export default function QuizBanner() {
   return (
     <section
       className="relative overflow-hidden px-5 sm:px-8 lg:px-20 py-16 lg:py-20"
-      style={{ background: "#0a0a0a" }}
+      style={{ background: "#f8f7f4" }}
     >
       {/* Radial glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse at 50% 50%, rgba(164,133,76,0.09) 0%, transparent 65%)",
+            "radial-gradient(ellipse at 50% 50%, rgba(164,133,76,0.07) 0%, transparent 65%)",
         }}
       />
 
@@ -26,7 +26,7 @@ export default function QuizBanner() {
         className="absolute inset-0 pointer-events-none"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(164,133,76,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(164,133,76,0.03) 1px, transparent 1px)",
+            "linear-gradient(rgba(164,133,76,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(164,133,76,0.06) 1px, transparent 1px)",
           backgroundSize: "80px 80px",
         }}
       />
@@ -50,14 +50,14 @@ export default function QuizBanner() {
         </p>
 
         <h2
-          className="font-display text-cream"
+          className="font-display text-text-dark"
           style={{ fontSize: "clamp(28px, 4.5vw, 48px)", lineHeight: 1.15 }}
         >
           ¿No estás seguro de qué perfume comprar?
         </h2>
 
         <p
-          className="font-body text-cream-dim"
+          className="font-body text-text-mid"
           style={{ fontSize: 16, maxWidth: 460, margin: "20px 0 32px", lineHeight: 1.75, fontStyle: "italic" }}
         >
           Respondé 5 preguntas rápidas y te recomendamos el perfume ideal para vos.
