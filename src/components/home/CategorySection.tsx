@@ -45,9 +45,9 @@ function CategoryTile({ cat, index }: { cat: typeof CATEGORIES[0]; index: number
       href={cat.href}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
+      className="aspect-[4/3] sm:aspect-[3/4]"
       style={{
         background: cat.dark ? "#0a0a0a" : hov ? "#f2f0eb" : "#f8f7f4",
-        aspectRatio: "3/4",
         display: "flex",
         flexDirection: "column",
         justifyContent: "flex-end",
