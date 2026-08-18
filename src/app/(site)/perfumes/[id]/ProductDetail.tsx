@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, ChevronLeft, X, ZoomIn, Heart, Shield, Truck, CreditCard, ChevronDown } from "lucide-react";
+import { ShoppingBag, ChevronLeft, X, ZoomIn, Heart, Shield, Truck, CreditCard } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Product, ProductVariant } from "@/types";
 import {
@@ -47,7 +47,6 @@ export default function ProductDetail({
   const { addItem, openCart } = useCartStore();
   const { setIsNichoProduct } = useThemeStore();
   const { toggle: toggleWishlist, isWishlisted } = useWishlistStore();
-  const [openAccordion, setOpenAccordion] = useState<string | null>(null);
   const wishlisted = isWishlisted(product.id);
 
   const openLightbox = useCallback(() => {
@@ -565,48 +564,6 @@ export default function ProductDetail({
             </div>
 
             <GoldDivider className="mt-8" />
-
-            {/* Accordions */}
-            <div className={cn("mt-8 border-t divide-y", isNicho ? "border-gold/10 divide-gold/10" : "border-border-light divide-border-light")}>
-              {[
-                {
-                  id: "cuidados",
-                  title: "Cómo usar y conservar",
-                  content: "Aplicá en los puntos de calor: muñecas, cuello y detrás de las orejas. Guardá el frasco en un lugar fresco y oscuro, alejado de la luz solar directa y el calor, para preservar la fragancia.",
-                },
-              ].map(({ id, title, content }) => (
-                <div key={id}>
-                  <button
-                    onClick={() => setOpenAccordion(openAccordion === id ? null : id)}
-                    className={cn(
-                      "w-full flex items-center justify-between py-4 font-sans text-xs tracking-widest uppercase text-left transition-colors",
-                      isNicho ? "text-cream-dim hover:text-cream" : "text-text-mid hover:text-text-dark"
-                    )}
-                  >
-                    {title}
-                    <ChevronDown
-                      size={14}
-                      strokeWidth={1.5}
-                      className={cn(
-                        "shrink-0 transition-transform duration-300 text-gold",
-                        openAccordion === id && "rotate-180"
-                      )}
-                    />
-                  </button>
-                  <div
-                    className="overflow-hidden transition-all duration-300 ease-in-out"
-                    style={{ maxHeight: openAccordion === id ? "200px" : "0px" }}
-                  >
-                    <p className={cn(
-                      "font-sans text-sm leading-relaxed pb-5",
-                      isNicho ? "text-cream-dim" : "text-text-mid"
-                    )}>
-                      {content}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
