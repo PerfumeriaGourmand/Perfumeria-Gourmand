@@ -34,15 +34,15 @@ function SuccessContent() {
     <div className="min-h-screen flex items-center justify-center px-6">
       <div className="text-center max-w-md">
         <CheckCircle size={48} strokeWidth={1} className="text-gold mx-auto mb-8" />
-        <h1 className="font-display font-semibold text-4xl text-cream mb-4">
+        <h1 className="font-display font-semibold text-4xl text-text-dark mb-4">
           ¡Pedido confirmado!
         </h1>
-        <p className="font-sans text-sm text-cream-muted mb-8 leading-relaxed">
+        <p className="font-sans text-sm font-medium text-text-mid mb-8 leading-relaxed">
           Gracias por tu compra. Recibirás un email con los detalles de tu pedido.
           Nos pondremos en contacto para coordinar el envío.
         </p>
         {orderId && (
-          <p className="font-sans text-xs text-cream-dim mb-10 font-mono tracking-wider">
+          <p className="font-sans text-xs text-text-light mb-10 font-mono tracking-wider">
             Orden #{orderId.slice(0, 8).toUpperCase()}
           </p>
         )}
@@ -51,7 +51,12 @@ function SuccessContent() {
             <Button variant="outline">Seguir comprando</Button>
           </Link>
           <Link href="/">
-            <Button variant="ghost">Ir al inicio</Button>
+            <Button
+              variant="ghost"
+              className="font-medium text-text-mid hover:text-text-dark hover:bg-surface-2"
+            >
+              Ir al inicio
+            </Button>
           </Link>
         </div>
       </div>
