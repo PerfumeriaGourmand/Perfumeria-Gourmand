@@ -100,10 +100,17 @@ const CATEGORY_FILTERS: { value: string; label: string }[] = [
   { value: "kit", label: "Kit" },
 ];
 
+const STOCK_FILTERS: { value: "all" | "in_stock" | "out_of_stock"; label: string }[] = [
+  { value: "all", label: "Todos" },
+  { value: "in_stock", label: "Con stock" },
+  { value: "out_of_stock", label: "Sin stock" },
+];
+
 export function ProductsClient({ products: initialProducts }: { products: Product[] }) {
   const [products, setProducts] = useState(initialProducts);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
+  const [stockFilter, setStockFilter] = useState<"all" | "in_stock" | "out_of_stock">("all");
 
   function updateVariantPrice(productId: string, variantId: string, price: number) {
     setProducts((prev) =>
@@ -117,6 +124,11 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
 
   const filtered = products
     .filter((p) => category === "all" || p.category === category)
+    .filter((p) => {
+      if (stockFilter === "all") return true;
+      const hasStock = (p.variants ?? []).some((v) => v.stock > 0);
+      return stockFilter === "in_stock" ? hasStock : !hasStock;
+    })
     .filter((p) => {
       if (!query.trim()) return true;
       const q = query.toLowerCase();
@@ -172,13 +184,29 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="flex flex-wrap gap-2 mb-3">
         {CATEGORY_FILTERS.map((f) => (
           <button
             key={f.value}
             onClick={() => setCategory(f.value)}
             className={`font-sans text-xs px-4 py-2 border transition-colors ${
               category === f.value
+                ? "border-gold bg-gold/10 text-gold"
+                : "border-gold/10 text-cream-dim hover:border-gold/30 hover:text-cream"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-6">
+        {STOCK_FILTERS.map((f) => (
+          <button
+            key={f.value}
+            onClick={() => setStockFilter(f.value)}
+            className={`font-sans text-xs px-4 py-2 border transition-colors ${
+              stockFilter === f.value
                 ? "border-gold bg-gold/10 text-gold"
                 : "border-gold/10 text-cream-dim hover:border-gold/30 hover:text-cream"
             }`}
