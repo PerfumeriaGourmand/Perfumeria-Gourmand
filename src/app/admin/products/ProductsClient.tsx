@@ -184,29 +184,39 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
         )}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 mb-6">
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="font-sans text-xs px-3 py-2 border border-gold/10 bg-obsidian-surface text-cream-dim hover:border-gold/30 focus:outline-none focus:border-gold/40 transition-colors cursor-pointer"
-        >
-          {CATEGORY_FILTERS.map((f) => (
-            <option key={f.value} value={f.value}>
-              {f.label}
-            </option>
-          ))}
-        </select>
-        <select
-          value={stockFilter}
-          onChange={(e) => setStockFilter(e.target.value as typeof stockFilter)}
-          className="font-sans text-xs px-3 py-2 border border-gold/10 bg-obsidian-surface text-cream-dim hover:border-gold/30 focus:outline-none focus:border-gold/40 transition-colors cursor-pointer"
-        >
-          {STOCK_FILTERS.map((f) => (
-            <option key={f.value} value={f.value}>
-              {f.label}
-            </option>
-          ))}
-        </select>
+      <div className="flex flex-wrap items-end gap-4 mb-6">
+        <div>
+          <label className="font-sans text-[10px] tracking-widest uppercase text-cream-dim mb-1.5 block">
+            Categoría
+          </label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="font-sans text-xs px-3 py-2 border border-gold/40 bg-gold/5 text-gold hover:border-gold/70 hover:bg-gold/10 focus:outline-none focus:border-gold transition-colors cursor-pointer"
+          >
+            {CATEGORY_FILTERS.map((f) => (
+              <option key={f.value} value={f.value}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="font-sans text-[10px] tracking-widest uppercase text-cream-dim mb-1.5 block">
+            Stock
+          </label>
+          <select
+            value={stockFilter}
+            onChange={(e) => setStockFilter(e.target.value as typeof stockFilter)}
+            className="font-sans text-xs px-3 py-2 border border-gold/40 bg-gold/5 text-gold hover:border-gold/70 hover:bg-gold/10 focus:outline-none focus:border-gold transition-colors cursor-pointer"
+          >
+            {STOCK_FILTERS.map((f) => (
+              <option key={f.value} value={f.value}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="border border-gold/10 bg-obsidian-surface overflow-x-auto">
