@@ -37,6 +37,18 @@ const jsonLd = {
   ],
 };
 
+async function getProductHref(name: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("products")
+    .select("id")
+    .eq("name", name)
+    .eq("is_active", true)
+    .single();
+
+  return data ? `/perfumes/${data.id}` : `/catalogo?search=${encodeURIComponent(name)}`;
+}
+
 async function getHomeData() {
   const supabase = await createClient();
   const [featuredRes, newRes, arabeRes, disenadorRes, nichoRes] = await Promise.all([
@@ -91,13 +103,17 @@ async function getHomeData() {
 export default async function HomePage() {
   const { featured, newArrivals, arabeProducts, disenadorProducts, nichoProducts } =
     await getHomeData();
+  const [nightOutHref, althairHref] = await Promise.all([
+    getProductHref("9pm Night Out"),
+    getProductHref("Althair"),
+  ]);
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <HeroSection />
+      <HeroSection nightOutHref={nightOutHref} althairHref={althairHref} />
       <BrandCarousel />
       <RevealSection>
         <FeaturedCarousel products={featured} />

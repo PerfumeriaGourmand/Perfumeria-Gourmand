@@ -2,38 +2,59 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
-const SLIDES = [
-  {
-    eyebrow: "Nueva temporada · Otoño 2026",
-    title: "El perfume\ncomo identidad",
-    sub: "Más de 500 fragancias curadas. Desde clásicos de diseñador hasta joyas del nicho más exclusivo.",
-    cta: { label: "Explorar colección", href: "/catalogo" },
-    accent: { label: "Línea Nicho", href: "/catalogo/nicho" },
-    tag: "Diseñador",
-  },
-  {
-    eyebrow: "Perfumería árabe · Selección premium",
-    title: "Intensidad\noriental que persiste",
-    sub: "Oud, ámbar y especias. La tradición árabe en frascos de alta concentración.",
-    cta: { label: "Ver colección árabe", href: "/catalogo?category=arabe" },
-    accent: null,
-    tag: "Árabe",
-  },
-  {
-    eyebrow: "Perfumería de autor · Línea Nicho",
-    title: "Para quienes\nvan más allá",
-    sub: "Byredo, Le Labo, Frederic Malle. Fórmulas artesanales para una identidad olfativa única.",
-    cta: { label: "Descubrir Nicho", href: "/catalogo/nicho" },
-    accent: null,
-    tag: "Nicho",
-  },
-];
+interface Props {
+  nightOutHref: string;
+  althairHref: string;
+}
+
+function getSlides(nightOutHref: string, althairHref: string) {
+  return [
+    {
+      eyebrow: "Afnan · Extrait de Parfum",
+      title: "9pm\nNight Out",
+      sub: "Proyección nuclear para noches que no se olvidan.",
+      cta: { label: "Comprar ahora", href: nightOutHref },
+      tag: "9pm Night Out",
+      image: "/banners/night-out.webp",
+      zoom: 1,
+    },
+    {
+      eyebrow: "Lattafa · La colección",
+      title: "Eclaire",
+      sub: "Gourmand y dulce. La trilogía completa: Original, Banoffi y Pistache.",
+      cta: { label: "Ver colección", href: "/catalogo?search=Eclaire" },
+      tag: "Eclaire",
+      image: "/banners/eclaire.png",
+      zoom: 1,
+    },
+    {
+      eyebrow: "Parfums de Marly · Eau de Parfum",
+      title: "Althair",
+      sub: "Oriental amaderado, cremoso y especiado. Vainilla, canela y ámbar en su máxima expresión.",
+      cta: { label: "Comprar ahora", href: althairHref },
+      tag: "Althair",
+      image: "/banners/althair.png",
+      zoom: 1,
+    },
+    {
+      eyebrow: "Armaf · La colección",
+      title: "Odyssey",
+      sub: "Ediciones limitadas de alta proyección: Mandarin Sky, Mega y toda la línea Odyssey.",
+      cta: { label: "Ver colección", href: "/catalogo?search=Odyssey" },
+      tag: "Odyssey",
+      image: "/banners/odyssey.webp",
+      zoom: 1,
+    },
+  ];
+}
 
 const GLOWS = [
-  "radial-gradient(ellipse at 60% 40%, rgba(164,133,76,0.06) 0%, transparent 60%)",
-  "radial-gradient(ellipse at 30% 60%, rgba(164,133,76,0.05) 0%, transparent 55%)",
-  "radial-gradient(ellipse at 70% 50%, rgba(164,133,76,0.08) 0%, transparent 60%)",
+  "radial-gradient(ellipse at 50% 30%, rgba(164,133,76,0.04) 0%, transparent 55%)",
+  "radial-gradient(ellipse at 65% 35%, rgba(164,133,76,0.05) 0%, transparent 55%)",
+  "radial-gradient(ellipse at 55% 40%, rgba(164,133,76,0.06) 0%, transparent 55%)",
+  "radial-gradient(ellipse at 40% 35%, rgba(164,133,76,0.05) 0%, transparent 55%)",
 ];
 
 const PARTICLES = [
@@ -47,7 +68,8 @@ const PARTICLES = [
   { size: 2, x: 5,  y: 74, dur: 4.0, delay: 2.45 },
 ];
 
-export default function HeroSection() {
+export default function HeroSection({ nightOutHref, althairHref }: Props) {
+  const SLIDES = getSlides(nightOutHref, althairHref);
   const [cur, setCur] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [dir, setDir] = useState<1 | -1>(1);
@@ -76,6 +98,32 @@ export default function HeroSection() {
       className="relative overflow-hidden bg-[#0a0a0a]"
       style={{ height: "44vh", minHeight: 360 }}
     >
+      {/* Background images — crossfade per slide */}
+      {SLIDES.map((s, i) => (
+        <div
+          key={s.image}
+          className="absolute inset-0 transition-opacity duration-1000"
+          style={{ opacity: cur === i ? 1 : 0 }}
+        >
+          <Image
+            src={s.image}
+            alt={s.tag}
+            fill
+            priority={i === 0}
+            className="object-cover"
+            style={{ transform: `scale(${s.zoom})` }}
+            sizes="100vw"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to top, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.35) 55%, rgba(10,10,10,0.15) 100%)",
+            }}
+          />
+        </div>
+      ))}
+
       {/* Radial glow — shifts per slide */}
       <div
         className="absolute inset-0 pointer-events-none transition-all duration-1000"
@@ -106,14 +154,6 @@ export default function HeroSection() {
           }}
         />
       ))}
-
-      {/* Ghost text */}
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display whitespace-nowrap select-none pointer-events-none leading-none"
-        style={{ fontSize: "min(20vw, 240px)", color: "rgba(164,133,76,0.025)", letterSpacing: "-0.01em" }}
-      >
-        GOURMAND
-      </div>
 
       {/* Slide content */}
       <div
@@ -162,14 +202,11 @@ export default function HeroSection() {
           className="flex items-center gap-7 mt-8"
           style={{ animation: "fadeUp 0.6s 0.35s both" }}
         >
-          <Link href={slide.cta.href} className="elegant-btn text-cream hover:text-gold">
-            {slide.cta.label}
+          <Link href={slide.cta.href}>
+            <button className="font-sans uppercase tracking-widest text-xs px-11 py-4 rounded-full bg-gold text-obsidian hover:bg-gold-light active:bg-gold-dark transition-all duration-300 hover:shadow-lg">
+              {slide.cta.label}
+            </button>
           </Link>
-          {slide.accent && (
-            <Link href={slide.accent.href} className="elegant-btn text-gold">
-              {slide.accent.label}
-            </Link>
-          )}
         </div>
       </div>
 
