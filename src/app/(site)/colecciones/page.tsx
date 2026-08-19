@@ -21,7 +21,7 @@ export default async function ColeccionesPage() {
     .from("collections")
     .select("*")
     .eq("is_active", true)
-    .order("sort_order", { ascending: true });
+    .order("name", { ascending: true });
 
   return (
     <div className="min-h-screen pt-28 pb-24 bg-white">
