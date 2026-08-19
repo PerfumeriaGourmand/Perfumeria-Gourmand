@@ -96,7 +96,7 @@ export default function HeroSection({ nightOutHref, althairHref }: Props) {
   return (
     <section
       className="relative overflow-hidden bg-[#0a0a0a]"
-      style={{ height: "44vh", minHeight: 360 }}
+      style={{ height: "56vh", minHeight: 440 }}
     >
       {/* Background images — crossfade per slide */}
       {SLIDES.map((s, i) => (

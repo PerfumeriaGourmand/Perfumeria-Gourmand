@@ -114,7 +114,6 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <HeroSection nightOutHref={nightOutHref} althairHref={althairHref} />
-      <BrandCarousel />
       <RevealSection>
         <FeaturedCarousel products={featured} />
       </RevealSection>
@@ -148,6 +147,7 @@ export default async function HomePage() {
         />
       </RevealSection>
       <QuizBanner />
+      <BrandCarousel />
     </>
   );
 }

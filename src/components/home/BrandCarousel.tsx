@@ -32,7 +32,7 @@ export default function BrandCarousel() {
         background: "#111",
         borderTop: "1px solid rgba(164,133,76,0.1)",
         borderBottom: "1px solid rgba(164,133,76,0.1)",
-        padding: "14px 0",
+        padding: "28px 0",
       }}
     >
       <div className="marquee-track">
@@ -41,16 +41,16 @@ export default function BrandCarousel() {
             key={`${logo.alt}-${i}`}
             href={logo.href}
             className="shrink-0 flex items-center justify-center bg-white rounded transition-opacity duration-200 hover:opacity-80"
-            style={{ width: 190, height: 64, margin: "0 14px", padding: 0 }}
+            style={{ width: 260, height: 100, margin: "0 16px", padding: 0 }}
             tabIndex={-1}
           >
             <Image
               src={logo.src}
               alt={logo.alt}
-              width={150}
-              height={56}
+              width={220}
+              height={90}
               className="object-contain w-full h-full"
-              sizes="190px"
+              sizes="260px"
             />
           </Link>
         ))}
