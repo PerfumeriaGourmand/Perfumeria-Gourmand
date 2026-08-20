@@ -28,9 +28,6 @@ export default async function ColeccionesPage() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="pt-4 pb-12">
           <Breadcrumb items={[{ label: "Inicio", href: "/" }, { label: "Colecciones" }]} />
-          <p className="font-sans text-xs tracking-[0.4em] uppercase text-gold mb-4">
-            Selección curada
-          </p>
           <h1 className="font-display font-light text-5xl text-text-dark">Colecciones</h1>
         </div>
 

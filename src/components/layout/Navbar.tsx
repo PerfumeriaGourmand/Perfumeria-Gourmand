@@ -17,7 +17,6 @@ import type { User as SupabaseUser } from "@supabase/supabase-js";
 const MEGA_MENUS = {
   Árabe: {
     dark: false,
-    eyebrow: "Fragancias de Oriente",
     description:
       "Oud, rosa, ámbar y especias. La opulencia del Oriente Medio destilada en cada frasco.",
     href: "/catalogo?category=arabe",
@@ -54,7 +53,6 @@ const MEGA_MENUS = {
   },
   Diseñador: {
     dark: false,
-    eyebrow: "Grandes maisons",
     description:
       "Las firmas más icónicas del perfume. Elegancia accesible con apellido de lujo.",
     href: "/catalogo?category=disenador",
@@ -91,7 +89,6 @@ const MEGA_MENUS = {
   },
   Nicho: {
     dark: true,
-    eyebrow: "Perfumería de autor",
     description:
       "Pequeñas tiradas, materias primas extraordinarias. Para olfatos que no aceptan lo ordinario.",
     href: "/catalogo/nicho",
@@ -621,10 +618,6 @@ export default function Navbar({ hasAnnouncement = false }: { hasAnnouncement?: 
                         MEGA_MENUS[openDropdown].dark ? "border-gold/10" : "border-border-light"
                       )}
                     >
-                      {/* Eyebrow */}
-                      <p className="font-sans text-[10px] tracking-[0.4em] uppercase text-gold mb-3">
-                        {MEGA_MENUS[openDropdown].eyebrow}
-                      </p>
                       {/* Title */}
                       <p
                         className={cn(

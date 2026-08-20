@@ -1,15 +1,8 @@
 import type { Metadata } from "next";
-import { Italiana, Spectral, Outfit } from "next/font/google";
+import { Spectral, Outfit, Philosopher } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import CartDrawer from "@/components/cart/CartDrawer";
-
-const italiana = Italiana({
-  subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-italiana",
-  display: "swap",
-});
 
 const spectral = Spectral({
   subsets: ["latin"],
@@ -23,6 +16,13 @@ const outfit = Outfit({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
   variable: "--font-outfit",
+  display: "swap",
+});
+
+const philosopher = Philosopher({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-philosopher",
   display: "swap",
 });
 
@@ -77,7 +77,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className={`${italiana.variable} ${spectral.variable} ${outfit.variable}`}>
+    <html lang="es" className={`${spectral.variable} ${outfit.variable} ${philosopher.variable}`}>
       <body className="font-sans bg-page-bg text-text-dark">
         {children}
         <CartDrawer />

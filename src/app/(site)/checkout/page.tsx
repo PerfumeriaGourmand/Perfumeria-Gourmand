@@ -150,9 +150,6 @@ export default function CheckoutPage() {
       <div className="max-w-6xl mx-auto px-6">
         {/* Header */}
         <div className="py-12">
-          <p className="font-sans text-xs tracking-[0.4em] uppercase text-gold mb-4">
-            Finalizar compra
-          </p>
           <h1 className="font-display font-light text-5xl text-text-dark">Checkout</h1>
         </div>
 

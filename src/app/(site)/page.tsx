@@ -124,7 +124,6 @@ export default async function HomePage() {
       <RevealSection>
         <CategoryFeaturedSection
           title="Árabe — Destacados"
-          eyebrow="Colección Árabe"
           href="/catalogo?category=arabe"
           products={arabeProducts}
         />
@@ -132,7 +131,6 @@ export default async function HomePage() {
       <RevealSection>
         <CategoryFeaturedSection
           title="Diseñador — Destacados"
-          eyebrow="Colección Diseñador"
           href="/catalogo?category=disenador"
           products={disenadorProducts}
         />
@@ -140,7 +138,6 @@ export default async function HomePage() {
       <RevealSection>
         <CategoryFeaturedSection
           title="Nicho — Destacados"
-          eyebrow="Colección Nicho"
           href="/catalogo/nicho"
           products={nichoProducts}
           dark

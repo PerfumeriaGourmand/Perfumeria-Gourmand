@@ -395,9 +395,6 @@ export default function Quiz() {
           {/* Header */}
           <div className="py-12 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
             <div>
-              <p className="font-sans text-xs tracking-[0.4em] uppercase text-gold mb-3">
-                Tu match perfecto
-              </p>
               <h1 className="font-display font-light text-[clamp(2rem,4vw,3.5rem)] text-text-dark leading-none">
                 {results.length > 0
                   ? `Encontramos ${results.length} fragancias para vos`

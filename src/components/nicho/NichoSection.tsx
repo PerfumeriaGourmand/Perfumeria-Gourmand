@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/types";
@@ -238,8 +239,9 @@ const NichoProductCard = ({
               )}
               <button
                 onClick={handleQuickAdd}
-                className="font-sans text-[10px] tracking-[0.4em] uppercase border border-gold/40 text-gold px-6 py-2.5 hover:bg-gold/10 transition-colors"
+                className="w-full max-w-[200px] flex items-center justify-center gap-2 rounded-full border border-gold/40 text-gold font-sans text-xs font-medium tracking-wide px-6 py-2.5 hover:bg-gold/10 active:scale-[0.98] transition-all duration-200"
               >
+                <ShoppingBag size={13} strokeWidth={2} />
                 Agregar al carrito
               </button>
             </div>

@@ -59,13 +59,6 @@ export default function QuizBanner() {
           <Sparkles size={26} strokeWidth={1.25} className="text-gold" />
         </div>
 
-        <p
-          className="relative font-sans uppercase text-gold"
-          style={{ fontSize: 11, letterSpacing: "0.5em", marginBottom: 18 }}
-        >
-          Test olfativo
-        </p>
-
         <h2
           className="relative font-display text-text-dark"
           style={{ fontSize: "clamp(30px, 5vw, 54px)", lineHeight: 1.15 }}

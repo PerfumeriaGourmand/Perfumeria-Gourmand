@@ -4,13 +4,12 @@ import Link from "next/link";
 
 interface Props {
   title: string;
-  eyebrow: string;
   href: string;
   products: Product[];
   dark?: boolean;
 }
 
-export default function CategoryFeaturedSection({ title, eyebrow, href, products, dark }: Props) {
+export default function CategoryFeaturedSection({ title, href, products, dark }: Props) {
   if (products.length === 0) return null;
 
   return (
@@ -23,9 +22,6 @@ export default function CategoryFeaturedSection({ title, eyebrow, href, products
     >
       <div className="px-5 sm:px-8 lg:px-20 mb-9 flex justify-between items-end">
         <div>
-          <p className="font-sans uppercase text-gold" style={{ fontSize: 9, letterSpacing: "0.5em", marginBottom: 10 }}>
-            {eyebrow}
-          </p>
           <h2
             className="font-display"
             style={{ fontSize: "clamp(26px, 4vw, 40px)", lineHeight: 1.05, color: dark ? "#f5f0e8" : "#1c1917" }}

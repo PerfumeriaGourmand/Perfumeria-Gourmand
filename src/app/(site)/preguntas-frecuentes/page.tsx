@@ -120,7 +120,6 @@ export default function FaqPage() {
     <div className="min-h-screen pt-28 pb-24">
       {/* Header */}
       <div className="px-6 max-w-3xl mx-auto mb-14">
-        <p className="font-sans text-xs tracking-widest uppercase text-gold mb-3">Soporte</p>
         <h1 className="font-display text-4xl font-bold text-text-dark mb-4">
           Preguntas frecuentes
         </h1>

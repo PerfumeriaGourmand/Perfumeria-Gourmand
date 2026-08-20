@@ -7,7 +7,6 @@ export const metadata: Metadata = {
 export default function TerminosPage() {
   return (
     <div className="min-h-screen pt-28 pb-24 px-6 max-w-3xl mx-auto">
-      <p className="font-sans text-xs tracking-widest uppercase text-gold mb-3">Legal</p>
       <h1 className="font-display text-4xl font-bold text-text-dark mb-8">
         Términos y condiciones
       </h1>

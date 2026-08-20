@@ -24,7 +24,6 @@ export default function EnviosPage() {
     <div className="min-h-screen pt-28 pb-24">
       {/* Hero */}
       <div className="px-6 max-w-3xl mx-auto mb-16">
-        <p className="font-sans text-xs tracking-widest uppercase text-gold mb-3">Logística</p>
         <h1 className="font-display text-4xl font-bold text-text-dark mb-4">
           Envíos
         </h1>

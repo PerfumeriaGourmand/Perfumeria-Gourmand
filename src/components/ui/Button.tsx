@@ -51,7 +51,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             <span className="w-3.5 h-3.5 border border-current border-t-transparent rounded-full animate-spin" />
           </span>
         )}
-        <span className={cn(loading && "opacity-0")}>{children}</span>
+        <span className={cn("inline-flex items-center gap-[inherit]", loading && "opacity-0")}>{children}</span>
       </button>
     );
   }

@@ -18,9 +18,6 @@ export default function FavoritosPage() {
         {/* Header */}
         <div className="pb-12 flex items-end justify-between">
           <div>
-            <p className="font-sans text-xs tracking-[0.4em] uppercase text-gold mb-4">
-              Tu selección
-            </p>
             <h1 className="font-display font-light text-5xl text-text-dark flex items-baseline gap-4">
               Favoritos
               {total > 0 && (

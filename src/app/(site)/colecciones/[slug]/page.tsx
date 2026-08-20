@@ -80,7 +80,6 @@ export default async function CollectionDetailPage({
               { label: collection.name },
             ]}
           />
-          <p className="font-sans text-xs tracking-[0.4em] uppercase text-gold mb-4">Colección</p>
           <h1 className="font-body font-light text-5xl text-text-dark mb-4">{collection.name}</h1>
           {collection.description && (
             <p className="font-sans text-sm text-text-light max-w-xl">{collection.description}</p>

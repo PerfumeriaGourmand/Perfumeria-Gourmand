@@ -12,7 +12,6 @@ interface Props {
 function getSlides(nightOutHref: string, althairHref: string) {
   return [
     {
-      eyebrow: "Afnan · Extrait de Parfum",
       title: "9pm\nNight Out",
       sub: "Proyección nuclear para noches que no se olvidan.",
       cta: { label: "Comprar ahora", href: nightOutHref },
@@ -21,7 +20,6 @@ function getSlides(nightOutHref: string, althairHref: string) {
       zoom: 1,
     },
     {
-      eyebrow: "Lattafa · La colección",
       title: "Eclaire",
       sub: "Gourmand y dulce. La trilogía completa: Original, Banoffi y Pistache.",
       cta: { label: "Ver colección", href: "/catalogo?search=Eclaire" },
@@ -30,7 +28,6 @@ function getSlides(nightOutHref: string, althairHref: string) {
       zoom: 1,
     },
     {
-      eyebrow: "Parfums de Marly · Eau de Parfum",
       title: "Althair",
       sub: "Oriental amaderado, cremoso y especiado. Vainilla, canela y ámbar en su máxima expresión.",
       cta: { label: "Comprar ahora", href: althairHref },
@@ -39,7 +36,6 @@ function getSlides(nightOutHref: string, althairHref: string) {
       zoom: 1,
     },
     {
-      eyebrow: "Armaf · La colección",
       title: "Odyssey",
       sub: "Ediciones limitadas de alta proyección: Mandarin Sky, Mega y toda la línea Odyssey.",
       cta: { label: "Ver colección", href: "/catalogo?search=Odyssey" },
@@ -165,13 +161,6 @@ export default function HeroSection({ nightOutHref, althairHref }: Props) {
           transition: "opacity 0.6s 0.1s",
         }}
       >
-        <p
-          className="font-sans uppercase text-gold mb-4"
-          style={{ fontSize: 10, letterSpacing: "0.5em", animation: "fadeUp 0.5s 0.05s both" }}
-        >
-          {slide.eyebrow}
-        </p>
-
         <h1
           className="font-display text-cream leading-[1.05] whitespace-pre-line"
           style={{

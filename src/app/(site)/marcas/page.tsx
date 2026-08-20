@@ -126,9 +126,6 @@ export default async function MarcasPage() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="pt-4 pb-12">
           <Breadcrumb items={[{ label: "Inicio", href: "/" }, { label: "Marcas" }]} />
-          <p className="font-sans text-xs tracking-[0.4em] uppercase text-gold mb-4">
-            Colección completa
-          </p>
           <h1 className="font-display font-light text-5xl text-text-dark">Marcas</h1>
         </div>
 
@@ -143,9 +140,6 @@ export default async function MarcasPage() {
               <section key={cat}>
                 <div className="flex items-end justify-between mb-8">
                   <div>
-                    <p className="font-sans text-[10px] tracking-[0.4em] uppercase text-gold mb-2">
-                      Categoría
-                    </p>
                     <h2 className="font-display text-3xl text-text-dark">
                       {CATEGORY_LABELS[cat]}
                     </h2>
