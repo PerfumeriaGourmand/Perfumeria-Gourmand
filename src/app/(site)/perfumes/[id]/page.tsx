@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import type { Product } from "@/types";
+import type { Product, ProductReview } from "@/types";
 import ProductDetail from "./ProductDetail";
 import { CONCENTRATION_LABELS, CATEGORY_LABELS } from "@/lib/utils";
 
@@ -20,6 +20,16 @@ async function getProduct(id: string) {
 
   if (error || !data) return null;
   return data;
+}
+
+async function getReviews(productId: string): Promise<ProductReview[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("product_reviews")
+    .select("*")
+    .eq("product_id", productId)
+    .order("created_at", { ascending: false });
+  return data ?? [];
 }
 
 export async function generateMetadata({
@@ -65,11 +75,20 @@ export async function generateMetadata({
   };
 }
 
-function buildProductJsonLd(product: Product) {
+function buildProductJsonLd(product: Product, reviews: ProductReview[]) {
   const primaryImage = product.images?.find((i) => i.is_primary) ?? product.images?.[0];
   const activeVariants = (product.variants ?? []).filter((v) => v.is_active && v.stock > 0);
   const minPrice = activeVariants.reduce((min, v) => (v.price < min ? v.price : min), activeVariants[0]?.price ?? 0);
   const maxPrice = activeVariants.reduce((max, v) => (v.price > max ? v.price : max), activeVariants[0]?.price ?? 0);
+
+  // Fallback price for the OutOfStock branch below — Google requires "price"
+  // on every offer, even ones with no stock, so we fall back to any variant
+  // (active or not) instead of leaving the offer priceless.
+  const allVariants = product.variants ?? [];
+  const fallbackPrice = allVariants.reduce(
+    (min, v) => (v.price < min ? v.price : min),
+    allVariants[0]?.price ?? 0
+  );
 
   return {
     "@context": "https://schema.org",
@@ -96,7 +115,27 @@ function buildProductJsonLd(product: Product) {
             "@type": "Offer",
             availability: "https://schema.org/OutOfStock",
             priceCurrency: "ARS",
+            price: fallbackPrice,
+            seller: { "@type": "Organization", name: "Gourmand Perfumería" },
           },
+    // Solo se declara si hay reseñas reales de compradores verificados —
+    // Google penaliza aggregateRating/review sin datos genuinos detrás.
+    ...(reviews.length > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1),
+            reviewCount: reviews.length,
+          },
+          review: reviews.map((r) => ({
+            "@type": "Review",
+            author: { "@type": "Person", name: r.customer_name },
+            datePublished: r.created_at,
+            reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+            ...(r.comment ? { reviewBody: r.comment } : {}),
+          })),
+        }
+      : {}),
   };
 }
 
@@ -114,7 +153,7 @@ export default async function ProductPage({
   // Track page view (fire-and-forget)
   supabase.from("page_views").insert({ path: `/perfumes/${id}`, product_id: id }).then(() => {});
 
-  const [relatedBySeason, relatedByBrand] = await Promise.all([
+  const [relatedBySeason, relatedByBrand, reviews] = await Promise.all([
     product.seasons.length > 0
       ? supabase
           .from("products")
@@ -133,13 +172,14 @@ export default async function ProductPage({
       .neq("id", id)
       .limit(8)
       .then(({ data }) => (data ?? []) as Product[]),
+    getReviews(id),
   ]);
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildProductJsonLd(product)) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildProductJsonLd(product, reviews)) }}
       />
       <ProductDetail product={product} relatedBySeason={relatedBySeason} relatedByBrand={relatedByBrand} />
     </>

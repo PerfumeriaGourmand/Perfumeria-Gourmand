@@ -22,6 +22,7 @@ import Button from "@/components/ui/Button";
 import GoldDivider from "@/components/ui/GoldDivider";
 import ProductCarousel from "@/components/home/ProductCarousel";
 import { showCartToast } from "@/components/ui/CartToast";
+import ProductReviews from "@/components/product/ProductReviews";
 
 export default function ProductDetail({
   product,
@@ -514,7 +515,7 @@ export default function ProductDetail({
                     variant="primary"
                     size="lg"
                     onClick={handleAddToCart}
-                    className="w-full justify-center mb-4"
+                    className="w-full justify-center rounded-full mb-4"
                   >
                     <ShoppingBag size={16} strokeWidth={1.5} />
                     Agregar al carrito
@@ -608,6 +609,8 @@ export default function ProductDetail({
           )}
         </AnimatePresence>
       )}
+
+      <ProductReviews productId={product.id} dark={isNicho} />
 
       {/* ——— Más de la marca ——— */}
       {relatedByBrand.length > 0 && (

@@ -72,6 +72,20 @@ export interface Product {
 }
 
 // ——————————————————————————————————————————
+// Reviews
+// ——————————————————————————————————————————
+
+export interface ProductReview {
+  id: string;
+  product_id: string;
+  user_id: string;
+  customer_name: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+}
+
+// ——————————————————————————————————————————
 // Collections (e.g. "Asad" groups Asad, Asad Bourbon, Asad Zanzibar...)
 // ——————————————————————————————————————————
 
