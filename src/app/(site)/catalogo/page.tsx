@@ -37,7 +37,7 @@ async function getProducts(filters: ProductFilters) {
     case "price_desc":
       break;
     case "newest":
-      query = query.order("created_at", { ascending: false });
+      query = query.eq("is_new", true).order("created_at", { ascending: false });
       break;
     case "name_asc":
       query = query.order("name");

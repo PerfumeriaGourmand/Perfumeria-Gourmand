@@ -9,7 +9,7 @@ export default async function AdminCollectionsPage() {
   const { data: collections } = await supabase
     .from("collections")
     .select("*, collection_products(id)")
-    .order("sort_order", { ascending: true });
+    .order("name", { ascending: true });
 
   return (
     <div>
