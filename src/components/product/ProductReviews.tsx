@@ -108,25 +108,26 @@ export default function ProductReviews({ productId, dark }: { productId: string;
   if (loading) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-6 mt-6">
+    <div className="flex flex-col items-center gap-1">
       <button
         onClick={() => setModalOpen(true)}
+        aria-label={reviews.length > 0 ? `Ver reseñas — promedio ${average.toFixed(1)} de 5` : "Ver reseñas"}
         className={cn(
-          "flex items-center gap-2.5 font-sans text-sm py-2 transition-colors",
-          dark ? "text-cream-dim hover:text-cream" : "text-text-mid hover:text-text-dark"
+          "shrink-0 w-10 h-10 flex items-center justify-center rounded-full border transition-all duration-200 hover:scale-110",
+          dark ? "border-gold/20 hover:border-gold" : "border-border-light hover:border-gold"
         )}
       >
-        {reviews.length > 0 ? (
-          <>
-            <StarRow rating={Math.round(average)} size={13} />
-            <span className="underline underline-offset-4">
-              {average.toFixed(1)} · {reviews.length} {reviews.length === 1 ? "reseña" : "reseñas"}
-            </span>
-          </>
-        ) : (
-          <span className="underline underline-offset-4">Sin reseñas todavía — sé el primero</span>
-        )}
+        <Star
+          size={17}
+          strokeWidth={1.5}
+          className={reviews.length > 0 ? "fill-gold stroke-gold" : dark ? "stroke-gold/50" : "stroke-text-light"}
+        />
       </button>
+      {reviews.length > 0 && (
+        <span className={cn("font-sans text-[10px]", dark ? "text-cream-dim" : "text-text-light")}>
+          {average.toFixed(1)} ({reviews.length})
+        </span>
+      )}
 
       <AnimatePresence>
         {modalOpen && (

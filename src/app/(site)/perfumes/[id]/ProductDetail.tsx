@@ -296,28 +296,31 @@ export default function ProductDetail({
                   {product.name}
                 </h1>
               </div>
-              <button
-                onClick={() => {
-                  toggleWishlist(product);
-                  toast.success(wishlisted ? "Eliminado de favoritos" : "Agregado a favoritos");
-                }}
-                className={cn(
-                  "shrink-0 mt-1 w-10 h-10 flex items-center justify-center rounded-full border transition-all duration-200 hover:scale-110",
-                  isNicho
-                    ? "border-gold/20 hover:border-gold"
-                    : "border-border-light hover:border-gold"
-                )}
-                aria-label={wishlisted ? "Quitar de favoritos" : "Agregar a favoritos"}
-              >
-                <Heart
-                  size={18}
-                  strokeWidth={1.5}
+              <div className="flex flex-col items-center gap-3 mt-1 shrink-0">
+                <button
+                  onClick={() => {
+                    toggleWishlist(product);
+                    toast.success(wishlisted ? "Eliminado de favoritos" : "Agregado a favoritos");
+                  }}
                   className={cn(
-                    "transition-colors duration-200",
-                    wishlisted ? "fill-gold stroke-gold" : isNicho ? "stroke-gold/50" : "stroke-text-light"
+                    "w-10 h-10 flex items-center justify-center rounded-full border transition-all duration-200 hover:scale-110",
+                    isNicho
+                      ? "border-gold/20 hover:border-gold"
+                      : "border-border-light hover:border-gold"
                   )}
-                />
-              </button>
+                  aria-label={wishlisted ? "Quitar de favoritos" : "Agregar a favoritos"}
+                >
+                  <Heart
+                    size={18}
+                    strokeWidth={1.5}
+                    className={cn(
+                      "transition-colors duration-200",
+                      wishlisted ? "fill-gold stroke-gold" : isNicho ? "stroke-gold/50" : "stroke-text-light"
+                    )}
+                  />
+                </button>
+                <ProductReviews productId={product.id} dark={isNicho} />
+              </div>
             </div>
             <p className={cn(
               "font-sans text-xs tracking-wide mb-8",
@@ -609,8 +612,6 @@ export default function ProductDetail({
           )}
         </AnimatePresence>
       )}
-
-      <ProductReviews productId={product.id} dark={isNicho} />
 
       {/* ——— Más de la marca ——— */}
       {relatedByBrand.length > 0 && (
