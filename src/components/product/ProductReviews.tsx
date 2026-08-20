@@ -101,10 +101,10 @@ export default function ProductReviews({ productId, dark }: { productId: string;
   if (loading) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-6 mt-24">
-      <div className="h-px w-full mb-12" style={{ background: dark ? "rgba(164,133,76,0.15)" : "#e8e5e0" }} />
+    <div className="max-w-7xl mx-auto px-6 mt-14">
+      <div className="h-px w-full mb-8" style={{ background: dark ? "rgba(164,133,76,0.15)" : "#e8e5e0" }} />
 
-      <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
+      <div className="flex flex-wrap items-end justify-between gap-6 mb-6">
         <div>
           <p className={cn("font-sans text-[10px] tracking-[0.4em] uppercase mb-2", dark ? "text-gold/60" : "text-text-light")}>
             Opiniones
@@ -207,9 +207,9 @@ export default function ProductReviews({ productId, dark }: { productId: string;
           Todavía no hay reseñas para este perfume.
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {reviews.map((r) => (
-            <div key={r.id} className={cn("pb-6 border-b", dark ? "border-gold/10" : "border-border-light")}>
+            <div key={r.id} className={cn("pb-4 border-b", dark ? "border-gold/10" : "border-border-light")}>
               <div className="flex items-center justify-between mb-2">
                 <span className={cn("font-display text-lg", dark ? "text-cream" : "text-text-dark")}>
                   {r.customer_name}
