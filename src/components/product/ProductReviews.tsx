@@ -101,10 +101,10 @@ export default function ProductReviews({ productId, dark }: { productId: string;
   if (loading) return null;
 
   return (
-    <div className="max-w-7xl mx-auto px-6 mt-14">
-      <div className="h-px w-full mb-8" style={{ background: dark ? "rgba(164,133,76,0.15)" : "#e8e5e0" }} />
+    <div className="max-w-7xl mx-auto px-6 mt-8">
+      <div className="h-px w-full mb-5" style={{ background: dark ? "rgba(164,133,76,0.15)" : "#e8e5e0" }} />
 
-      <div className="flex flex-wrap items-end justify-between gap-6 mb-6">
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-4">
         <div>
           <p className={cn("font-sans text-[10px] tracking-[0.4em] uppercase mb-2", dark ? "text-gold/60" : "text-text-light")}>
             Opiniones
