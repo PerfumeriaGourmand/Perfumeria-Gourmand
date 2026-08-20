@@ -90,6 +90,52 @@ function buildProductJsonLd(product: Product, reviews: ProductReview[]) {
     allVariants[0]?.price ?? 0
   );
 
+  // Política real publicada en /cambios-y-devoluciones: 30 días desde
+  // recepción, el costo de envío del cambio lo paga el comprador.
+  const hasMerchantReturnPolicy = {
+    "@type": "MerchantReturnPolicy",
+    applicableCountry: "AR",
+    returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+    merchantReturnDays: 30,
+    returnMethod: "https://schema.org/ReturnByMail",
+    returnFees: "https://schema.org/ReturnShippingFees",
+  };
+
+  // Zonas/tiempos/costos reales publicados en /envios (tarifa sin el
+  // descuento por envío gratis, que es una promoción, no la tarifa base).
+  const shippingDetails = [
+    {
+      "@type": "OfferShippingDetails",
+      shippingRate: { "@type": "MonetaryAmount", value: 2500, currency: "ARS" },
+      shippingDestination: { "@type": "DefinedRegion", addressCountry: "AR", addressRegion: "Ciudad Autónoma de Buenos Aires" },
+      deliveryTime: {
+        "@type": "ShippingDeliveryTime",
+        handlingTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 2, unitCode: "DAY" },
+        transitTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 1, unitCode: "DAY" },
+      },
+    },
+    {
+      "@type": "OfferShippingDetails",
+      shippingRate: { "@type": "MonetaryAmount", value: 3500, currency: "ARS" },
+      shippingDestination: { "@type": "DefinedRegion", addressCountry: "AR", addressRegion: "Buenos Aires" },
+      deliveryTime: {
+        "@type": "ShippingDeliveryTime",
+        handlingTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 2, unitCode: "DAY" },
+        transitTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 2, unitCode: "DAY" },
+      },
+    },
+    {
+      "@type": "OfferShippingDetails",
+      shippingRate: { "@type": "MonetaryAmount", value: 4500, currency: "ARS" },
+      shippingDestination: { "@type": "DefinedRegion", addressCountry: "AR" },
+      deliveryTime: {
+        "@type": "ShippingDeliveryTime",
+        handlingTime: { "@type": "QuantitativeValue", minValue: 1, maxValue: 2, unitCode: "DAY" },
+        transitTime: { "@type": "QuantitativeValue", minValue: 3, maxValue: 7, unitCode: "DAY" },
+      },
+    },
+  ];
+
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -110,6 +156,8 @@ function buildProductJsonLd(product: Product, reviews: ProductReview[]) {
             offerCount: activeVariants.length,
             availability: "https://schema.org/InStock",
             seller: { "@type": "Organization", name: "Gourmand Perfumería" },
+            hasMerchantReturnPolicy,
+            shippingDetails,
           }
         : {
             "@type": "Offer",
@@ -117,6 +165,8 @@ function buildProductJsonLd(product: Product, reviews: ProductReview[]) {
             priceCurrency: "ARS",
             price: fallbackPrice,
             seller: { "@type": "Organization", name: "Gourmand Perfumería" },
+            hasMerchantReturnPolicy,
+            shippingDetails,
           },
     // Solo se declara si hay reseñas reales de compradores verificados —
     // Google penaliza aggregateRating/review sin datos genuinos detrás.
