@@ -10,6 +10,11 @@ const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
 });
 
+// Fallback + trailing-slash guard: a bad/missing NEXT_PUBLIC_APP_URL silently
+// breaks the MP notification_url (real payments fail to deliver with a 502
+// while orders still get created as "pending" — no visible error to anyone).
+const APP_URL = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.perfumeriagourmand.com.ar").replace(/\/+$/, "");
+
 export async function POST(req: NextRequest) {
   if (!(await rateLimit(`orders:${getClientIp(req)}`, 5, 10 * 60 * 1000))) {
     return NextResponse.json({ error: "Demasiados intentos. Probá de nuevo en unos minutos." }, { status: 429 });
@@ -194,13 +199,13 @@ export async function POST(req: NextRequest) {
                   : [],
             },
             back_urls: {
-              success: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?order_id=${order.id}`,
-              failure: `${process.env.NEXT_PUBLIC_APP_URL}/checkout?error=payment_failed`,
-              pending: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?order_id=${order.id}&status=pending`,
+              success: `${APP_URL}/checkout/success?order_id=${order.id}`,
+              failure: `${APP_URL}/checkout?error=payment_failed`,
+              pending: `${APP_URL}/checkout/success?order_id=${order.id}&status=pending`,
             },
             auto_return: "approved",
             external_reference: order.id,
-            notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/mercadopago`,
+            notification_url: `${APP_URL}/api/webhooks/mercadopago`,
           },
         });
 
