@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import MercadoPagoConfig, { Preference } from "mercadopago";
-import { sendOrderConfirmation } from "@/lib/email";
+import { sendOrderConfirmation, sendMpFailureAlert } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { validateCoupon } from "@/lib/coupons";
 import { findOutOfStockItem } from "@/lib/stock";
@@ -221,7 +221,13 @@ export async function POST(req: NextRequest) {
         });
       } catch (mpError) {
         console.error("MercadoPago error:", mpError);
-        // Still return order ID even if MP fails
+        // Still return order ID even if MP fails — but alert us, since the
+        // order otherwise sits as "pending" forever with no visible error.
+        sendMpFailureAlert({
+          orderId: order.id,
+          customerEmail: customer_email,
+          error: mpError instanceof Error ? mpError.message : String(mpError),
+        }).catch((err) => console.error("[email] sendMpFailureAlert:", err));
       }
     }
 

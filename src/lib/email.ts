@@ -2,6 +2,7 @@ import { Resend } from "resend";
 import { formatPrice } from "@/lib/utils";
 
 const FROM = process.env.RESEND_FROM_EMAIL ?? "Gourmand Perfumería <noreply@perfumeriagourmand.com.ar>";
+const ADMIN_EMAIL = process.env.ADMIN_ALERT_EMAIL ?? "perfumeriagourmand@gmail.com";
 
 function getResend() {
   if (!process.env.RESEND_API_KEY) return null;
@@ -235,6 +236,23 @@ export async function sendStatusUpdate(data: StatusUpdateData) {
     to: data.customerEmail,
     subject: `Tu pedido #${orderNum} — ${statusInfo.label}`,
     html: layout(content),
+  });
+}
+
+// ─── Admin alert (MP preference creation failed) ─────────────────────────────
+
+export async function sendMpFailureAlert(data: { orderId: string; customerEmail: string; error: string }) {
+  const orderNum = data.orderId.slice(0, 8).toUpperCase();
+  const resend = getResend();
+  if (!resend) return;
+  await resend.emails.send({
+    from: FROM,
+    to: ADMIN_EMAIL,
+    subject: `⚠️ Falló la creación de pago MP — Pedido #${orderNum}`,
+    html: `<p>El pedido <b>#${orderNum}</b> (${data.customerEmail}) se creó, pero MercadoPago no generó el link de pago.</p>
+    <p>El pedido quedó como "pending" sin que el cliente haya podido pagar. Revisalo manualmente.</p>
+    <p><b>Order ID:</b> ${data.orderId}</p>
+    <p><b>Error:</b> ${data.error}</p>`,
   });
 }
 
