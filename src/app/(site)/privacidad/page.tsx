@@ -67,7 +67,7 @@ export default function PrivacidadPage() {
         <section>
           <h2 className="font-display text-xl font-bold text-text-dark mb-3">7. Contacto</h2>
           <p>
-            Si tiene preguntas sobre esta política de privacidad o sobre el tratamiento de sus datos, puede contactarnos a través de WhatsApp o Instagram @gourmand.perfumes.
+            Si tiene preguntas sobre esta política de privacidad o sobre el tratamiento de sus datos, puede contactarnos a través de WhatsApp o Instagram @perfumeriagourmand.
           </p>
         </section>
 

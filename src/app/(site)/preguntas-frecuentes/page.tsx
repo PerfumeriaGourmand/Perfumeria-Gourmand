@@ -63,10 +63,6 @@ const FAQS: { category: string; items: { q: string; a: string }[] }[] = [
         q: "¿Tienen muestras o decants?",
         a: "Por el momento no comercializamos muestras ni decants. Todos nuestros productos se venden en sus presentaciones originales de fábrica.",
       },
-      {
-        q: "¿Los precios incluyen IVA?",
-        a: "Sí, todos los precios publicados en el sitio incluyen IVA y son el precio final que pagás.",
-      },
     ],
   },
   {
@@ -157,7 +153,7 @@ export default function FaqPage() {
               Contactanos
             </Link>
             <a
-              href="https://wa.me/5491100000000"
+              href="https://wa.me/5492236500566"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto flex items-center justify-center px-8 py-3 border border-gold/40 text-gold rounded-full font-sans text-sm font-medium hover:bg-gold/5 transition-colors"

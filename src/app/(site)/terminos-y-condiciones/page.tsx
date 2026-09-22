@@ -23,14 +23,14 @@ export default function TerminosPage() {
         <section>
           <h2 className="font-display text-xl font-bold text-text-dark mb-3">2. Descripción del servicio</h2>
           <p>
-            Gourmand es una tienda online especializada en perfumería de nicho, árabe y diseñador con base en Buenos Aires, Argentina. Ofrecemos productos originales 100% auténticos, con garantía de procedencia.
+            Gourmand es una tienda online especializada en perfumería de nicho, árabe y diseñador con base en Mar del Plata, Argentina. Ofrecemos productos originales 100% auténticos, con garantía de procedencia.
           </p>
         </section>
 
         <section>
           <h2 className="font-display text-xl font-bold text-text-dark mb-3">3. Precios y pagos</h2>
           <p>
-            Todos los precios publicados en el sitio están expresados en pesos argentinos (ARS) e incluyen IVA. Gourmand se reserva el derecho de modificar los precios sin previo aviso. El precio vigente al momento de realizar la compra será el que se aplicará a la transacción.
+            Todos los precios publicados en el sitio están expresados en pesos argentinos (ARS). Gourmand se reserva el derecho de modificar los precios sin previo aviso. El precio vigente al momento de realizar la compra será el que se aplicará a la transacción.
           </p>
           <p className="mt-3">
             Aceptamos los siguientes medios de pago: tarjeta de crédito (con opción de cuotas), tarjeta de débito, transferencia bancaria/CBU y MercadoPago. Los pagos son procesados de forma segura a través de MercadoPago.
