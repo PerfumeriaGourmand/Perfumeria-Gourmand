@@ -265,6 +265,19 @@ export default function Navbar({ hasAnnouncement = false }: { hasAnnouncement?: 
       >
         {/* ——— Top row: Logo | Search | Icons ——— */}
         <div className="max-w-7xl mx-auto px-5 flex items-center gap-4 h-16">
+          {/* Mobile hamburger — left of logo on mobile */}
+          <button
+            className={cn("lg:hidden w-9 h-9 flex items-center justify-center transition-colors rounded-full shrink-0", T.iconBtn)}
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-label="Menú"
+          >
+            {mobileOpen ? (
+              <X size={20} strokeWidth={1.5} />
+            ) : (
+              <Menu size={20} strokeWidth={1.5} />
+            )}
+          </button>
+
           {/* Logo */}
           <Link
             href="/"
@@ -446,19 +459,6 @@ export default function Navbar({ hasAnnouncement = false }: { hasAnnouncement?: 
                 <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-gold text-white text-[9px] font-sans font-semibold rounded-full flex items-center justify-center">
                   {count > 9 ? "9+" : count}
                 </span>
-              )}
-            </button>
-
-            {/* Mobile hamburger */}
-            <button
-              className={cn("lg:hidden w-9 h-9 flex items-center justify-center transition-colors rounded-full", T.iconBtn)}
-              onClick={() => setMobileOpen((v) => !v)}
-              aria-label="Menú"
-            >
-              {mobileOpen ? (
-                <X size={20} strokeWidth={1.5} />
-              ) : (
-                <Menu size={20} strokeWidth={1.5} />
               )}
             </button>
           </div>
