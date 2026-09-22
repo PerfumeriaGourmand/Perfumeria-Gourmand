@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -35,7 +35,17 @@ const LINKS = [
   { href: "/admin/settings", label: "Configuración", icon: Settings },
 ];
 
-function SidebarContent({ onNavigate, onLogout, pathname }: { onNavigate: () => void; onLogout: () => void; pathname: string }) {
+function SidebarContent({
+  onNavigate,
+  onLogout,
+  pathname,
+  pendingOrders,
+}: {
+  onNavigate: () => void;
+  onLogout: () => void;
+  pathname: string;
+  pendingOrders: number;
+}) {
   return (
     <>
       <div className="px-6 mb-10">
@@ -60,6 +70,11 @@ function SidebarContent({ onNavigate, onLogout, pathname }: { onNavigate: () => 
             >
               <link.icon size={15} strokeWidth={1.5} />
               {link.label}
+              {link.href === "/admin/orders" && pendingOrders > 0 && (
+                <span className="ml-auto flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-gold text-obsidian text-[10px] font-sans font-bold">
+                  {pendingOrders > 99 ? "99+" : pendingOrders}
+                </span>
+              )}
             </Link>
           );
         })}
@@ -90,6 +105,29 @@ export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [pendingOrders, setPendingOrders] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchCount = async () => {
+      try {
+        const res = await fetch("/api/admin/orders/pending-count");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) setPendingOrders(data.count ?? 0);
+      } catch {
+        // Falla silenciosa — no interrumpe la navegación por un badge.
+      }
+    };
+
+    fetchCount();
+    const interval = setInterval(fetchCount, 30_000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [pathname]);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -104,10 +142,13 @@ export default function AdminSidebar() {
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-obsidian border-b border-gold/10 flex items-center px-4 gap-4">
         <button
           onClick={() => setOpen(true)}
-          className="text-cream-muted hover:text-cream transition-colors"
+          className="relative text-cream-muted hover:text-cream transition-colors"
           aria-label="Abrir menú"
         >
           <Menu size={20} strokeWidth={1.5} />
+          {pendingOrders > 0 && (
+            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-gold" />
+          )}
         </button>
         <p className="font-display text-base tracking-[0.25em] text-cream">GOURMAND</p>
         <span className="font-sans text-[10px] tracking-widest uppercase text-gold/50">Admin</span>
@@ -139,6 +180,7 @@ export default function AdminSidebar() {
           pathname={pathname}
           onNavigate={() => setOpen(false)}
           onLogout={handleLogout}
+          pendingOrders={pendingOrders}
         />
       </aside>
 
@@ -148,6 +190,7 @@ export default function AdminSidebar() {
           pathname={pathname}
           onNavigate={() => {}}
           onLogout={handleLogout}
+          pendingOrders={pendingOrders}
         />
       </aside>
     </>
