@@ -28,11 +28,14 @@ export default function Footer() {
     <footer className="bg-[#0a0a0a] border-t border-gold/10 px-6 pt-14 pb-9 sm:px-20">
       <div className="grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr] gap-10 sm:gap-12 mb-11">
         <div>
-          <p className="font-display text-[28px] text-cream mb-3 tracking-[0.02em]">
+          <p className="font-display text-[40px] text-cream mb-3 tracking-[0.02em]">
             Gourmand
           </p>
           <p className="font-body text-sm text-[#7a7268] leading-relaxed italic max-w-xs">
-            Perfumería premium en Argentina. Árabe, Diseñador y Nicho — para cada identidad olfativa.
+            Perfumería. Árabe, Diseñador y Nicho.
+          </p>
+          <p className="font-sans text-xs text-[#7a7268] mt-3 tracking-[0.04em]">
+            Mar del Plata, Argentina
           </p>
         </div>
 
