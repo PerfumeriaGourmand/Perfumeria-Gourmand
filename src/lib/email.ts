@@ -256,6 +256,23 @@ export async function sendMpFailureAlert(data: { orderId: string; customerEmail:
   });
 }
 
+// ─── Contact form ─────────────────────────────────────────────────────────────
+
+export async function sendContactMessage(data: { name: string; email: string; subject: string; message: string }) {
+  const resend = getResend();
+  if (!resend) return;
+  await resend.emails.send({
+    from: FROM,
+    to: ADMIN_EMAIL,
+    replyTo: data.email,
+    subject: `📩 Contacto: ${data.subject}`,
+    html: `<p><b>De:</b> ${data.name} (${data.email})</p>
+    <p><b>Asunto:</b> ${data.subject}</p>
+    <p><b>Mensaje:</b></p>
+    <p>${data.message.replace(/\n/g, "<br>")}</p>`,
+  });
+}
+
 // ─── Fulfillment update (shipped / delivered) ────────────────────────────────
 
 interface FulfillmentUpdateData {

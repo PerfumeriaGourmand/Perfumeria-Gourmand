@@ -9,23 +9,23 @@ const CHANNELS = [
     title: "WhatsApp",
     description: "La forma más rápida. Respondemos en minutos durante el horario de atención.",
     action: "Escribinos",
-    href: "https://wa.me/5491100000000",
+    href: "https://wa.me/5492236500566",
     accent: true,
   },
   {
     icon: Mail,
     title: "Email",
     description: "Para consultas que requieran más detalle o adjuntar comprobantes.",
-    action: "hola@gourmand.com.ar",
-    href: "mailto:hola@gourmand.com.ar",
+    action: "perfumeriagourmand@gmail.com",
+    href: "mailto:perfumeriagourmand@gmail.com",
     accent: false,
   },
   {
     icon: Instagram,
     title: "Instagram",
     description: "Seguinos para ver novedades, lanzamientos y contenido de fragancias.",
-    action: "@gourmand.ar",
-    href: "https://instagram.com/gourmand.ar",
+    action: "@perfumeriagourmand",
+    href: "https://www.instagram.com/perfumeriagourmand/",
     accent: false,
   },
 ];
@@ -34,14 +34,33 @@ export default function ContactoPage() {
   const [form, setForm] = useState({ nombre: "", email: "", asunto: "", mensaje: "" });
   const [sent, setSent] = useState(false);
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
-    // Simula envío — reemplazar con integración real
-    await new Promise((r) => setTimeout(r, 1200));
-    setSent(true);
-    setSending(false);
+    setError(null);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.nombre,
+          email: form.email,
+          subject: form.asunto,
+          message: form.mensaje,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "No se pudo enviar el mensaje");
+      }
+      setSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo enviar el mensaje");
+    } finally {
+      setSending(false);
+    }
   };
 
   const inputClass =
@@ -179,6 +198,9 @@ export default function ContactoPage() {
                     className={`${inputClass} resize-none`}
                   />
                 </div>
+                {error && (
+                  <p className="font-sans text-xs text-red-500">{error}</p>
+                )}
                 <button
                   type="submit"
                   disabled={sending}
