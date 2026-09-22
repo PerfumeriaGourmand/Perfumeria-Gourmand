@@ -257,8 +257,8 @@ function OptionCard({
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
-        "relative text-left border transition-all duration-200 p-6 group",
-        cols === 3 ? "rounded-2xl" : "rounded-2xl",
+        "relative text-left border transition-all duration-200 group rounded-2xl",
+        cols === 3 ? "p-6" : "p-5",
         selected
           ? "border-gold bg-gold/8 shadow-[0_0_0_1px_rgba(164,133,76,0.4),0_8px_32px_rgba(164,133,76,0.12)]"
           : "border-white/8 bg-white/4 hover:border-white/20 hover:bg-white/7"
@@ -283,8 +283,8 @@ function OptionCard({
       {/* Symbol */}
       {option.symbol && option.symbol !== "—" && (
         <p className={cn(
-          "font-display mb-4 transition-colors duration-200",
-          cols === 3 ? "text-2xl" : "text-3xl",
+          "font-display transition-colors duration-200",
+          cols === 3 ? "text-2xl mb-4" : "text-2xl mb-2",
           selected ? "text-gold" : "text-white/20 group-hover:text-white/40"
         )}>
           {option.symbol}
@@ -293,8 +293,8 @@ function OptionCard({
 
       {/* Label */}
       <p className={cn(
-        "font-display font-light leading-tight mb-2 transition-colors duration-200",
-        cols === 3 ? "text-xl" : "text-2xl",
+        "font-display font-light leading-tight transition-colors duration-200",
+        cols === 3 ? "text-xl mb-2" : "text-xl mb-1",
         selected ? "text-cream" : "text-cream/80"
       )}>
         {option.label}
