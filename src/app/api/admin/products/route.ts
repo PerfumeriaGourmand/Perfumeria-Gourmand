@@ -32,11 +32,19 @@ export async function POST(req: NextRequest) {
 
     const warnings: string[] = [];
 
-    // Upsert variants — single query instead of N sequential updates
+    // Upsert variants — single query instead of N sequential updates.
+    // Every row must carry the same set of keys: a bulk upsert with mismatched
+    // columns across rows (e.g. an existing variant with `sku`/`average_cost_usd`
+    // next to a freshly added one without them) fails the whole statement.
     if ((variants as Record<string, unknown>[]).length > 0) {
       const rows = (variants as Record<string, unknown>[]).map((v) => ({
-        ...v,
+        id: v.id,
         product_id: id,
+        size_ml: v.size_ml,
+        price: v.price,
+        stock: v.stock,
+        sku: v.sku ?? null,
+        is_active: v.is_active ?? true,
       }));
       const { error } = await admin
         .from("product_variants")
