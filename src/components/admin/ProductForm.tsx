@@ -81,7 +81,7 @@ export default function ProductForm({ product }: ProductFormProps) {
   const [noteInputs, setNoteInputs] = useState({ notes_top: "", notes_heart: "", notes_base: "" });
 
   const [variants, setVariants] = useState<Partial<ProductVariant>[]>(
-    product?.variants ?? [{ size_ml: 100, price: 0, stock: 0, is_active: true }]
+    product?.variants ?? [{ id: crypto.randomUUID(), size_ml: 100, price: 0, stock: 0, is_active: true }]
   );
 
   const [images, setImages] = useState<ProductImage[]>(product?.images ?? []);
@@ -126,7 +126,7 @@ export default function ProductForm({ product }: ProductFormProps) {
   };
 
   const addVariant = () =>
-    setVariants((v) => [...v, { size_ml: 50, price: 0, stock: 0, is_active: true }]);
+    setVariants((v) => [...v, { id: crypto.randomUUID(), size_ml: 50, price: 0, stock: 0, is_active: true }]);
 
   const updateVariant = (i: number, key: string, value: unknown) =>
     setVariants((v) => v.map((x, idx) => (idx === i ? { ...x, [key]: value } : x)));
