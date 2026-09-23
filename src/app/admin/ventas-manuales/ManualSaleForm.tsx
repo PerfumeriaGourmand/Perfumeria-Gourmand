@@ -16,9 +16,11 @@ const labelClass =
 export default function ManualSaleForm({
   products,
   destinations,
+  exchangeRate,
 }: {
   products: ProductOption[];
   destinations: PaymentDestination[];
+  exchangeRate: number | null;
 }) {
   const [search, setSearch] = useState("");
   const [selectedProduct, setSelectedProduct] =
@@ -58,6 +60,10 @@ export default function ManualSaleForm({
   const qty = Math.max(0, parseInt(quantity) || 0);
   const price = parseFloat(unitPrice) || 0;
   const total = qty * price;
+  const costArs =
+    selectedVariant?.average_cost_usd != null && exchangeRate != null
+      ? selectedVariant.average_cost_usd * exchangeRate
+      : null;
   const canSubmit =
     selectedProduct !== null &&
     selectedVariant !== null &&
@@ -369,6 +375,11 @@ export default function ManualSaleForm({
               />
               <p className="font-sans text-[10px] text-cream-dim mt-1">
                 Precio lista: {formatPrice(selectedVariant.price)}
+              </p>
+              <p className="font-sans text-[10px] text-cream-dim mt-0.5">
+                {costArs !== null
+                  ? `Costo: ${formatPrice(costArs)}`
+                  : "Costo: sin datos"}
               </p>
             </div>
           </div>

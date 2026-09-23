@@ -12,6 +12,7 @@ export type ProductOption = {
     price: number;
     stock: number;
     is_active: boolean;
+    average_cost_usd: number | null;
   }>;
 };
 
@@ -23,14 +24,19 @@ export type PaymentDestination = {
 export default async function ManualSalePage() {
   const supabase = await createAdminClient();
 
-  const { data: raw } = await supabase
-    .from("products")
-    .select(
-      "id, name, brand, variants:product_variants(id, size_ml, price, stock, is_active)"
-    )
-    .eq("is_active", true)
-    .order("brand", { ascending: true })
-    .order("name", { ascending: true });
+  const [{ data: raw }, { data: siteSettings }] = await Promise.all([
+    supabase
+      .from("products")
+      .select(
+        "id, name, brand, variants:product_variants(id, size_ml, price, stock, is_active, average_cost_usd)"
+      )
+      .eq("is_active", true)
+      .order("brand", { ascending: true })
+      .order("name", { ascending: true }),
+    supabase.from("site_settings").select("current_exchange_rate").single(),
+  ]);
+
+  const exchangeRate = siteSettings?.current_exchange_rate ?? null;
 
   const products: ProductOption[] = (raw ?? [])
     .map((p) => ({
@@ -60,7 +66,11 @@ export default async function ManualSalePage() {
           Registrá ventas realizadas fuera del sitio (WhatsApp, mostrador, etc.)
         </p>
       </div>
-      <ManualSaleForm products={products} destinations={destinations} />
+      <ManualSaleForm
+        products={products}
+        destinations={destinations}
+        exchangeRate={exchangeRate}
+      />
     </div>
   );
 }
