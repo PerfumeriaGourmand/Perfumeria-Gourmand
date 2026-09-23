@@ -2,12 +2,12 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Edit, AlertCircle, Search, MessageCircleQuestion, Star, Sparkles } from "lucide-react";
+import { Edit, AlertCircle, Search, MessageCircleQuestion, Star, Sparkles, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import toast from "react-hot-toast";
 import { cn } from "@/lib/utils";
 import { CATEGORY_LABELS, CONCENTRATION_LABELS } from "@/lib/utils";
 
-type Variant = { id: string; size_ml: number; stock: number; price: number };
+type Variant = { id: string; size_ml: number; stock: number; price: number; cost_ars: number | null };
 
 type Product = {
   id: string;
@@ -59,6 +59,17 @@ function ToggleFlagButton({
 }
 
 const ars = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
+
+// Ganancia promedio del producto: promedio de (precio - costo) entre las
+// variantes que tienen costo cargado. Es la misma granularidad que ya usa
+// "Costo lote" (por variante), agregada para poder ordenar por producto.
+function avgProfit(product: Product): number | null {
+  const profits = (product.variants ?? [])
+    .filter((v) => v.cost_ars != null)
+    .map((v) => v.price - (v.cost_ars as number));
+  if (profits.length === 0) return null;
+  return profits.reduce((sum, p) => sum + p, 0) / profits.length;
+}
 
 function EditablePrice({ variant, onSaved }: { variant: Variant; onSaved: (price: number) => void }) {
   const [editing, setEditing] = useState(false);
@@ -150,6 +161,11 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [stockFilter, setStockFilter] = useState<"all" | "in_stock" | "out_of_stock">("all");
+  const [profitSort, setProfitSort] = useState<"asc" | "desc" | null>(null);
+
+  function toggleProfitSort() {
+    setProfitSort((prev) => (prev === null ? "asc" : prev === "asc" ? "desc" : null));
+  }
 
   function updateVariantPrice(productId: string, variantId: string, price: number) {
     setProducts((prev) =>
@@ -191,6 +207,19 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
       const q = query.toLowerCase();
       return p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q);
     });
+
+  if (profitSort) {
+    // Productos sin datos de costo (ganancia null) siempre van al final,
+    // sin importar la dirección — no hay forma de ordenarlos sin inventar un valor.
+    filtered.sort((a, b) => {
+      const pa = avgProfit(a);
+      const pb = avgProfit(b);
+      if (pa === null && pb === null) return 0;
+      if (pa === null) return 1;
+      if (pb === null) return -1;
+      return profitSort === "asc" ? pa - pb : pb - pa;
+    });
+  }
 
   const outOfStock = useMemo(
     () =>
@@ -277,10 +306,10 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
       </div>
 
       <div className="border border-gold/10 bg-obsidian-surface overflow-x-auto">
-        <table className="w-full min-w-[1050px]">
+        <table className="w-full min-w-[1200px]">
           <thead>
             <tr className="border-b border-gold/10">
-              {["Nombre / Marca", "Categoría", "Concentración", "Costo lote ($)", "Precio ARS", "Stock mín.", "Destacar", "Estado", ""].map(
+              {["Nombre / Marca", "Categoría", "Concentración", "Costo lote ($)", "Precio ARS"].map(
                 (h) => (
                   <th
                     key={h}
@@ -290,6 +319,27 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
                   </th>
                 )
               )}
+              <th className="px-5 py-3 text-left font-sans text-[10px] tracking-widest uppercase text-cream-dim">
+                <button
+                  type="button"
+                  onClick={toggleProfitSort}
+                  className="flex items-center gap-1 hover:text-gold transition-colors"
+                  title="Ordenar por ganancia"
+                >
+                  Ganancia
+                  {profitSort === "asc" && <ArrowUp size={11} />}
+                  {profitSort === "desc" && <ArrowDown size={11} />}
+                  {profitSort === null && <ArrowUpDown size={11} />}
+                </button>
+              </th>
+              {["Stock mín.", "Destacar", "Estado", ""].map((h) => (
+                <th
+                  key={h}
+                  className="px-5 py-3 text-left font-sans text-[10px] tracking-widest uppercase text-cream-dim"
+                >
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -324,6 +374,27 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
                           onSaved={(price) => updateVariantPrice(product.id, v.id, price)}
                         />
                       ))}
+                    </div>
+                  </td>
+                  <td className="px-5 py-4">
+                    <div className="flex flex-col gap-1">
+                      {(product.variants ?? []).map((v) => {
+                        const profit = v.cost_ars != null ? v.price - v.cost_ars : null;
+                        return (
+                          <span
+                            key={v.id}
+                            className={`font-sans text-xs ${
+                              profit === null
+                                ? "text-cream-dim/50"
+                                : profit >= 0
+                                ? "text-green-400"
+                                : "text-red-400"
+                            }`}
+                          >
+                            {v.size_ml}ml — {profit !== null ? ars.format(profit) : "—"}
+                          </span>
+                        );
+                      })}
                     </div>
                   </td>
                   <td className="px-5 py-4">
@@ -378,7 +449,7 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
             {filtered.length === 0 && (
               <tr>
                 <td
-                  colSpan={9}
+                  colSpan={10}
                   className="px-5 py-10 text-center font-sans text-sm text-cream-dim italic"
                 >
                   {query.trim()

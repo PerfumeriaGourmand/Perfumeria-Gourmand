@@ -47,11 +47,16 @@ export default async function AdminProductsPage() {
   }
 
   const list = (products ?? []).map((p) => {
-    const costs = (p.variants ?? [])
-      .map((v: { id: string }) => costByVariant[v.id])
-      .filter((c: number | undefined): c is number => c != null);
+    const variants = (p.variants ?? []).map((v: { id: string; price: number }) => ({
+      ...v,
+      cost_ars: costByVariant[v.id] ?? null,
+    }));
+    const costs = variants
+      .map((v) => v.cost_ars)
+      .filter((c: number | null): c is number => c != null);
     return {
       ...p,
+      variants,
       fifo_cost_ars: costs.length ? Math.min(...costs) : null,
     };
   });
