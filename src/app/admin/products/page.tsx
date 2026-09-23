@@ -46,13 +46,16 @@ export default async function AdminProductsPage() {
     }
   }
 
+  type RawVariant = { id: string; size_ml: number; stock: number; price: number };
+  type VariantWithCost = RawVariant & { cost_ars: number | null };
+
   const list = (products ?? []).map((p) => {
-    const variants = (p.variants ?? []).map((v: { id: string; price: number }) => ({
+    const variants: VariantWithCost[] = (p.variants ?? []).map((v: RawVariant) => ({
       ...v,
       cost_ars: costByVariant[v.id] ?? null,
     }));
     const costs = variants
-      .map((v) => v.cost_ars)
+      .map((v: VariantWithCost) => v.cost_ars)
       .filter((c: number | null): c is number => c != null);
     return {
       ...p,
