@@ -332,7 +332,7 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
                   {profitSort === null && <ArrowUpDown size={11} />}
                 </button>
               </th>
-              {["Stock mín.", "Destacar", "Estado", ""].map((h) => (
+              {["Stock", "Destacar", "Estado", ""].map((h) => (
                 <th
                   key={h}
                   className="px-5 py-3 text-left font-sans text-[10px] tracking-widest uppercase text-cream-dim"
@@ -344,9 +344,6 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
           </thead>
           <tbody>
             {filtered.map((product) => {
-              const minStock = Math.min(...(product.variants ?? []).map((v) => v.stock));
-              const lowStock = minStock < 5 && minStock >= 0;
-
               return (
                 <tr
                   key={product.id}
@@ -398,13 +395,20 @@ export function ProductsClient({ products: initialProducts }: { products: Produc
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <div className="flex items-center gap-1.5">
-                      {lowStock && <AlertCircle size={12} className="text-red-400" />}
-                      <span
-                        className={`font-sans text-xs ${lowStock ? "text-red-400" : "text-cream-muted"}`}
-                      >
-                        {isFinite(minStock) ? minStock : "—"}
-                      </span>
+                    <div className="flex flex-col gap-1">
+                      {(product.variants ?? []).map((v) => {
+                        const lowStock = v.stock < 5;
+                        return (
+                          <div key={v.id} className="flex items-center gap-1.5">
+                            {lowStock && <AlertCircle size={12} className="text-red-400" />}
+                            <span
+                              className={`font-sans text-xs ${lowStock ? "text-red-400" : "text-cream-muted"}`}
+                            >
+                              {v.size_ml}ml — {v.stock}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </td>
                   <td className="px-5 py-4">
