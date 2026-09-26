@@ -93,9 +93,9 @@ const STEPS: Step[] = [
     subtitle: "Precio por frasco",
     cols: 2,
     options: [
-      { value: "low",       label: "Hasta $30.000",         desc: "Grandes opciones en este rango"    },
-      { value: "mid",       label: "$30.000 — $70.000",     desc: "La mayoría de nuestras fragancias" },
-      { value: "high",      label: "$70.000 — $120.000",    desc: "Selección premium"                 },
+      { value: "low",       label: "Hasta $50.000",         desc: "Grandes opciones en este rango"    },
+      { value: "mid",       label: "$50.000 — $100.000",    desc: "La mayoría de nuestras fragancias" },
+      { value: "high",      label: "$100.000 — $200.000",   desc: "Selección premium"                 },
       { value: "unlimited", label: "Sin límite",            desc: "Lo que importa es el perfume"      },
     ],
   },
@@ -141,74 +141,73 @@ function matchesFamily(product: Product, family: string) {
 async function fetchRecommendations(answers: Answers): Promise<Product[]> {
   const supabase = createClient();
 
+  // Género es el único filtro que se aplica en la query (nunca se relaja):
+  // no tiene sentido recomendar un perfume de la línea contraria.
   let query = supabase
     .from("products")
     .select("*, images:product_images(*), variants:product_variants(*)")
     .eq("is_active", true);
 
-  // Gender
   if (answers.gender === "hombre") {
     query = query.in("gender", ["hombre", "unisex"]);
   } else if (answers.gender === "mujer") {
     query = query.in("gender", ["mujer", "unisex"]);
   }
 
-  // Occasion → columna real `occasions` (enum cargado a mano), reemplaza el proxy roto por concentration
+  const { data } = await query.order("sort_order").limit(200);
+  const base = (data ?? []) as Product[];
+
+  // Ocasión, edad, estilo y presupuesto se evalúan client-side para poder
+  // ir relajando los más "blandos" (ocasión, luego edad) cuando no alcanzan
+  // resultados, sin nunca mostrar productos fuera de género o inactivos.
   const occasionTag = OCCASION_TAG[answers.occasion ?? ""];
-  if (occasionTag) {
-    query = query.overlaps("occasions", [occasionTag]);
-  }
+  const matchesOccasion = (p: Product) => !occasionTag || p.occasions.includes(occasionTag as Product["occasions"][number]);
 
-  // Age → overlap real entre el rango elegido y age_min/age_max del perfume
   const ageRange = AGE_RANGE[answers.age ?? ""];
-  if (ageRange) {
+  const matchesAge = (p: Product) => {
+    if (!ageRange) return true;
     const [userMin, userMax] = ageRange;
-    query = query.lte("age_min", userMax).gte("age_max", userMin);
-  }
+    return (p.age_min ?? 0) <= userMax && (p.age_max ?? 200) >= userMin;
+  };
 
-  const { data } = await query.order("sort_order").limit(60);
-  let products = (data ?? []) as Product[];
-
-  // Style → familia olfativa real (notes_top/heart/base), reemplaza el proxy roto por category
   const style = answers.style;
-  if (style && FAMILY_NOTES[style]) {
-    const byFamily = products.filter((p) => matchesFamily(p, style));
-    if (byFamily.length >= 3) products = byFamily;
-  }
+  const matchesStyle = (p: Product) => !style || !FAMILY_NOTES[style] || matchesFamily(p, style);
 
-  // Budget filter (client-side on min variant price)
   const budgetMap: Record<string, { min?: number; max?: number }> = {
-    low:       { max: 30000 },
-    mid:       { min: 30000, max: 70000 },
-    high:      { min: 70000, max: 120000 },
+    low:       { max: 50000 },
+    mid:       { min: 50000, max: 100000 },
+    high:      { min: 100000, max: 200000 },
     unlimited: {},
   };
   const budget = budgetMap[answers.budget ?? "unlimited"] ?? {};
-  if (budget.max !== undefined || budget.min !== undefined) {
-    products = products.filter((p) => {
-      const prices = (p.variants ?? [])
-        .filter((v) => v.is_active && v.stock > 0)
-        .map((v) => v.price);
-      if (prices.length === 0) return false;
-      const min = Math.min(...prices);
-      if (budget.max !== undefined && min > budget.max) return false;
-      if (budget.min !== undefined && min < budget.min) return false;
-      return true;
-    });
+  const matchesBudget = (p: Product) => {
+    if (budget.max === undefined && budget.min === undefined) return true;
+    const prices = (p.variants ?? [])
+      .filter((v) => v.is_active && v.stock > 0)
+      .map((v) => v.price);
+    if (prices.length === 0) return false;
+    const min = Math.min(...prices);
+    if (budget.max !== undefined && min > budget.max) return false;
+    if (budget.min !== undefined && min < budget.min) return false;
+    return true;
+  };
+
+  // Cascada de relajación: probamos con todos los filtros, y si no alcanzan
+  // resultados vamos soltando los más blandos (ocasión, después edad) antes
+  // de tocar estilo o presupuesto, que son lo que el usuario eligió a propósito.
+  const stages: Array<(p: Product) => boolean> = [
+    (p) => matchesOccasion(p) && matchesAge(p) && matchesStyle(p) && matchesBudget(p),
+    (p) => matchesAge(p) && matchesStyle(p) && matchesBudget(p),
+    (p) => matchesStyle(p) && matchesBudget(p),
+    (p) => matchesBudget(p),
+  ];
+
+  for (const stage of stages) {
+    const filtered = base.filter(stage);
+    if (filtered.length > 0) return filtered.slice(0, 8);
   }
 
-  // Si los filtros dejaron muy pocos resultados, mostramos lo más relevante posible sin filtrar
-  if (products.length < 3) {
-    const { data: fallback } = await supabase
-      .from("products")
-      .select("*, images:product_images(*), variants:product_variants(*)")
-      .eq("is_active", true)
-      .order("sort_order")
-      .limit(12);
-    return (fallback ?? []) as Product[];
-  }
-
-  return products.slice(0, 8);
+  return [];
 }
 
 // ─── Animation variants ────────────────────────────────────────────────────────
