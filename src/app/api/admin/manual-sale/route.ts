@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { apiError } from "@/lib/api-error";
 
 // POST /api/admin/manual-sale
-// Body: { product_id, variant_id, product_name, size_ml, quantity, unit_price, customer_name?, notes?, payment_destination_id, payment_channel }
+// Body: { product_id, variant_id, product_name, size_ml, quantity, unit_price, customer_name?, notes?, payment_destination_id }
 export async function POST(req: NextRequest) {
   try {
     await requireAdmin();
@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
       customer_name,
       notes,
       payment_destination_id,
-      payment_channel,
     } = body as {
       variant_id: string;
       product_name: string;
@@ -29,7 +28,6 @@ export async function POST(req: NextRequest) {
       customer_name?: string;
       notes?: string;
       payment_destination_id?: string;
-      payment_channel?: string;
     };
 
     if (!variant_id || !product_name || !quantity || !unit_price) {
@@ -38,12 +36,6 @@ export async function POST(req: NextRequest) {
     if (!payment_destination_id) {
       return NextResponse.json(
         { error: "Falta indicar el destino del dinero" },
-        { status: 400 }
-      );
-    }
-    if (!payment_channel?.trim()) {
-      return NextResponse.json(
-        { error: "Falta indicar el método/canal de la venta" },
         { status: 400 }
       );
     }
@@ -91,7 +83,6 @@ export async function POST(req: NextRequest) {
         customer_email: "manual@gourmand.ar",
         payment_status: "approved",
         payment_method: null,
-        payment_channel: payment_channel.trim(),
         fulfillment_status: "delivered",
         payment_destination_id,
         subtotal,

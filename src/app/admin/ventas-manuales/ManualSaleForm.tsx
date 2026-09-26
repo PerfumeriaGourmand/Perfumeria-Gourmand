@@ -43,11 +43,6 @@ export default function ManualSaleForm({
   const [newDestinationName, setNewDestinationName] = useState("");
   const [savingDestination, setSavingDestination] = useState(false);
 
-  const [channel, setChannel] = useState<"Whatsapp" | "Marketplace" | "otro" | null>(null);
-  const [channelOtherText, setChannelOtherText] = useState("");
-  const paymentChannel =
-    channel === "otro" ? channelOtherText.trim() : channel ?? "";
-
   // ── Búsqueda filtrada ──────────────────────────────────────────────────────
   const filteredProducts = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -75,8 +70,7 @@ export default function ManualSaleForm({
     qty > 0 &&
     price > 0 &&
     qty <= (selectedVariant?.stock ?? 0) &&
-    destinationId !== null &&
-    paymentChannel.length > 0;
+    destinationId !== null;
 
   // ── Handlers ───────────────────────────────────────────────────────────────
   const selectProduct = (p: ProductOption) => {
@@ -107,8 +101,6 @@ export default function ManualSaleForm({
     setNotes("");
     setSearch("");
     setDestinationId(null);
-    setChannel(null);
-    setChannelOtherText("");
   };
 
   const createDestination = async () => {
@@ -154,7 +146,6 @@ export default function ManualSaleForm({
           customer_name: customerName.trim() || undefined,
           notes: notes.trim() || undefined,
           payment_destination_id: destinationId,
-          payment_channel: paymentChannel,
         }),
       });
 
@@ -406,11 +397,27 @@ export default function ManualSaleForm({
 
           <div>
             <label className={labelClass}>Notas (opcional)</label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {["Whatsapp", "Marketplace"].map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setNotes(c)}
+                  className={`px-3 py-1.5 border font-sans text-xs transition-all duration-150 ${
+                    notes === c
+                      ? "border-gold bg-gold/10 text-gold"
+                      : "border-gold/20 text-cream-muted hover:border-gold/40 hover:text-cream"
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
             <input
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Ej: Venta por WhatsApp, pago en efectivo..."
+              placeholder="Ej: Venta por WhatsApp, pago en efectivo... (u 'Otro', escribí acá)"
               className={inputClass}
             />
           </div>
@@ -481,47 +488,6 @@ export default function ManualSaleForm({
                 </button>
               )}
             </div>
-          </div>
-
-          <div>
-            <label className={labelClass}>Método / canal de venta</label>
-            <div className="flex flex-wrap gap-2">
-              {(["Whatsapp", "Marketplace"] as const).map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setChannel(c)}
-                  className={`px-3 py-2 border font-sans text-xs transition-all duration-150 ${
-                    channel === c
-                      ? "border-gold bg-gold/10 text-gold"
-                      : "border-gold/20 text-cream-muted hover:border-gold/40 hover:text-cream"
-                  }`}
-                >
-                  {c}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => setChannel("otro")}
-                className={`px-3 py-2 border font-sans text-xs transition-all duration-150 ${
-                  channel === "otro"
-                    ? "border-gold bg-gold/10 text-gold"
-                    : "border-gold/20 text-cream-muted hover:border-gold/40 hover:text-cream"
-                }`}
-              >
-                Otro
-              </button>
-            </div>
-            {channel === "otro" && (
-              <input
-                type="text"
-                autoFocus
-                value={channelOtherText}
-                onChange={(e) => setChannelOtherText(e.target.value)}
-                placeholder="Especificar método/canal"
-                className={inputClass + " mt-2"}
-              />
-            )}
           </div>
 
           {/* Resumen */}
