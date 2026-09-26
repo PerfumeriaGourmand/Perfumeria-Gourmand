@@ -31,7 +31,8 @@ async function getSoldQuantitiesByProduct(
 
   const sold = new Map<string, number>();
   for (const item of items ?? []) {
-    const productId = (item.variant as { product_id: string } | null)?.product_id;
+    const variant = Array.isArray(item.variant) ? item.variant[0] : item.variant;
+    const productId = (variant as { product_id: string } | null)?.product_id;
     if (!productId) continue;
     sold.set(productId, (sold.get(productId) ?? 0) + item.quantity);
   }
