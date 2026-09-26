@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search, X, Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 import { formatPrice } from "@/lib/utils";
-import { STATUS_LABELS, STATUS_STYLES } from "@/lib/order-utils";
+import { STATUS_LABELS, STATUS_STYLES, FULFILLMENT_LABELS, FULFILLMENT_STYLES } from "@/lib/order-utils";
 import OrderStatusUpdater from "@/components/admin/OrderStatusUpdater";
 import FulfillmentStatusUpdater from "@/components/admin/FulfillmentStatusUpdater";
 import type { Order, OrderItem } from "@/types";
@@ -57,7 +57,7 @@ export default function OrdersTable({ orders }: { orders: OrderWithItems[] }) {
         <table className="w-full">
           <thead>
             <tr className="border-b border-gold/10">
-              {["ID", "Cliente", "Perfume", "Pago", "Total", "Estado", "Fecha", ""].map((h) => (
+              {["ID", "Cliente", "Perfume", "Pago", "Total", "Estado", "Envío", "Fecha", ""].map((h) => (
                 <th
                   key={h}
                   className="px-5 py-3 text-left font-sans text-[10px] tracking-widest uppercase text-cream-dim"
@@ -92,6 +92,19 @@ export default function OrdersTable({ orders }: { orders: OrderWithItems[] }) {
                     {STATUS_LABELS[order.payment_status] ?? order.payment_status}
                   </span>
                 </td>
+                <td className="px-5 py-4">
+                  {order.fulfillment_status ? (
+                    <span
+                      className={`font-sans text-[10px] tracking-wide px-2 py-0.5 ${
+                        FULFILLMENT_STYLES[order.fulfillment_status] ?? ""
+                      }`}
+                    >
+                      {FULFILLMENT_LABELS[order.fulfillment_status] ?? order.fulfillment_status}
+                    </span>
+                  ) : (
+                    <span className="font-sans text-[10px] text-cream-dim">Sin enviar</span>
+                  )}
+                </td>
                 <td className="px-5 py-4 font-sans text-xs text-cream-dim">
                   {new Date(order.created_at).toLocaleDateString("es-AR")}
                 </td>
@@ -107,7 +120,7 @@ export default function OrdersTable({ orders }: { orders: OrderWithItems[] }) {
             ))}
             {filteredOrders.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-5 py-10 text-center font-sans text-sm text-cream-dim italic">
+                <td colSpan={9} className="px-5 py-10 text-center font-sans text-sm text-cream-dim italic">
                   {query ? "Sin resultados para tu búsqueda" : "Sin órdenes"}
                 </td>
               </tr>

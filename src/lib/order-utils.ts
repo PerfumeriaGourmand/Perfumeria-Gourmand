@@ -16,6 +16,16 @@ export const STATUS_STYLES: Record<string, string> = {
   refunded: "text-cream-dim bg-cream-dim/10",
 };
 
+export const FULFILLMENT_LABELS: Record<string, string> = {
+  shipped: "Enviado",
+  delivered: "Entregado",
+};
+
+export const FULFILLMENT_STYLES: Record<string, string> = {
+  shipped: "text-blue-400 bg-blue-400/10",
+  delivered: "text-green-400 bg-green-400/10",
+};
+
 export const STATUS_COLORS: Record<string, string> = {
   approved: "text-green-600 bg-green-50 border-green-200",
   pending: "text-yellow-600 bg-yellow-50 border-yellow-200",
