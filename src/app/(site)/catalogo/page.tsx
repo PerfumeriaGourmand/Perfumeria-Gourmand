@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import type { ProductFilters } from "@/types";
 import CatalogClient from "./CatalogClient";
 
@@ -12,9 +12,11 @@ export const revalidate = 60;
 
 // Unidades vendidas por producto, en base a ventas aprobadas reales
 // (online y manuales comparten payment_status = "approved").
-async function getSoldQuantitiesByProduct(
-  supabase: Awaited<ReturnType<typeof createClient>>
-): Promise<Map<string, number>> {
+// Usa el cliente admin porque orders/order_items tienen RLS que bloquea
+// lectura anónima — acá solo se agregan cantidades, nunca se expone la orden.
+async function getSoldQuantitiesByProduct(): Promise<Map<string, number>> {
+  const supabase = await createAdminClient();
+
   const { data: approvedOrders } = await supabase
     .from("orders")
     .select("id")
@@ -82,7 +84,7 @@ async function getProducts(filters: ProductFilters) {
   let products = data ?? [];
 
   if (filters.sort === "popular") {
-    const soldByProduct = await getSoldQuantitiesByProduct(supabase);
+    const soldByProduct = await getSoldQuantitiesByProduct();
     products = products
       .filter((p) => (soldByProduct.get(p.id) ?? 0) > 0)
       .sort((a, b) => (soldByProduct.get(b.id) ?? 0) - (soldByProduct.get(a.id) ?? 0))
