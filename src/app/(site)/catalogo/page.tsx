@@ -10,6 +10,34 @@ export const metadata = {
 
 export const revalidate = 60;
 
+// Unidades vendidas por producto, en base a ventas aprobadas reales
+// (online y manuales comparten payment_status = "approved").
+async function getSoldQuantitiesByProduct(
+  supabase: Awaited<ReturnType<typeof createClient>>
+): Promise<Map<string, number>> {
+  const { data: approvedOrders } = await supabase
+    .from("orders")
+    .select("id")
+    .eq("payment_status", "approved");
+
+  const orderIds = (approvedOrders ?? []).map((o) => o.id);
+  if (orderIds.length === 0) return new Map();
+
+  const { data: items } = await supabase
+    .from("order_items")
+    .select("quantity, variant:product_variants(product_id)")
+    .in("order_id", orderIds)
+    .not("variant_id", "is", null);
+
+  const sold = new Map<string, number>();
+  for (const item of items ?? []) {
+    const productId = (item.variant as { product_id: string } | null)?.product_id;
+    if (!productId) continue;
+    sold.set(productId, (sold.get(productId) ?? 0) + item.quantity);
+  }
+  return sold;
+}
+
 async function getProducts(filters: ProductFilters) {
   const supabase = await createClient();
 
@@ -42,13 +70,25 @@ async function getProducts(filters: ProductFilters) {
     case "name_asc":
       query = query.order("name");
       break;
+    case "popular":
+      break; // se ordena después según unidades vendidas reales
     default:
       query = query.order("sort_order").order("created_at", { ascending: false });
   }
 
   const { data, error } = await query;
   if (error) throw error;
-  return data ?? [];
+  let products = data ?? [];
+
+  if (filters.sort === "popular") {
+    const soldByProduct = await getSoldQuantitiesByProduct(supabase);
+    products = products
+      .filter((p) => (soldByProduct.get(p.id) ?? 0) > 0)
+      .sort((a, b) => (soldByProduct.get(b.id) ?? 0) - (soldByProduct.get(a.id) ?? 0))
+      .slice(0, 8);
+  }
+
+  return products;
 }
 
 export default async function CatalogPage({

@@ -242,7 +242,7 @@ export interface ProductFilters {
   search?: string;
   minPrice?: number;
   maxPrice?: number;
-  sort?: "price_asc" | "price_desc" | "newest" | "name_asc";
+  sort?: "price_asc" | "price_desc" | "newest" | "name_asc" | "popular";
   page?: number;
   limit?: number;
 }
