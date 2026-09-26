@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
         customer_email: "manual@gourmand.ar",
         payment_status: "approved",
         payment_method: null,
+        fulfillment_status: "delivered",
         payment_destination_id,
         subtotal,
         shipping_cost: 0,
