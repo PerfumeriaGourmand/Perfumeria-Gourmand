@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, Eye } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/types";
@@ -237,13 +237,20 @@ const NichoProductCard = ({
                   {formatPrice(cheapestVariant.price)}
                 </p>
               )}
-              <button
-                onClick={handleQuickAdd}
-                className="w-full max-w-[200px] flex items-center justify-center gap-2 rounded-full border border-gold/40 text-gold font-sans text-xs font-medium tracking-wide px-6 py-2.5 hover:bg-gold/10 active:scale-[0.98] transition-all duration-200"
-              >
-                <ShoppingBag size={13} strokeWidth={2} />
-                Agregar al carrito
-              </button>
+              {cheapestVariant ? (
+                <Link
+                  href={`/perfumes/${product.id}`}
+                  className="w-full max-w-[200px] flex items-center justify-center gap-2 rounded-full border border-gold/40 text-gold font-sans text-xs font-medium tracking-wide px-6 py-2.5 hover:bg-gold/10 active:scale-[0.98] transition-all duration-200"
+                >
+                  <Eye size={13} strokeWidth={2} />
+                  Ver detalle
+                </Link>
+              ) : (
+                <span className="w-full max-w-[200px] flex items-center justify-center gap-2 rounded-full border border-gold/10 text-cream/20 font-sans text-xs font-medium tracking-wide px-6 py-2.5 cursor-not-allowed">
+                  <ShoppingBag size={13} strokeWidth={2} />
+                  Sin stock
+                </span>
+              )}
             </div>
           </div>
 
@@ -312,21 +319,25 @@ const NichoProductCard = ({
 
         {/* CTA */}
         <div className="flex items-center gap-6 pt-4">
-          <Link
-            href={`/perfumes/${product.id}`}
-            className="group flex items-center gap-3 font-sans text-xs tracking-[0.4em] uppercase text-cream/40 hover:text-cream transition-all duration-300"
-          >
-            Ver detalle
-            <span className="w-8 h-px bg-current transition-all duration-300 group-hover:w-14" />
-          </Link>
-          {cheapestVariant && (
+          {cheapestVariant ? (
             <button
               onClick={handleQuickAdd}
-              className="font-sans text-[10px] tracking-[0.4em] uppercase text-gold/40 hover:text-gold transition-colors duration-300"
+              className="group flex items-center gap-3 font-sans text-xs tracking-[0.4em] uppercase text-cream/40 hover:text-cream transition-all duration-300"
             >
-              + Carrito
+              Añadir al carrito
+              <span className="w-8 h-px bg-current transition-all duration-300 group-hover:w-14" />
             </button>
+          ) : (
+            <span className="font-sans text-xs tracking-[0.4em] uppercase text-cream/15 cursor-not-allowed">
+              Sin stock
+            </span>
           )}
+          <Link
+            href={`/perfumes/${product.id}`}
+            className="font-sans text-[10px] tracking-[0.4em] uppercase text-gold/40 hover:text-gold transition-colors duration-300"
+          >
+            Ver detalle
+          </Link>
         </div>
       </div>
     </article>
