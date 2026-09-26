@@ -48,7 +48,6 @@ const MEGA_MENUS = {
     quick: [
       { label: "Más vendidos", href: "/catalogo?category=arabe&sort=popular" },
       { label: "Novedades", href: "/catalogo?category=arabe&sort=newest" },
-      { label: "Ver colección completa", href: "/catalogo?category=arabe" },
     ],
   },
   Diseñador: {
@@ -84,7 +83,6 @@ const MEGA_MENUS = {
     quick: [
       { label: "Más vendidos", href: "/catalogo?category=disenador&sort=popular" },
       { label: "Novedades", href: "/catalogo?category=disenador&sort=newest" },
-      { label: "Ver colección completa", href: "/catalogo?category=disenador" },
     ],
   },
   Nicho: {
