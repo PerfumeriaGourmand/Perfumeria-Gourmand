@@ -61,7 +61,7 @@ const STEPS: Step[] = [
       { value: "fresh",    label: "Fresco y limpio",      desc: "Cítricos, acuático — ligero para el día",       symbol: "○" },
       { value: "floral",   label: "Floral y romántico",   desc: "Rosas, jazmín — delicado y seductor",          symbol: "◌" },
       { value: "oriental", label: "Oriental e intenso",   desc: "Oud, ámbar, especias — potente y duradero",    symbol: "◆" },
-      { value: "woody",    label: "Amaderado y único",    desc: "Sándalo, cuero — sofisticado y artesanal",     symbol: "◈" },
+      { value: "woody",    label: "Amaderado",            desc: "Sándalo, cuero — sofisticado y artesanal",     symbol: "◈" },
       { value: "unknown",  label: "No lo sé todavía",     desc: "Sorprendeme con algo especial",                symbol: "◇" },
     ],
   },
