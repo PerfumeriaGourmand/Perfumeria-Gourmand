@@ -43,6 +43,10 @@ export default function ManualSaleForm({
   const [newDestinationName, setNewDestinationName] = useState("");
   const [savingDestination, setSavingDestination] = useState(false);
 
+  // Pago dividido: cada fila es un destino + monto; la suma debe igualar el total
+  const [splitMode, setSplitMode] = useState(false);
+  const [splits, setSplits] = useState<{ destinationId: string; amount: string }[]>([]);
+
   // ── Búsqueda filtrada ──────────────────────────────────────────────────────
   const filteredProducts = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -64,13 +68,24 @@ export default function ManualSaleForm({
     selectedVariant?.average_cost_usd != null && exchangeRate != null
       ? selectedVariant.average_cost_usd * exchangeRate
       : null;
+  const totalCents = Math.round(total * 100);
+  const splitCents = splits.reduce(
+    (acc, s) => acc + Math.round((parseFloat(s.amount) || 0) * 100),
+    0
+  );
+  const remainingCents = totalCents - splitCents;
+  const paymentValid = splitMode
+    ? splits.length >= 2 &&
+      splits.every((s) => s.destinationId && (parseFloat(s.amount) || 0) > 0) &&
+      remainingCents === 0
+    : destinationId !== null;
   const canSubmit =
     selectedProduct !== null &&
     selectedVariant !== null &&
     qty > 0 &&
     price > 0 &&
     qty <= (selectedVariant?.stock ?? 0) &&
-    destinationId !== null;
+    paymentValid;
 
   // ── Handlers ───────────────────────────────────────────────────────────────
   const selectProduct = (p: ProductOption) => {
@@ -101,6 +116,35 @@ export default function ManualSaleForm({
     setNotes("");
     setSearch("");
     setDestinationId(null);
+    setSplitMode(false);
+    setSplits([]);
+  };
+
+  const toggleSplit = () => {
+    if (splitMode) {
+      setSplitMode(false);
+      return;
+    }
+    // Arranca con dos filas: la primera hereda el destino ya elegido
+    setSplits([
+      { destinationId: destinationId ?? "", amount: "" },
+      { destinationId: "", amount: "" },
+    ]);
+    setSplitMode(true);
+  };
+
+  const updateSplit = (
+    i: number,
+    patch: Partial<{ destinationId: string; amount: string }>
+  ) => setSplits((prev) => prev.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
+
+  const fillRemaining = (i: number) => {
+    const others = splits.reduce(
+      (acc, s, idx) => (idx === i ? acc : acc + Math.round((parseFloat(s.amount) || 0) * 100)),
+      0
+    );
+    const rest = Math.max(0, totalCents - others);
+    updateSplit(i, { amount: (rest / 100).toString() });
   };
 
   const createDestination = async () => {
@@ -145,7 +189,12 @@ export default function ManualSaleForm({
           unit_price: price,
           customer_name: customerName.trim() || undefined,
           notes: notes.trim() || undefined,
-          payment_destination_id: destinationId,
+          payments: splitMode
+            ? splits.map((s) => ({
+                destination_id: s.destinationId,
+                amount: parseFloat(s.amount),
+              }))
+            : [{ destination_id: destinationId, amount: total }],
         }),
       });
 
@@ -423,8 +472,89 @@ export default function ManualSaleForm({
           </div>
 
           <div>
-            <label className={labelClass}>Destino del dinero</label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex items-center justify-between mb-1.5">
+              <label className={labelClass + " mb-0"}>Destino del dinero</label>
+              <button
+                type="button"
+                onClick={toggleSplit}
+                className="font-sans text-[10px] tracking-widest uppercase text-gold/60 hover:text-gold transition-colors"
+              >
+                {splitMode ? "Un solo pago" : "Dividir pago"}
+              </button>
+            </div>
+
+            {splitMode && (
+              <div className="space-y-2">
+                {splits.map((s, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <select
+                      value={s.destinationId}
+                      onChange={(e) => updateSplit(i, { destinationId: e.target.value })}
+                      className={inputClass + " flex-1 min-w-0 py-2.5"}
+                    >
+                      <option value="">Destino…</option>
+                      {destinationList.map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.name}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="number"
+                      min={0}
+                      step={100}
+                      value={s.amount}
+                      onChange={(e) => updateSplit(i, { amount: e.target.value })}
+                      placeholder="Monto"
+                      className={inputClass + " w-32 py-2.5"}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fillRemaining(i)}
+                      title="Completar con lo que falta"
+                      className="px-2 py-2.5 border border-gold/20 text-cream-dim font-sans text-[10px] uppercase tracking-widest hover:border-gold/40 hover:text-cream transition-colors"
+                    >
+                      Resto
+                    </button>
+                    {splits.length > 2 && (
+                      <button
+                        type="button"
+                        onClick={() => setSplits((prev) => prev.filter((_, idx) => idx !== i))}
+                        className="text-cream-dim hover:text-red-400 transition-colors"
+                        aria-label="Quitar pago"
+                      >
+                        <X size={13} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <div className="flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setSplits((prev) => [...prev, { destinationId: "", amount: "" }])}
+                    className="flex items-center gap-1.5 px-3 py-2 border border-dashed border-gold/20 text-cream-dim font-sans text-xs hover:border-gold/40 hover:text-cream transition-colors"
+                  >
+                    <Plus size={12} strokeWidth={1.5} />
+                    Agregar pago
+                  </button>
+                  {total > 0 && (
+                    <p
+                      className={`font-sans text-[10px] ${
+                        remainingCents === 0 ? "text-green-400" : "text-red-400"
+                      }`}
+                    >
+                      {remainingCents === 0
+                        ? "Pagos completos"
+                        : remainingCents > 0
+                          ? `Faltan ${formatPrice(remainingCents / 100)}`
+                          : `Sobran ${formatPrice(-remainingCents / 100)}`}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className={splitMode ? "hidden" : "flex flex-wrap gap-2"}>
               {destinationList.map((d) => {
                 const active = destinationId === d.id;
                 return (
