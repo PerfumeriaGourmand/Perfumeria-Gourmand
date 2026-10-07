@@ -322,13 +322,14 @@ const NichoProductCard = ({
           {cheapestVariant ? (
             <button
               onClick={handleQuickAdd}
-              className="group flex items-center gap-3 font-sans text-xs tracking-[0.4em] uppercase text-cream/40 hover:text-cream transition-all duration-300"
+              className="flex items-center gap-2 rounded-full border border-gold/40 text-gold font-sans text-xs font-medium tracking-wide px-6 py-2.5 hover:bg-gold/10 active:scale-[0.98] transition-all duration-200"
             >
+              <ShoppingBag size={13} strokeWidth={2} />
               Añadir al carrito
-              <span className="w-8 h-px bg-current transition-all duration-300 group-hover:w-14" />
             </button>
           ) : (
-            <span className="font-sans text-xs tracking-[0.4em] uppercase text-cream/15 cursor-not-allowed">
+            <span className="flex items-center gap-2 rounded-full border border-gold/10 text-cream/20 font-sans text-xs font-medium tracking-wide px-6 py-2.5 cursor-not-allowed">
+              <ShoppingBag size={13} strokeWidth={2} />
               Sin stock
             </span>
           )}
