@@ -4,6 +4,7 @@ import { formatPrice } from "@/lib/utils";
 import { STATUS_LABELS, STATUS_STYLES } from "@/lib/order-utils";
 import { Package, ShoppingBag, TrendingUp, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import AdminChecklist, { type AdminTodo } from "@/components/admin/AdminChecklist";
 
 async function getMetrics() {
   const supabase = await createAdminClient();
@@ -58,9 +59,22 @@ async function getRecentOrders() {
   return data ?? [];
 }
 
+async function getTodos(): Promise<AdminTodo[]> {
+  const supabase = await createAdminClient();
+  const { data } = await supabase
+    .from("admin_todos")
+    .select("id, text, done, created_at")
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
 
 export default async function AdminDashboard() {
-  const [metrics, recentOrders] = await Promise.all([getMetrics(), getRecentOrders()]);
+  const [metrics, recentOrders, todos] = await Promise.all([
+    getMetrics(),
+    getRecentOrders(),
+    getTodos(),
+  ]);
 
   const stats = [
     {
@@ -121,8 +135,9 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
       {/* Recent orders */}
-      <div className="border border-gold/10 bg-obsidian-surface">
+      <div className="lg:col-span-2 min-w-0 border border-gold/10 bg-obsidian-surface">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gold/10">
           <h2 className="font-sans text-xs tracking-widest uppercase text-cream-muted">
             Órdenes recientes
@@ -195,6 +210,10 @@ export default async function AdminDashboard() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Checklist */}
+      <AdminChecklist initialTodos={todos} />
       </div>
 
       {/* Quick links */}
