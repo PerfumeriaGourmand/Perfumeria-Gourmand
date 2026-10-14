@@ -8,6 +8,11 @@ import Button from "@/components/ui/Button";
 import GoldDivider from "@/components/ui/GoldDivider";
 import toast from "react-hot-toast";
 import type { ShippingAddress, PaymentMethod, AppliedCoupon } from "@/types";
+import {
+  CHECKOUT_ENABLED,
+  CHECKOUT_CONTACT_PHONE,
+  CHECKOUT_CONTACT_WHATSAPP_URL,
+} from "@/lib/checkout-config";
 
 const PAYMENT_OPTIONS: { id: PaymentMethod; label: string; desc: string }[] = [
   { id: "credit_card", label: "Tarjeta de crédito", desc: "Hasta 12 cuotas sin interés" },
@@ -72,6 +77,30 @@ export default function CheckoutPage() {
     setAppliedCoupon(null);
     setCouponInput("");
   };
+
+  if (!CHECKOUT_ENABLED) {
+    return (
+      <div className="min-h-screen pt-32 pb-24 flex flex-col items-center justify-center gap-6 px-6 text-center">
+        <h1 className="font-display font-light text-4xl text-text-dark">
+          Checkout en construcción
+        </h1>
+        <p className="font-sans text-sm text-text-mid max-w-md leading-relaxed">
+          Estamos finalizando la construcción del checkout. Si querés comprar,
+          comunicate al{" "}
+          <a href={CHECKOUT_CONTACT_WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-gold underline underline-offset-4">
+            {CHECKOUT_CONTACT_PHONE}
+          </a>
+          .
+        </p>
+        <button
+          onClick={() => router.push("/catalogo")}
+          className="px-8 py-3 border border-text-dark text-text-dark rounded-full font-sans text-sm hover:bg-text-dark hover:text-white transition-colors"
+        >
+          Seguir explorando
+        </button>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (

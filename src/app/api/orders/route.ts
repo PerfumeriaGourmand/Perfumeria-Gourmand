@@ -5,6 +5,7 @@ import { sendOrderConfirmation, sendMpFailureAlert } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { validateCoupon } from "@/lib/coupons";
 import { findOutOfStockItem } from "@/lib/stock";
+import { CHECKOUT_ENABLED, CHECKOUT_DISABLED_MESSAGE } from "@/lib/checkout-config";
 
 const mpClient = new MercadoPagoConfig({
   accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN!,
@@ -16,6 +17,10 @@ const mpClient = new MercadoPagoConfig({
 const APP_URL = (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.perfumeriagourmand.com.ar").replace(/\/+$/, "");
 
 export async function POST(req: NextRequest) {
+  if (!CHECKOUT_ENABLED) {
+    return NextResponse.json({ error: CHECKOUT_DISABLED_MESSAGE }, { status: 503 });
+  }
+
   if (!(await rateLimit(`orders:${getClientIp(req)}`, 5, 10 * 60 * 1000))) {
     return NextResponse.json({ error: "Demasiados intentos. Probá de nuevo en unos minutos." }, { status: 429 });
   }

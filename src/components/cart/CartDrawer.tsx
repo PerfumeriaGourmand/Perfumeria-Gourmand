@@ -6,6 +6,11 @@ import { X, Minus, Plus } from "lucide-react";
 import { cn, formatPrice } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
+import {
+  CHECKOUT_ENABLED,
+  CHECKOUT_CONTACT_PHONE,
+  CHECKOUT_CONTACT_WHATSAPP_URL,
+} from "@/lib/checkout-config";
 
 export default function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQuantity, total, itemCount } = useCartStore();
@@ -163,6 +168,32 @@ export default function CartDrawer() {
             <p className="font-sans text-gold text-right" style={{ fontSize: 10, marginBottom: 20, letterSpacing: "0.05em" }}>
               6 cuotas sin interés de {formatPrice(Math.round(subtotal / 6))}
             </p>
+            {!CHECKOUT_ENABLED ? (
+              <div
+                className="font-sans text-center"
+                style={{
+                  padding: "14px",
+                  border: "1px solid rgba(164,133,76,0.3)",
+                  background: "rgba(164,133,76,0.06)",
+                  color: "#c8c0b0",
+                  fontSize: 12,
+                  lineHeight: 1.6,
+                  marginBottom: 8,
+                }}
+              >
+                Estamos finalizando la construcción del checkout. Si querés comprar, comunicate al{" "}
+                <a
+                  href={CHECKOUT_CONTACT_WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gold"
+                  style={{ textDecoration: "underline", textUnderlineOffset: 3 }}
+                >
+                  {CHECKOUT_CONTACT_PHONE}
+                </a>
+                .
+              </div>
+            ) : (
             <Link href="/checkout" onClick={closeCart}>
               <button
                 className="w-full font-sans uppercase transition-all duration-200"
@@ -188,6 +219,7 @@ export default function CartDrawer() {
                 Finalizar compra
               </button>
             </Link>
+            )}
             <button
               onClick={closeCart}
               className="w-full font-sans uppercase"
